@@ -16,7 +16,8 @@ import BuyCreditsModal from "./components/BuyCreditsModal";
 import { useState } from "react";
 
 function Nav(){
-  const { user, logout } = useAuth();
+  const { user, logout, signOut } = useAuth() as any;
+  const doLogout = logout ?? signOut;
   const location = useLocation();
   const [showBuyModal, setShowBuyModal] = useState(false);
   
@@ -50,7 +51,7 @@ function Nav(){
         <button onClick={() => setShowBuyModal(true)} className="px-2 py-1 border rounded-lg text-xs">
           충전
         </button>
-        {user ? <button onClick={logout} className="border rounded-lg px-2 py-1 hover:bg-gray-50">로그아웃</button> : <NavLink to="/login">로그인</NavLink>}
+        {user ? <button onClick={doLogout} className="border rounded-lg px-2 py-1 hover:bg-gray-50">로그아웃</button> : <NavLink to="/login">로그인</NavLink>}
       </div>
       {showBuyModal && <BuyCreditsModal onClose={() => setShowBuyModal(false)} />}
     </nav>

@@ -2,13 +2,34 @@ import React, { useState } from "react";
 import { useAuth } from "../store/useAuth";
 
 export default function Profile() {
-  const { user, login, signup, logout, loginWithOAuth, loading } = useAuth();
+  const {
+    user,
+    login,
+    signup,
+    logout,
+    loginWithOAuth,
+    signInWithPassword,
+    signUp,
+    signOut,
+    signInWithProvider,
+    loading,
+  } = useAuth() as any;
+  
+  // 별칭 래퍼 4개
+  const doLogin = login ?? signInWithPassword;
+  const doSignup = signup ?? signUp;
+  const doLogout = logout ?? signOut;
+  const doLoginWithOAuth = loginWithOAuth ?? signInWithProvider;
+  
   const [isSignup, setIsSignup] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loadingAuth, setLoadingAuth] = useState(false);
+  
+  // 사용자 표시 이름 안전하게 처리
+  const displayName = user?.name ?? user?.email ?? "";
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,9 +38,9 @@ export default function Profile() {
 
     try {
       if (isSignup) {
-        await signup(email, password, name);
+        await doSignup(email, password);
       } else {
-        await login(email, password);
+        await doLogin(email, password);
       }
       // 성공 시 폼 초기화
       setEmail("");
@@ -35,7 +56,7 @@ export default function Profile() {
   const handleOAuth = async (provider: "google" | "github") => {
     setError(null);
     try {
-      await loginWithOAuth(provider);
+      await doLoginWithOAuth(provider);
     } catch (err) {
       setError(err instanceof Error ? err.message : "OAuth 로그인에 실패했습니다.");
     }
@@ -55,9 +76,9 @@ export default function Profile() {
         <h1 className="text-2xl font-bold mb-6">내 정보</h1>
         <div className="border rounded-lg p-6">
           <div className="mb-2">이메일: {user.email}</div>
-          <div className="mb-4">이름: {user.name}</div>
+          <div className="mb-4">이름: {displayName}</div>
           <button 
-            onClick={() => logout()} 
+            onClick={doLogout} 
             className="px-4 py-2 bg-red-500 text-white rounded-lg"
           >
             로그아웃
