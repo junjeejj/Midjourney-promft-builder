@@ -1,14 +1,21 @@
-// Supabase 클라이언트 설정
+export const supabase: any = {
+  auth: {
+    // demo stub: pretend session is empty
+    getSession: async () => ({ data: { session: null }, error: null }),
 
-import { createClient } from '@supabase/supabase-js';
+    // demo stub: no real OAuth yet
+    signInWithOAuth: async () => ({ data: null, error: "not-implemented" }),
 
-// 환경 변수에서 가져오거나, 없으면 기본값 사용
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://hxcfkrtmrtjvrpjeinac.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh4Y3Fma3RybXRqdnJwamVpbmFjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4OTY5MzUsImV4cCI6MjA3NzQ3MjkzNX0.D89GHyqRa4L1hUWPw-l60UR6pd4qzxjDp_ZsuBDcoMs';
+    // demo stub: signOut does nothing
+    signOut: async () => ({ error: null }),
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Supabase 환경 변수가 설정되지 않았습니다.');
-}
+    // demo stub: signInWithPassword
+    signInWithPassword: async () => ({ data: null, error: "not-implemented" }),
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+    // demo stub: signUp
+    signUp: async () => ({ data: null, error: "not-implemented" }),
 
+    // demo stub: onAuthStateChange
+    onAuthStateChange: () => ({ data: { subscription: null }, error: null })
+  }
+};
