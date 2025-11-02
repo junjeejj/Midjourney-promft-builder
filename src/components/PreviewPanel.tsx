@@ -45,9 +45,9 @@ export default function PreviewPanel() {
   const full = `/imagine prompt: ${body}${tail.length ? " " + tail.join(" ") : ""}`;
   
   return (
-    <div className="bg-gray-50 border rounded-xl p-4">
-      <div className="text-sm font-medium mb-2">프롬프트 미리보기</div>
-      <div className="bg-white border rounded-lg p-3 text-sm font-mono break-all">
+    <div className="bg-gray-50 border rounded-xl p-2">
+      <div className="text-xs font-medium mb-1">프롬프트 미리보기</div>
+      <div className="bg-white border rounded-lg p-2 text-xs font-mono break-all">
         {full}
       </div>
     </div>

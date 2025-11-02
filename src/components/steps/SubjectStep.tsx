@@ -53,8 +53,8 @@ export default function SubjectStep() {
   };
   
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-semibold">스토리/묘사/주제 입력</h2>
+    <div className="space-y-2">
+      <h2 className="text-lg font-semibold">스토리/묘사/주제 입력</h2>
       <input
         type="text"
         value={input}
@@ -64,15 +64,15 @@ export default function SubjectStep() {
           setError(null);
         }}
         placeholder="예: a beautiful sunset, a cat, a futuristic city"
-        className="w-full border rounded-lg px-4 py-3 text-lg"
+        className="w-full border rounded-lg px-3 py-2 text-base"
       />
       
       {/* GPT 프롬프트 자동 생성 버튼 */}
-      <div className="space-y-2">
+      <div className="space-y-1">
         <button
           onClick={handleGeneratePrompt}
           disabled={loading || !input.trim()}
-          className={`w-full px-4 py-3 rounded-lg font-medium transition ${
+          className={`w-full px-3 py-2 rounded-lg font-medium transition text-sm ${
             loading || !input.trim()
               ? "bg-gray-300 text-gray-500 cursor-not-allowed"
               : wallet.credits < PROMPT_GENERATION_COST
@@ -93,7 +93,7 @@ export default function SubjectStep() {
         </button>
         
         {error && (
-          <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+          <div className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-2 py-1">
             {error}
           </div>
         )}

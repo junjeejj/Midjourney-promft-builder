@@ -8,12 +8,12 @@ type Props = {
 
 export default function Stepper({ steps, current, onStepClick }: Props) {
   return (
-    <div className="flex items-center gap-2 py-4">
+    <div className="flex items-center gap-2 py-2">
       {steps.map((label, i) => (
         <React.Fragment key={i}>
           <button
             onClick={() => onStepClick?.(i)}
-            className={`px-4 py-2 rounded-lg border transition ${
+            className={`px-3 py-1 rounded-lg border transition text-sm ${
               i === current
                 ? "bg-blue-500 text-white border-blue-600"
                 : i < current

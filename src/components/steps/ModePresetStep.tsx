@@ -5,12 +5,12 @@ export default function ModePresetStep() {
   const { params, updateParams } = useBuilderStore();
   
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-semibold">모드/프리셋 선택</h2>
-      <div className="grid grid-cols-1 gap-3">
+    <div className="space-y-2">
+      <h2 className="text-lg font-semibold">모드/프리셋 선택</h2>
+      <div className="grid grid-cols-1 gap-1.5">
         <button
           onClick={() => updateParams({ niji: !params.niji })}
-          className={`p-4 border rounded-lg transition text-left ${
+          className={`p-2 border rounded-lg transition text-left ${
             params.niji ? "bg-blue-500 text-white border-blue-600" : "hover:bg-gray-50"
           }`}
         >
@@ -18,7 +18,7 @@ export default function ModePresetStep() {
         </button>
         <button
           onClick={() => updateParams({ tile: !params.tile })}
-          className={`p-4 border rounded-lg transition text-left ${
+          className={`p-2 border rounded-lg transition text-left ${
             params.tile ? "bg-blue-500 text-white border-blue-600" : "hover:bg-gray-50"
           }`}
         >

@@ -11,14 +11,14 @@ export default function QualityStep() {
   };
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-semibold">품질 설정</h2>
-      <div className="grid grid-cols-1 gap-3">
+    <div className="space-y-2">
+      <h2 className="text-lg font-semibold">품질 설정</h2>
+      <div className="grid grid-cols-1 gap-1.5">
         {([0.5, 1, 2] as const).map((q) => (
           <button
             key={q}
             onClick={() => updateParams({ q })}
-            className={`p-4 border rounded-lg transition text-left ${
+            className={`p-2 border rounded-lg transition text-left ${
               params.q === q ? "bg-blue-500 text-white border-blue-600" : "hover:bg-gray-50"
             }`}
           >
@@ -27,10 +27,10 @@ export default function QualityStep() {
         ))}
       </div>
       
-      <div className="mt-6">
-        <label className="block mb-2">
-          <span className="font-semibold text-base">Stylize (0-1000)</span>
-          <span className="text-sm text-gray-600 ml-2">- 스타일 강도 조절. 높을수록 더 스타일리시하고 예술적인 결과</span>
+      <div className="mt-3">
+        <label className="block mb-1">
+          <span className="font-semibold text-sm">Stylize (0-1000)</span>
+          <span className="text-xs text-gray-600 ml-2">- 스타일 강도 조절. 높을수록 더 스타일리시하고 예술적인 결과</span>
         </label>
         <input
           type="range"
@@ -40,13 +40,13 @@ export default function QualityStep() {
           onChange={(e) => updateParams({ stylize: Number(e.target.value) })}
           className="w-full"
         />
-        <div className="text-sm text-gray-600 mt-1">현재 값: {params.stylize ?? 100}</div>
+        <div className="text-xs text-gray-600 mt-0.5">현재 값: {params.stylize ?? 100}</div>
       </div>
       
-      <div className="mt-6">
-        <label className="block mb-2">
-          <span className="font-semibold text-base">Chaos (0-100)</span>
-          <span className="text-sm text-gray-600 ml-2">- 변형도 조절. 높을수록 더 다양하고 예측 불가능한 결과</span>
+      <div className="mt-3">
+        <label className="block mb-1">
+          <span className="font-semibold text-sm">Chaos (0-100)</span>
+          <span className="text-xs text-gray-600 ml-2">- 변형도 조절. 높을수록 더 다양하고 예측 불가능한 결과</span>
         </label>
         <input
           type="range"
@@ -56,7 +56,7 @@ export default function QualityStep() {
           onChange={(e) => updateParams({ chaos: Number(e.target.value) })}
           className="w-full"
         />
-        <div className="text-sm text-gray-600 mt-1">현재 값: {params.chaos ?? 0}</div>
+        <div className="text-xs text-gray-600 mt-0.5">현재 값: {params.chaos ?? 0}</div>
       </div>
     </div>
   );

@@ -15,14 +15,14 @@ export default function AspectStep() {
   };
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-semibold">Aspect Ratio 선택</h2>
-      <div className="grid grid-cols-1 gap-3">
+    <div className="space-y-2">
+      <h2 className="text-lg font-semibold">Aspect Ratio 선택</h2>
+      <div className="grid grid-cols-1 gap-1.5">
         {AR_LIST.map((ar) => (
           <button
             key={ar}
             onClick={() => updateParams({ ar })}
-            className={`p-4 border rounded-lg transition text-left ${
+            className={`p-2 border rounded-lg transition text-left ${
               params.ar === ar ? "bg-blue-500 text-white border-blue-600" : "hover:bg-gray-50"
             }`}
           >

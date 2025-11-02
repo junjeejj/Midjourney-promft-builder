@@ -30,12 +30,12 @@ export default function Builder() {
     <div className="max-w-6xl mx-auto px-4 py-8">
       <Stepper steps={STEPS} current={currentStep} onStepClick={setStep} />
       
-      <div className="grid md:grid-cols-3 gap-6 mt-8 pb-32">
-        <div className="md:col-span-2 space-y-4">
+      <div className="grid md:grid-cols-3 gap-4 mt-4 pb-16">
+        <div className="md:col-span-2 space-y-2">
           <PreviewPanel />
           {renderStep()}
         </div>
-        <div className="space-y-4">
+        <div className="space-y-2">
           <ParamPanel />
         </div>
       </div>

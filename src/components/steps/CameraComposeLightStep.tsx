@@ -37,24 +37,24 @@ export default function CameraComposeLightStep() {
   };
   
   return (
-    <div className="space-y-6">
-      <h2 className="text-xl font-semibold">카메라/구도/조명</h2>
+    <div className="space-y-3">
+      <h2 className="text-lg font-semibold">카메라/구도/조명</h2>
       
       {Object.entries(PRESETS).map(([key, options]) => (
         <div key={key}>
-          <div className="font-medium mb-2 capitalize">{key}</div>
-          <div className="space-y-2">
+          <div className="font-medium mb-1 capitalize text-sm">{key}</div>
+          <div className="space-y-1">
             {Object.entries(options).map(([opt, desc]) => {
               const selected = Array.isArray((slots as any)[key]) && (slots as any)[key].includes(opt);
               return (
                 <button
                   key={opt}
                   onClick={() => toggle(key as any, opt)}
-                  className={`w-full px-4 py-3 border rounded-lg transition text-left ${
+                  className={`w-full px-3 py-1.5 border rounded-lg transition text-left text-sm ${
                     selected ? "bg-blue-500 text-white border-blue-600" : "hover:bg-gray-50"
                   }`}
                 >
-                  <span className="font-semibold">{opt}</span> <span className="text-sm opacity-80">- {desc}</span>
+                  <span className="font-semibold">{opt}</span> <span className="text-xs opacity-80">- {desc}</span>
                 </button>
               );
             })}
