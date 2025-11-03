@@ -1,12 +1,16 @@
-import React, { useEffect } from "react";
+import React from "react";
 
-import { Routes, Route, NavLink, useLocation, Outlet } from "react-router-dom";
+import { Routes, Route, Outlet, useLocation } from "react-router-dom";
 
 import BannerTop from "./components/BannerTop";
 
 import BannerBottom from "./components/BannerBottom";
 
 import ErrorBoundary from "./components/system/ErrorBoundary";
+
+// 실제 존재하는 페이지들만 import 하세요.
+
+// 홈은 Builder로 대체해 안정성 확보
 
 import PromptBuilderPage from "./pages/PromptBuilderPage";
 
@@ -24,9 +28,9 @@ import Settings from "./pages/Settings";
 
 import Profile from "./pages/Profile";
 
-import Login from "./pages/Login";
-
 import Pricing from "./pages/Pricing";
+
+import Login from "./pages/Login";
 
 import Success from "./pages/Success";
 
@@ -44,18 +48,26 @@ import LocaleSelect from "./components/LocaleSelect";
 
 import { supabase } from "./lib/supabase";
 
-import { isAdAllowedPath } from "./lib/adsPolicy";
+import { useEffect } from "react";
+
+import { NavLink } from "react-router-dom";
 
 declare global { interface Window { adsbygoogle: any[] } }
 
+// 라우트 전환 시 광고 재요청 (정의 1회만)
+
 function UseAdsOnRouteChange() {
+
   const { pathname } = useLocation();
-  useEffect(() => {
-    if (isAdAllowedPath(pathname)) {
-      try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch {}
-    }
+
+  React.useEffect(() => {
+
+    try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch {}
+
   }, [pathname]);
+
   return null;
+
 }
 
 function AuthBadge() {
@@ -117,18 +129,12 @@ function Nav(){
   );
 }
 
-// 라우트 전환 시 ads 재요청 훅
-function UseAdsOnRouteChange() {
-  const { pathname } = useLocation();
-  React.useEffect(() => {
-    try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch {}
-  }, [pathname]);
-  return null;
-}
+// Layout (정의 1회만)
 
-// 라우터 내부에서만 배너가 렌더되도록 Layout 구성
 function Layout() {
+
   const { pathname } = useLocation();
+
   const checkSession = useAuth((s) => s.checkSession);
 
   useEffect(() => {
@@ -144,41 +150,79 @@ function Layout() {
   }, [checkSession]);
 
   return (
+
     <>
+
       <UseAdsOnRouteChange />
+
       <BannerTop pathname={pathname} />
+
       <Nav />
+
       <div className="min-h-[60vh] pt-20 pb-20">
+
         <Outlet />
+
       </div>
+
       <BannerBottom pathname={pathname} />
+
     </>
+
   );
+
 }
 
-export default function App(){
+export default function App() {
+
   return (
+
     <ErrorBoundary>
+
       <Routes>
+
         <Route element={<Layout />}>
+
+          {/* 홈은 PromptBuilderPage로 매핑 */}
+
           <Route path="/" element={<PromptBuilderPage />} />
+
           <Route path="/builder" element={<PromptBuilderPage />} />
+
           <Route path="/templates" element={<Templates />} />
+
           <Route path="/seedlab" element={<SeedLab />} />
+
           <Route path="/favorites" element={<Favorites />} />
+
           <Route path="/defaults" element={<Defaults />} />
+
           <Route path="/billing" element={<Billing />} />
+
           <Route path="/settings" element={<Settings />} />
+
           <Route path="/profile" element={<Profile />} />
+
           <Route path="/pricing" element={<Pricing />} />
+
           <Route path="/ads-test" element={<AdsTest />} />
+
         </Route>
 
-        {/* 광고 비노출/유틸 페이지는 별도 라우트 */}
+
+
+        {/* 광고 비노출/유틸 페이지 */}
+
         <Route path="/login" element={<Login />} />
+
         <Route path="/success" element={<Success />} />
+
         <Route path="*" element={<div style={{padding:24}}>페이지를 찾을 수 없습니다.</div>} />
+
       </Routes>
+
     </ErrorBoundary>
+
   );
+
 }
