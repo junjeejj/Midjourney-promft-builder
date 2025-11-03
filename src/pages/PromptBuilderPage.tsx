@@ -18,8 +18,6 @@ import SelectedSummary from "../components/SelectedSummary";
 
 import ParamPanel from "../components/ParamPanel";
 
-import FinalPromptPanel from "../components/FinalPromptPanel";
-
 import { useT } from "../i18n";
 
 export default function PromptBuilderPage() {
@@ -48,7 +46,7 @@ export default function PromptBuilderPage() {
 
   return (
 
-    <main className="mx-auto max-w-6xl p-4 space-y-4">
+    <main className="mx-auto max-w-6xl p-4 space-y-4 pt-20 pb-20">
 
       <Stepper steps={STEPS} active={i} onStepClick={setI} />
 
@@ -78,15 +76,13 @@ export default function PromptBuilderPage() {
 
           )}
 
+          <PreviewPanel />
+
         </div>
 
         <div className="space-y-4">
 
-          <PreviewPanel />
-
           <SelectedSummary />
-
-          <FinalPromptPanel />
 
           <ParamPanel />
 

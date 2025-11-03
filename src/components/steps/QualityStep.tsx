@@ -34,29 +34,81 @@ export default function QualityStep({ onNext }:{ onNext?: ()=>void }) {
 
         <FieldRow label={t("quality.stylize")} desc={t("quality.stylizeHint")}>
 
-          <input type="number" min={0} max={1000} className="w-full border rounded-xl px-3 py-2"
+          <div className="space-y-1">
 
-            value={params.stylize ?? ""} onChange={e=>setParams({ stylize: e.target.value===""? null: Number(e.target.value) })}/>
+            <input 
+
+              type="range" 
+
+              min={0} 
+
+              max={1000} 
+
+              className="w-full"
+
+              value={params.stylize ?? 100}
+
+              onChange={e=>setParams({ stylize: Number(e.target.value) })}
+
+            />
+
+            <div className="text-xs text-gray-600 text-center">현재 값: {params.stylize ?? 100}</div>
+
+          </div>
 
         </FieldRow>
 
         <FieldRow label={t("quality.chaos")} desc={t("quality.chaosHint")}>
 
-          <input type="number" min={0} max={100} className="w-full border rounded-xl px-3 py-2"
+          <div className="space-y-1">
 
-            value={params.chaos ?? ""} onChange={e=>setParams({ chaos: e.target.value===""? null: Number(e.target.value) })}/>
+            <input 
+
+              type="range" 
+
+              min={0} 
+
+              max={100} 
+
+              className="w-full"
+
+              value={params.chaos ?? 0}
+
+              onChange={e=>setParams({ chaos: Number(e.target.value) })}
+
+            />
+
+            <div className="text-xs text-gray-600 text-center">현재 값: {params.chaos ?? 0}</div>
+
+          </div>
 
         </FieldRow>
 
         <FieldRow label={t("quality.q")} desc={t("quality.qHint")}>
 
-          <select className="w-full border rounded-xl px-3 py-2" value={(params.q as any) ?? ""} onChange={e=>setParams({ q: e.target.value===""? null: Number(e.target.value) as any })}>
+          <div className="space-y-1">
 
-            <option value="">(none)</option>
+            <input 
 
-            <option value="0.5">0.5</option><option value="1">1</option><option value="2">2</option>
+              type="range" 
 
-          </select>
+              min={0.5} 
+
+              max={2} 
+
+              step={0.5}
+
+              className="w-full"
+
+              value={params.q ?? 1}
+
+              onChange={e=>setParams({ q: Number(e.target.value) as 0.5 | 1 | 2 })}
+
+            />
+
+            <div className="text-xs text-gray-600 text-center">현재 값: {params.q ?? 1}</div>
+
+          </div>
 
         </FieldRow>
 

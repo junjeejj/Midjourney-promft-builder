@@ -66,8 +66,6 @@ function Nav(){
 
       <div className="flex flex-wrap items-center gap-2">
 
-        {item("/builder", t("nav.builder"))}
-
         {item("/templates", t("nav.templates"))}
 
         {item("/seedlab", t("nav.seed"))}
