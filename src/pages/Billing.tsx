@@ -1,12 +1,18 @@
 // src/pages/Billing.tsx
 
+import { Link } from "react-router-dom";
+
 import BuyCreditsModal from "../components/BuyCreditsModal";
 
 import CreditBadge from "../components/CreditBadge";
 
+import { useT } from "../i18n";
+
 type Props = { onClose?: () => void };
 
 export default function Billing({ onClose }: Props){
+
+  const { t } = useT();
 
   return (
 
@@ -20,13 +26,19 @@ export default function Billing({ onClose }: Props){
 
         <BuyCreditsModal />
 
+        <Link to="/pricing" className="px-3 py-1 border rounded-lg text-sm">
+
+          {t("credits.buy")}
+
+        </Link>
+
       </div>
 
       {onClose && <button onClick={onClose}>닫기</button>}
 
       <p className="text-sm text-gray-600">
 
-        Credits are consumed by pro features (e.g., GPT refine & seed search). This page will connect to real checkout on deployment.
+        Credits are consumed by pro features (e.g., GPT refine & seed search).
 
       </p>
 

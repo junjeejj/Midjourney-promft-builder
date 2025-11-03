@@ -22,6 +22,10 @@ import Settings from "./pages/Settings";
 
 import Profile from "./pages/Profile";
 
+import Pricing from "./pages/Pricing";
+
+import Success from "./pages/Success";
+
 import CreditBadge from "./components/CreditBadge";
 
 import BuyCreditsModal from "./components/BuyCreditsModal";
@@ -153,6 +157,10 @@ export default function App(){
           <Route path="/profile" element={<Profile />} />
 
           <Route path="/login" element={<Profile />} />
+
+          <Route path="/pricing" element={<Pricing />} />
+
+          <Route path="/success" element={<Success />} />
 
         </Routes>
 

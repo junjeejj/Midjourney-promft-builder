@@ -1,5 +1,7 @@
 import { useBuilderStore } from "../store/useBuilderStore";
 
+import { useT } from "../i18n";
+
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
 
   return (
@@ -28,6 +30,8 @@ function Chip({ text }: { text: string }) {
 
 export default function SelectedSummary() {
 
+  const { t } = useT();
+
   const { slots, params } = useBuilderStore();
 
   const camera = Array.isArray(slots.camera) ? slots.camera : [];
@@ -44,11 +48,11 @@ export default function SelectedSummary() {
 
     <div className="border rounded-2xl p-3 bg-white space-y-3">
 
-      <div className="font-medium">Selection Summary</div>
+      <div className="font-medium">{t("summary.title")}</div>
 
       {slots.subject && (
 
-        <Row label="Subject">
+        <Row label={t("summary.subject")}>
 
           <Chip text={String(slots.subject)} />
 
@@ -58,35 +62,35 @@ export default function SelectedSummary() {
 
       {!!camera.length && (
 
-        <Row label="Camera">{camera.map((x) => <Chip key={x} text={x} />)}</Row>
+        <Row label={t("summary.camera")}>{camera.map((x) => <Chip key={x} text={x} />)}</Row>
 
       )}
 
       {!!composition.length && (
 
-        <Row label="Composition">{composition.map((x) => <Chip key={x} text={x} />)}</Row>
+        <Row label={t("summary.composition")}>{composition.map((x) => <Chip key={x} text={x} />)}</Row>
 
       )}
 
       {!!lighting.length && (
 
-        <Row label="Lighting">{lighting.map((x) => <Chip key={x} text={x} />)}</Row>
+        <Row label={t("summary.lighting")}>{lighting.map((x) => <Chip key={x} text={x} />)}</Row>
 
       )}
 
       {!!color.length && (
 
-        <Row label="Color/Tone">{color.map((x) => <Chip key={x} text={x} />)}</Row>
+        <Row label={t("summary.color")}>{color.map((x) => <Chip key={x} text={x} />)}</Row>
 
       )}
 
       {!!style.length && (
 
-        <Row label="Style">{style.map((x) => <Chip key={x} text={x} />)}</Row>
+        <Row label={t("summary.style")}>{style.map((x) => <Chip key={x} text={x} />)}</Row>
 
       )}
 
-      <Row label="Parameters">
+      <Row label={t("summary.parameters")}>
 
         {params.ar && <Chip text={`--ar ${params.ar}`} />}
 

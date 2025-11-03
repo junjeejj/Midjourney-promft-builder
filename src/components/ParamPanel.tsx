@@ -120,7 +120,7 @@ export default function ParamPanel() {
 
       <div className="space-y-4">
 
-        <Field label="Aspect (--ar)" hint="image ratio">
+        <Field label="Aspect (--ar)" hint={t("params.arHint")}>
 
           <select className="w-full border rounded-xl px-3 py-2" value={params.ar||""} onChange={e=>setParams({ ar: e.target.value || null })}>
 
@@ -144,7 +144,7 @@ export default function ParamPanel() {
 
           onChange={v=>setParams({ stylize: v })}
 
-          hint="style emphasis"
+          hint={t("params.stylizeHint")}
 
         />
 
@@ -160,7 +160,7 @@ export default function ParamPanel() {
 
           onChange={v=>setParams({ chaos: v })}
 
-          hint="randomness"
+          hint={t("params.chaosHint")}
 
         />
 
@@ -178,7 +178,7 @@ export default function ParamPanel() {
 
           onChange={v=>setParams({ q: v as 0.5 | 1 | 2 })}
 
-          hint="0.5 / 1 / 2"
+          hint={t("params.qHint")}
 
         />
 
@@ -194,7 +194,7 @@ export default function ParamPanel() {
 
           onChange={v=>setParams({ stop: v })}
 
-          hint="중간 렌더 멈추기"
+          hint={t("params.stopHint")}
 
         />
 
@@ -210,7 +210,7 @@ export default function ParamPanel() {
 
           onChange={v=>setParams({ seed: v })}
 
-          hint="keep similar look"
+          hint={t("params.seedHint")}
 
         />
 
@@ -226,7 +226,7 @@ export default function ParamPanel() {
 
           onChange={v=>setParams({ repeat: v })}
 
-          hint="한 번에 여러 장 생성"
+          hint={t("params.repeatHint")}
 
         />
 
@@ -242,7 +242,7 @@ export default function ParamPanel() {
 
           onChange={v=>setParams({ weird: v })}
 
-          hint="실험적/기묘한 해석"
+          hint={t("params.weirdHint")}
 
         />
 
@@ -258,7 +258,7 @@ export default function ParamPanel() {
 
           onChange={v=>setParams({ ow: v })}
 
-          hint="레퍼런스 강도"
+          hint={t("params.owHint")}
 
         />
 
@@ -276,11 +276,11 @@ export default function ParamPanel() {
 
           onChange={v=>setParams({ iw: v })}
 
-          hint="이미지 프롬프트 영향력"
+          hint={t("params.iwHint")}
 
         />
 
-        <Field label="Version (--v)" hint="모델 버전 직접 입력">
+        <Field label="Version (--v)" hint={t("params.versionHint")}>
 
           <input 
 
@@ -298,13 +298,13 @@ export default function ParamPanel() {
 
         </Field>
 
-        <Field label="Style (--style)" hint="global style preset">
+        <Field label="Style (--style)" hint={t("params.styleHint")}>
 
           <input className="w-full border rounded-xl px-3 py-2" value={params.style ?? ""} onChange={e=>setParams({ style: e.target.value || null })}/>
 
         </Field>
 
-        <Field label="Style Reference (--sref)" hint="스타일 레퍼런스 이미지 URL">
+        <Field label="Style Reference (--sref)" hint={t("params.srefHint")}>
 
           <input 
 
@@ -322,7 +322,7 @@ export default function ParamPanel() {
 
         </Field>
 
-        <Field label="Omni Reference (--oref)" hint="특정 인물/오브젝트 일관성 유지">
+        <Field label="Omni Reference (--oref)" hint={t("params.orefHint")}>
 
           <input 
 
@@ -340,7 +340,7 @@ export default function ParamPanel() {
 
         </Field>
 
-        <Field label="Profile (--p)" hint="개인/브랜드 스타일 프로필">
+        <Field label="Profile (--p)" hint={t("params.profileHint")}>
 
           <input 
 
@@ -358,7 +358,7 @@ export default function ParamPanel() {
 
         </Field>
 
-        <Field label="No (--no)" hint="빼고 싶은 요소 강제 제외">
+        <Field label="No (--no)" hint={t("params.noHint")}>
 
           <div className="flex gap-2 mb-2">
 
@@ -414,7 +414,7 @@ export default function ParamPanel() {
 
             onChange={v=>setParams({ tile: v })}
 
-            hint="무한 반복 패턴"
+            hint={t("params.tileHint")}
 
           />
 
@@ -426,7 +426,7 @@ export default function ParamPanel() {
 
             onChange={v=>setParams({ raw: v })}
 
-            hint="기본 미드저니 스타일 약화"
+            hint={t("params.rawHint")}
 
           />
 
@@ -438,7 +438,7 @@ export default function ParamPanel() {
 
             onChange={v=>setParams({ stealth: v })}
 
-            hint="웹 갤러리 비공개"
+            hint={t("params.stealthHint")}
 
           />
 
@@ -450,7 +450,7 @@ export default function ParamPanel() {
 
             onChange={v=>setParams({ draft: v })}
 
-            hint="빠른 러프 컨셉 드로잉 모드"
+            hint={t("params.draftHint")}
 
           />
 
@@ -462,7 +462,7 @@ export default function ParamPanel() {
 
             onChange={v=>setParams({ niji: v })}
 
-            hint="애니메이션 스타일 모드"
+            hint={t("params.nijiHint")}
 
           />
 

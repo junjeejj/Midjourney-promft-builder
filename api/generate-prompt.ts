@@ -11,11 +11,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
-    const { subject, params } = (req.body as any) || {};
+    const { subject, params, userId } = (req.body as any) || {};
 
     if (!subject || typeof subject !== "string") {
       return res.status(400).json({ error: "subject (string) is required" });
     }
+
+    // (임시) userId 수신
+    if (!userId) return res.status(401).json({ error: "userId required" });
+
+    // TODO: 실제 DB에서 현재 잔액 조회
+    async function getBalance(uid: string) { return 5000; } // 임시 5k
+    async function spendCredits(uid: string, amount: number) { console.log("SPEND", uid, amount); }
+
+    const COST_PER_GENERATE = 5; // 1회 5크레딧 예시
+    const balance = await getBalance(userId);
+    if (balance < COST_PER_GENERATE) return res.status(402).json({ error: "Insufficient credits" });
+
+    // ↓↓↓ 기존 OpenAI 호출 전에 선차감(혹은 후차감)
+    await spendCredits(userId, COST_PER_GENERATE);
 
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) return res.status(500).json({ error: "Missing OPENAI_API_KEY" });
