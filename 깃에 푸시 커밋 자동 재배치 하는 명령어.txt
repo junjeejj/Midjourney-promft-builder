@@ -1,0 +1,21 @@
+문서/코드 저장한 뒤, 터미널에서 아래 순서대로 치면 GitHub 푸시 → Vercel 자동 재배포 됩니다.
+
+
+# 0) 현재 브랜치 확인 (보통 main)
+git rev-parse --abbrev-ref HEAD
+
+# 1) 변경 파일 확인
+git status
+
+# 2) 변경 내용 스테이징
+git add -A
+
+# 3) 커밋 (메시지는 자유롭게)
+git commit -m "fix: stabilize build & types"
+
+# 4) 원격 저장소 확인
+git remote -v
+
+# 5) 푸시 (브랜치가 main일 때)
+git push origin main
+

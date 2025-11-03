@@ -48,11 +48,13 @@ export default function PromptBuilderPage() {
 
     <main className="mx-auto max-w-6xl p-4 space-y-4 pt-20 pb-20">
 
-      <Stepper steps={STEPS} active={i} onStepClick={setI} />
-
       <div className="grid md:grid-cols-[1fr,380px] gap-4">
 
         <div className="space-y-4">
+
+          <PreviewPanel />
+
+          <Stepper steps={STEPS} active={i} onStepClick={setI} />
 
           {i===0 && <AspectStep onNext={next} />}
 
@@ -75,8 +77,6 @@ export default function PromptBuilderPage() {
             </div>
 
           )}
-
-          <PreviewPanel />
 
         </div>
 

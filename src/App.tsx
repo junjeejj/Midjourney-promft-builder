@@ -56,59 +56,61 @@ function Nav(){
 
   return (
 
-    <nav role="navigation" className="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center gap-2">
+    <nav role="navigation" className="fixed top-16 left-0 right-0 z-40 bg-white border-b">
 
-      <NavLink to="/" end className={({ isActive }) => `${baseBtn} font-semibold ${isActive ? activeBtn : idleBtn}`}>
+      <div className="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center gap-2">
 
-        {t("app")}
+        <NavLink to="/" end className={({ isActive }) => `${baseBtn} font-semibold ${isActive ? activeBtn : idleBtn}`}>
 
-      </NavLink>
+          {t("app")}
 
-      <div className="flex flex-wrap items-center gap-2">
+        </NavLink>
 
-        {item("/templates", t("nav.templates"))}
+        <div className="flex flex-wrap items-center gap-2">
 
-        {item("/seedlab", t("nav.seed"))}
+          {item("/templates", t("nav.templates"))}
 
-        {item("/favorites", t("nav.favorites"))}
+          {item("/seedlab", t("nav.seed"))}
 
-        {item("/defaults", t("nav.defaults"))}
+          {item("/favorites", t("nav.favorites"))}
 
-        {/* ← 여기 '내설정' 오른쪽에 언어 드롭다운 */}
+          {item("/defaults", t("nav.defaults"))}
 
-        <LocaleSelect />
+          <LocaleSelect />
 
-        {item("/billing", t("nav.billing"))}
+          {item("/billing", t("nav.billing"))}
 
-        {item("/settings", t("nav.settings"))}
+          {item("/settings", t("nav.settings"))}
 
-        {item("/profile", t("nav.profile"))}
+          {item("/profile", t("nav.profile"))}
 
-      </div>
+        </div>
 
-      <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-2">
 
-        <CreditBadge />
+          <CreditBadge />
 
-        <BuyCreditsModal />
+          <BuyCreditsModal />
 
-        {user ? (
+          {user ? (
 
-          <button onClick={logout} className={`${baseBtn} ${idleBtn}`} title={t("nav.logout")}>
+            <button onClick={logout} className={`${baseBtn} ${idleBtn}`} title={t("nav.logout")}>
 
-            {t("nav.logout")}
+              {t("nav.logout")}
 
-          </button>
+            </button>
 
-        ) : (
+          ) : (
 
-          <NavLink to="/login" className={({ isActive }) => `${baseBtn} ${isActive ? activeBtn : idleBtn}`}>
+            <NavLink to="/login" className={({ isActive }) => `${baseBtn} ${isActive ? activeBtn : idleBtn}`}>
 
-            {t("nav.login")}
+              {t("nav.login")}
 
-          </NavLink>
+            </NavLink>
 
-        )}
+          )}
+
+        </div>
 
       </div>
 
@@ -128,7 +130,7 @@ export default function App(){
 
       <Nav />
 
-      <div className="min-h-[60vh]">
+      <div className="min-h-[60vh] pt-28">
 
         <Routes>
 
