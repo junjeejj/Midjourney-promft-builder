@@ -6,6 +6,8 @@ import BannerTop from "./components/BannerTop";
 
 import BannerBottom from "./components/BannerBottom";
 
+import ErrorBoundary from "./components/system/ErrorBoundary";
+
 import PromptBuilderPage from "./pages/PromptBuilderPage";
 
 import Templates from "./pages/Templates";
@@ -115,40 +117,18 @@ function Nav(){
   );
 }
 
-// 간단 에러 바운더리(문제 노출용)
-class ErrorBoundary extends React.Component<
-  { children: React.ReactNode },
-  { error: Error | null }
-> {
-  constructor(props: { children: React.ReactNode }) {
-    super(props);
-    this.state = { error: null };
-  }
-
-  static getDerivedStateFromError(error: Error) {
-    return { error };
-  }
-
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error("ErrorBoundary caught an error:", error, errorInfo);
-  }
-
-  render() {
-    if (this.state.error) {
-      return (
-        <div style={{ padding: 16 }}>
-          <h2>앗, 오류가 발생했어요.</h2>
-          <pre style={{ whiteSpace: "pre-wrap" }}>{String(this.state.error.stack || this.state.error.message)}</pre>
-          <button onClick={() => this.setState({ error: null })}>다시 시도</button>
-        </div>
-      );
-    }
-    return this.props.children;
-  }
+// 라우트 전환 시 ads 재요청 훅
+function UseAdsOnRouteChange() {
+  const { pathname } = useLocation();
+  React.useEffect(() => {
+    try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch {}
+  }, [pathname]);
+  return null;
 }
 
 // 라우터 내부에서만 배너가 렌더되도록 Layout 구성
 function Layout() {
+  const { pathname } = useLocation();
   const checkSession = useAuth((s) => s.checkSession);
 
   useEffect(() => {
@@ -166,12 +146,12 @@ function Layout() {
   return (
     <>
       <UseAdsOnRouteChange />
-      <BannerTop />
+      <BannerTop pathname={pathname} />
       <Nav />
       <div className="min-h-[60vh] pt-20 pb-20">
         <Outlet />
       </div>
-      <BannerBottom />
+      <BannerBottom pathname={pathname} />
     </>
   );
 }

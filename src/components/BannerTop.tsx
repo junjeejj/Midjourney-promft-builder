@@ -1,9 +1,8 @@
-import { useLocation } from "react-router-dom";
-import { isAdAllowedPath } from "../lib/adsPolicy";
+/* src/components/BannerTop.tsx */
 import AdSlot from "./ads/AdSlot";
+import { isAdAllowedPath } from "../lib/adsPolicy";
 
-export default function BannerTop() {
-  const { pathname } = useLocation();
+export default function BannerTop({ pathname }: { pathname: string }) {
   if (!isAdAllowedPath(pathname)) return null;
   return (
     <div className="fixed top-0 left-0 right-0 z-50 bg-white border-b">
