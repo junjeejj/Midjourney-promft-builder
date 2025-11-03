@@ -7,7 +7,7 @@ import BuyCreditsModal from "../BuyCreditsModal";
 const PROMPT_GENERATION_COST = 1; // 크레딧 비용
 
 export default function SubjectStep() {
-  const { slots, updateSlots } = useBuilderStore();
+  const { slots, params, updateSlots } = useBuilderStore();
   const { wallet, consumeCredits } = useWalletStore();
   const [input, setInput] = useState(slots.subject || "");
   const [loading, setLoading] = useState(false);
@@ -37,8 +37,19 @@ export default function SubjectStep() {
         return;
       }
 
-      // GPT API 호출
-      const generatedPrompt = await generateMidjourneyPrompt(input);
+      // GPT API 호출 (params를 API 형식으로 변환)
+      const apiParams = {
+        ar: params.ar || undefined,
+        s: params.stylize || undefined,
+        chaos: params.chaos || undefined,
+        weird: params.weird || undefined,
+        raw: params.raw || undefined,
+        tile: params.tile || undefined,
+        quality: params.q || undefined,
+        v: params.version || undefined,
+        no: params.no && params.no.length > 0 ? params.no.join(", ") : undefined,
+      };
+      const generatedPrompt = await generateMidjourneyPrompt(input, apiParams);
       
       // 생성된 프롬프트를 입력 필드에 설정
       setInput(generatedPrompt);

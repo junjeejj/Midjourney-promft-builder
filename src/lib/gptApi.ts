@@ -1,12 +1,16 @@
-// OpenAI API를 사용한 미드저니 프롬프트 생성
-
-export async function generatePromptFromSubject(subject: string): Promise<string> {
-  // ⚠️ 실제 OpenAI API 호출은 제거했습니다.
-  // 이 함수는 현재 프론트엔드 데모용 더미 응답만 반환합니다.
-  // 실제 API 통신은 나중에 서버(API route)에서 처리할 예정입니다.
-  
-  return `a cinematic fantasy illustration of a powerful orc warrior sprinting forward, dynamic motion blur, dramatic lighting, ultra detailed, 4k, ${subject}`;
+export async function generatePromptFromSubject(subject: string, params?: any): Promise<string> {
+  const res = await fetch("/api/generate-prompt", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ subject, params })
+  });
+  if (!res.ok) {
+    const msg = await res.text().catch(() => "");
+    throw new Error(`Failed to generate prompt: ${res.status} ${msg}`);
+  }
+  const data = await res.json();
+  return data.prompt as string;
 }
 
-// 기존 함수명과의 호환성을 위한 별칭
+// 과거 호환
 export const generateMidjourneyPrompt = generatePromptFromSubject;
