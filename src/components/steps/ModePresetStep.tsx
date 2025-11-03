@@ -26,7 +26,7 @@ function Row({ name, desc, onPick }:{ name:string; desc:string; onPick:()=>void 
 
 }
 
-export default function ModePresetStep({ onNext }:{ onNext: ()=>void }) {
+export default function ModePresetStep({ onNext }:{ onNext?: ()=>void }) {
 
   const { t } = useT();
 
@@ -42,7 +42,7 @@ export default function ModePresetStep({ onNext }:{ onNext: ()=>void }) {
 
       {list.map(p=>(
 
-        <Row key={p.name} name={p.name} desc={p.desc} onPick={()=>{ setParams(p.params); onNext(); }} />
+        <Row key={p.name} name={p.name} desc={p.desc} onPick={()=>{ setParams(p.params); onNext?.(); }} />
 
       ))}
 

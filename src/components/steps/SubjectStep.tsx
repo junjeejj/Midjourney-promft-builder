@@ -4,7 +4,7 @@ import { useBuilderStore } from "../../store/useBuilderStore";
 
 import { useT } from "../../i18n";
 
-export default function SubjectStep({ onNext }:{ onNext: ()=>void }) {
+export default function SubjectStep({ onNext }:{ onNext?: ()=>void }) {
 
   const { t } = useT();
 
@@ -12,7 +12,7 @@ export default function SubjectStep({ onNext }:{ onNext: ()=>void }) {
 
   const [v, setV] = useState(slots.subject || "");
 
-  function go(){ setSlots({ subject: v }); onNext(); }
+  function go(){ setSlots({ subject: v }); onNext?.(); }
 
   return (
 

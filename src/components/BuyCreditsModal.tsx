@@ -1,8 +1,10 @@
+// src/components/BuyCreditsModal.tsx
+
 import { useState } from "react";
 
 import { useWalletStore } from "../store/useWalletStore";
 
-export default function BuyCreditsModal(){
+export default function BuyCreditsModal({ onClose }: { onClose?: () => void }){
 
   const { addCredits } = useWalletStore();
 
@@ -10,7 +12,15 @@ export default function BuyCreditsModal(){
 
   const [qty, setQty] = useState(100);
 
-  function buy(){ addCredits(qty); setOpen(false); }
+  function close(){
+
+    setOpen(false);
+
+    onClose?.();
+
+  }
+
+  function buy(){ addCredits(qty); close(); }
 
   return (
 
@@ -20,7 +30,7 @@ export default function BuyCreditsModal(){
 
       {open && (
 
-        <div className="fixed inset-0 bg-black/30 grid place-items-center">
+        <div className="fixed inset-0 bg-black/30 grid place-items-center z-50">
 
           <div className="bg-white rounded-2xl p-4 w-full max-w-sm shadow">
 
@@ -30,19 +40,33 @@ export default function BuyCreditsModal(){
 
               Amount
 
-              <input type="number" className="w-full border rounded-lg px-3 py-2 mt-1" value={qty} onChange={e=>setQty(Number(e.target.value||0))}/>
+              <input
+
+                type="number"
+
+                className="w-full border rounded-lg px-3 py-2 mt-1"
+
+                value={qty}
+
+                onChange={e=>setQty(Number(e.target.value||0))}
+
+              />
 
             </label>
 
             <div className="flex justify-end gap-2">
 
-              <button onClick={()=>setOpen(false)} className="px-3 py-2 border rounded-lg">Cancel</button>
+              <button onClick={close} className="px-3 py-2 border rounded-lg">Cancel</button>
 
               <button onClick={buy} className="px-3 py-2 border rounded-lg bg-black text-white">Purchase</button>
 
             </div>
 
-            <p className="text-xs text-gray-500 mt-2">※ Real Stripe/PortOne checkout will be wired on deployment.</p>
+            <p className="text-xs text-gray-500 mt-2">
+
+              ※ Real Stripe/PortOne checkout will be wired on deployment.
+
+            </p>
 
           </div>
 

@@ -60,7 +60,7 @@ function Row({ text, desc, onPick }:{ text:string; desc:string; onPick:()=>void 
 
 }
 
-export default function CameraComposeLightStep({ onNext }:{ onNext: ()=>void }) {
+export default function CameraComposeLightStep({ onNext }:{ onNext?: ()=>void }) {
 
   const { t } = useT();
 
@@ -130,7 +130,7 @@ export default function CameraComposeLightStep({ onNext }:{ onNext: ()=>void }) 
 
       <div className="flex justify-end">
 
-        <button onClick={onNext} className="px-3 py-2 border rounded-xl">{t("common.next")}</button>
+        <button onClick={()=>onNext?.()} className="px-3 py-2 border rounded-xl">{t("common.next")}</button>
 
       </div>
 

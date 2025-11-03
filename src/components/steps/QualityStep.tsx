@@ -18,7 +18,7 @@ function FieldRow({ label, desc, children }:{label:string; desc:string; children
 
 }
 
-export default function QualityStep({ onNext }:{ onNext: ()=>void }) {
+export default function QualityStep({ onNext }:{ onNext?: ()=>void }) {
 
   const { t } = useT();
 
@@ -62,7 +62,7 @@ export default function QualityStep({ onNext }:{ onNext: ()=>void }) {
 
       </div>
 
-      <div className="flex justify-end mt-1"><button onClick={onNext} className="px-3 py-2 border rounded-xl">{t("quality.next")}</button></div>
+      <div className="flex justify-end mt-1"><button onClick={()=>onNext?.()} className="px-3 py-2 border rounded-xl">{t("quality.next")}</button></div>
 
     </div>
 

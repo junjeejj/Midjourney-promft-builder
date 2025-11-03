@@ -20,7 +20,7 @@ function Row({ text, desc, onPick }:{ text:string; desc:string; onPick:()=>void 
 
 }
 
-export default function AspectStep({ onNext }:{ onNext: ()=>void }) {
+export default function AspectStep({ onNext }:{ onNext?: ()=>void }) {
 
   const { t, d } = useDict();
 
@@ -28,7 +28,7 @@ export default function AspectStep({ onNext }:{ onNext: ()=>void }) {
 
   const descMap = useMemo(()=> d("aspect.desc") as Record<string,string>, [d]);
 
-  function choose(ar:string){ setParams({ ar }); onNext(); }
+  function choose(ar:string){ setParams({ ar }); onNext?.(); }
 
   return (
 

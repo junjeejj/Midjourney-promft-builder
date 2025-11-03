@@ -1,47 +1,103 @@
-import React from "react";
-import { useBuilderStore } from "../store/useBuilderStore";
-import Stepper from "../components/Stepper";
-import PreviewPanel from "../components/PreviewPanel";
-import CopyBar from "../components/CopyBar";
-import ParamPanel from "../components/ParamPanel";
+// src/pages/Builder.tsx
+
+import { useState } from "react";
+
+import Stepper, { Step } from "../components/Stepper";
+
 import AspectStep from "../components/steps/AspectStep";
+
 import ModePresetStep from "../components/steps/ModePresetStep";
+
 import SubjectStep from "../components/steps/SubjectStep";
+
 import CameraComposeLightStep from "../components/steps/CameraComposeLightStep";
+
 import QualityStep from "../components/steps/QualityStep";
 
-const STEPS = ["Aspect", "Mode", "스토리/묘사/주제", "Camera/Compose/Light", "Quality"];
+import PreviewPanel from "../components/PreviewPanel";
 
-export default function Builder() {
-  const { currentStep, setStep } = useBuilderStore();
-  
-  const renderStep = () => {
-    switch (currentStep) {
-      case 0: return <AspectStep />;
-      case 1: return <ModePresetStep />;
-      case 2: return <SubjectStep />;
-      case 3: return <CameraComposeLightStep />;
-      case 4: return <QualityStep />;
-      default: return null;
-    }
-  };
-  
+import SelectedSummary from "../components/SelectedSummary";
+
+import FinalPromptPanel from "../components/FinalPromptPanel";
+
+import ParamPanel from "../components/ParamPanel";
+
+export default function Builder(){
+
+  const steps: Step[] = [
+
+    { key:"aspect",  label:"Aspect" },
+
+    { key:"mode",    label:"Mode" },
+
+    { key:"subject", label:"Subject" },
+
+    { key:"ccl",     label:"Camera/Composition/Lighting" },
+
+    { key:"quality", label:"Quality" },
+
+    { key:"preview", label:"Preview" },
+
+  ];
+
+  const [i, setI] = useState(0);
+
+  const next = ()=> setI(s=> Math.min(s+1, steps.length-1));
+
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
-      <Stepper steps={STEPS} current={currentStep} onStepClick={setStep} />
-      
-      <div className="grid md:grid-cols-3 gap-4 mt-4 pb-16">
-        <div className="md:col-span-2 space-y-2">
-          <PreviewPanel />
-          {renderStep()}
-        </div>
-        <div className="space-y-2">
-          <ParamPanel />
-        </div>
-      </div>
-      
-      <CopyBar />
-    </div>
-  );
-}
 
+    <main className="mx-auto max-w-6xl p-4 space-y-4">
+
+      <Stepper steps={steps} active={i} onStepClick={setI} />
+
+      <div className="grid md:grid-cols-[1fr,380px] gap-4">
+
+        <div className="space-y-4">
+
+          {i===0 && <AspectStep onNext={next} />}
+
+          {i===1 && <ModePresetStep onNext={next} />}
+
+          {i===2 && <SubjectStep onNext={next} />}
+
+          {i===3 && <CameraComposeLightStep onNext={next} />}
+
+          {i===4 && <QualityStep onNext={next} />}
+
+          {i===5 && (
+
+            <div className="border rounded-2xl p-3 bg-white">
+
+              <div className="font-medium">Preview</div>
+
+              <div className="text-sm text-gray-600">
+
+                Use the right side to copy the final prompt or tweak parameters.
+
+              </div>
+
+            </div>
+
+          )}
+
+        </div>
+
+        <div className="space-y-4">
+
+          <PreviewPanel />
+
+          <SelectedSummary />
+
+          <FinalPromptPanel />
+
+          <ParamPanel />
+
+        </div>
+
+      </div>
+
+    </main>
+
+  );
+
+}

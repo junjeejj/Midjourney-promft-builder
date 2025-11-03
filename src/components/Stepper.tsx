@@ -1,4 +1,6 @@
-type Step = { key: string; label: string };
+// src/components/Stepper.tsx
+
+export type Step = { key: string; label: string };
 
 export default function Stepper({
 

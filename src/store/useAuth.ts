@@ -1,98 +1,119 @@
+// src/store/useAuth.ts
+
 import { create } from "zustand";
-import { supabase } from "../lib/supabase";
 
-// App.tsx / Profile.tsx 호환용: name 접근이 있어 optional로 둠
-interface DemoUser {
+export const OAUTH_PROVIDERS = ["google", "github"] as const;
+
+export type OAuthProvider = typeof OAUTH_PROVIDERS[number];
+
+export type DemoUser = {
+
   id: string;
-  email: string;
-  name?: string;
-}
 
-interface AuthState {
+  email?: string;
+
+  displayName?: string;
+
+  name?: string;            // 과거 코드 호환
+
+  provider?: string;
+
+};
+
+export type AuthState = {
+
   user: DemoUser | null;
-  loading: boolean;
-  error: string | null;
 
-  // 주 구현(스텁)
-  signInWithProvider: (provider?: string) => Promise<void>;
-  signInWithPassword: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string) => Promise<void>;
-  signOut: () => Promise<void>;
-  checkSession: () => Promise<void>;
+  // 기존 메서드들…
 
-  // ✅ 기존 코드 호환용 별칭들
-  loginWithOAuth: (provider?: string) => Promise<void>;
-  login: (email: string, password: string) => Promise<void>;
-  signup: (email: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
-}
+  login?: (email: string, password: string) => Promise<void>;          // 과거 alias
 
-// 데모 빌드용 스텁 (실제 인증 동작 없음)
+  logout?: () => Promise<void>;
+
+  signup?: (email: string, password: string) => Promise<void>;
+
+  loginWithOAuth?: (provider: string) => Promise<void>;
+
+  signInWithPassword?: (email: string, password: string) => Promise<void>;
+
+  signUp?: (email: string, password: string) => Promise<void>;
+
+  signOut?: () => Promise<void>;
+
+  signInWithProvider?: (provider: string) => Promise<void>;
+
+  // ▼ OAuthButtons 호환 위해 추가
+
+  oauth?: { providers: string[] };
+
+  loginDemo?: () => Promise<void> | void;
+
+};
+
 export const useAuth = create<AuthState>((set, get) => ({
+
   user: null,
-  loading: false,
-  error: null,
 
-  // ===== 주 구현(스텁) =====
-  signInWithProvider: async (_provider?: string) => {
-    set({ error: "auth not implemented in demo build" });
+  oauth: { providers: Array.from(OAUTH_PROVIDERS) },
+
+  loginDemo: async () => {
+
+    set({ user: { id: "demo", displayName: "Demo User", name: "Demo User" } });
+
   },
 
-  signInWithPassword: async (_email: string, _password: string) => {
-    set({ error: "password login not implemented in demo build" });
+  logout: async () => {
+
+    await get().signOut?.();
+
+    set({ user: null });
+
   },
 
-  signUp: async (_email: string, _password: string) => {
-    set({ error: "sign up not implemented in demo build" });
+  login: async (email, password) => await get().signInWithPassword?.(email, password),
+
+  signup: async (email, password) => await get().signUp?.(email, password),
+
+  loginWithOAuth: async (provider: string) => {
+
+    await get().signInWithProvider?.(provider);
+
+    // 데모 동작
+
+    set({ user: { id: `oauth-${provider}`, name: `${provider.toUpperCase()} User`, provider } });
+
+  },
+
+  signInWithPassword: async (email, password) => {
+
+    // TODO: 실제 로그인 구현
+
+    set({ user: { id: "user", email, displayName: email.split("@")[0], name: email.split("@")[0] } });
+
+  },
+
+  signUp: async (email, password) => {
+
+    // TODO: 실제 회원가입 구현
+
+    set({ user: { id: "user", email, displayName: email.split("@")[0], name: email.split("@")[0] } });
+
   },
 
   signOut: async () => {
-    await supabase.auth.signOut();
+
     set({ user: null });
+
   },
 
-  checkSession: async () => {
-    set({ loading: true });
-    try {
-      const { data } = await supabase.auth.getSession();
-      const sessionUser =
-        data && (data as any).session && (data as any).session.user
-          ? (data as any).session.user
-          : null;
+  signInWithProvider: async (provider: string) => {
 
-      if (sessionUser) {
-        set({
-          user: {
-            id: sessionUser.id || "",
-            email: sessionUser.email || "",
-            name: sessionUser.name || undefined,
-          },
-          loading: false,
-          error: null,
-        });
-      } else {
-        set({ user: null, loading: false, error: null });
-      }
-    } catch (_err: any) {
-      set({
-        user: null,
-        loading: false,
-        error: "session check failed in demo mode",
-      });
-    }
+    // TODO: 실제 OAuth 연동 (redirect 시작)
+
+    // 지금은 데모로 즉시 로그인 처리
+
+    set({ user: { id: `oauth-${provider}`, displayName: `${provider.toUpperCase()} User`, name: `${provider.toUpperCase()} User`, provider } });
+
   },
 
-  // ===== ✅ 기존 코드 호환용 별칭 구현 =====
-  loginWithOAuth: async (provider?: string) => {
-    return get().signInWithProvider(provider);
-  },
-  login: async (email: string, password: string) => {
-    return get().signInWithPassword(email, password);
-  },
-  signup: async (email: string, password: string) => {
-    return get().signUp(email, password);
-  },
-  logout: async () => {
-    return get().signOut();
-  },
 }));

@@ -1,37 +1,37 @@
-import React from "react";
-import { useWalletStore } from "../store/useWalletStore";
+// src/pages/Billing.tsx
+
 import BuyCreditsModal from "../components/BuyCreditsModal";
-import { useState } from "react";
 
-export default function Billing() {
-  const { wallet, addCredits } = useWalletStore();
-  const [showModal, setShowModal] = useState(false);
-  
+import CreditBadge from "../components/CreditBadge";
+
+type Props = { onClose?: () => void };
+
+export default function Billing({ onClose }: Props){
+
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Billing / Credits</h1>
-      
-      <div className="border rounded-lg p-6 mb-6">
-        <div className="text-lg font-semibold mb-2">Current Credits</div>
-        <div className="text-3xl font-bold">{wallet.credits}</div>
+
+    <main className="max-w-3xl mx-auto p-4 space-y-4">
+
+      <h1 className="text-xl font-semibold">Billing / Credits</h1>
+
+      <div className="flex items-center gap-2">
+
+        <CreditBadge />
+
+        <BuyCreditsModal />
+
       </div>
-      
-      <p className="text-sm text-gray-600 mb-4">Credits are consumed by pro features.</p>
-      
-      <button
-        onClick={() => setShowModal(true)}
-        className="px-6 py-3 bg-blue-500 text-white rounded-lg"
-      >
-        Buy Credits
-      </button>
-      
-      {showModal && <BuyCreditsModal onClose={() => setShowModal(false)} />}
-    </div>
+
+      {onClose && <button onClick={onClose}>닫기</button>}
+
+      <p className="text-sm text-gray-600">
+
+        Credits are consumed by pro features (e.g., GPT refine & seed search). This page will connect to real checkout on deployment.
+
+      </p>
+
+    </main>
+
   );
+
 }
-
-
-
-
-
-
