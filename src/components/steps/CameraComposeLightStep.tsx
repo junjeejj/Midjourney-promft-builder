@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+
 import { useBuilderStore } from "../../store/useBuilderStore";
 
 import { useT } from "../../i18n";
@@ -65,6 +67,17 @@ export default function CameraComposeLightStep({ onNext }:{ onNext?: ()=>void })
   const { t } = useT();
 
   const { slots, setSlots } = useBuilderStore();
+
+  // 카메라, 구도, 라이트 각각에서 최소 1개씩 선택되었는지 확인하여 자동으로 다음 단계로 이동
+  useEffect(() => {
+    const hasCamera = (slots.camera?.length || 0) > 0;
+    const hasComposition = (slots.composition?.length || 0) > 0;
+    const hasLighting = (slots.lighting?.length || 0) > 0;
+    
+    if (hasCamera && hasComposition && hasLighting) {
+      onNext?.();
+    }
+  }, [slots.camera, slots.composition, slots.lighting, onNext]);
 
   function add(key:"camera"|"composition"|"lighting", v:string){
 

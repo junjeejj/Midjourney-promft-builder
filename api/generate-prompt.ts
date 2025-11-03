@@ -20,16 +20,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // (임시) userId 수신
     if (!userId) return res.status(401).json({ error: "userId required" });
 
-    // TODO: 실제 DB에서 현재 잔액 조회
-    async function getBalance(uid: string) { return 5000; } // 임시 5k
+    // TODO: 실제 DB 조회로 교체
+    async function hasUnlimited(uid: string) {
+      // 예: users.is_unlimited === true 조회
+      return false; // 임시: 기본 false (DB 연결 전)
+    }
+    async function getBalance(uid: string) { return 5000; } // 기존 임시
     async function spendCredits(uid: string, amount: number) { console.log("SPEND", uid, amount); }
 
-    const COST_PER_GENERATE = 5; // 1회 5크레딧 예시
-    const balance = await getBalance(userId);
-    if (balance < COST_PER_GENERATE) return res.status(402).json({ error: "Insufficient credits" });
+    const COST_PER_GENERATE = 5;
 
-    // ↓↓↓ 기존 OpenAI 호출 전에 선차감(혹은 후차감)
-    await spendCredits(userId, COST_PER_GENERATE);
+    if (await hasUnlimited(userId)) {
+      // ★ 무제한: 차감 스킵
+      console.log("UNLIMITED USER - no debit", userId);
+    } else {
+      const balance = await getBalance(userId);
+      if (balance < COST_PER_GENERATE) return res.status(402).json({ error: "Insufficient credits" });
+
+      // ↓↓↓ 기존 OpenAI 호출 전에 선차감(혹은 후차감)
+      await spendCredits(userId, COST_PER_GENERATE);
+    }
 
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) return res.status(500).json({ error: "Missing OPENAI_API_KEY" });

@@ -52,6 +52,16 @@ async function creditUser(userId: string, credits: number, orderId: string) {
 
 }
 
+// TODO: 실제 DB로 교체
+
+async function grantUnlimited(userId: string, orderId: string) {
+
+  console.log("GRANT UNLIMITED", { userId, orderId });
+
+  // TODO: users 테이블의 is_unlimited=true 업데이트 또는 entitlements 테이블에 upsert
+
+}
+
 
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -78,31 +88,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       const session = event.data.object as Stripe.Checkout.Session;
 
-      const userId = session.metadata?.userId;
+      const userId = session.metadata?.userId as string | undefined;
 
       const productId = session.metadata?.productId as keyof typeof CREDIT_PRODUCTS | undefined;
+
+      const isUnlimitedMeta = session.metadata?.is_unlimited === "1";
 
       const creditsMeta = session.metadata?.credits ? parseInt(session.metadata.credits, 10) : 0;
 
 
 
-      // Price ID 매칭 기반으로 product 식별(보안)
+      if (userId) {
 
-      let credits = creditsMeta;
+        if (isUnlimitedMeta || (productId && CREDIT_PRODUCTS[productId]?.is_unlimited)) {
 
-      if (!credits && session.line_items) {
+          // ★ 무제한 권한 부여
 
-        // (선택) line_items expand를 사용하면 가격 ID로 역매칭 가능
+          await grantUnlimited(userId, session.id);
 
-      }
+        } else {
 
+          // 기존 크레딧 적립
 
+          const add = creditsMeta || (productId ? CREDIT_PRODUCTS[productId].credits : 0);
 
-      if (userId && (productId || credits)) {
+          if (add > 0) await creditUser(userId, add, session.id);
 
-        const add = credits || (productId ? CREDIT_PRODUCTS[productId].credits : 0);
-
-        await creditUser(userId, add, session.id);
+        }
 
       }
 

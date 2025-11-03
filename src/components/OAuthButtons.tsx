@@ -1,45 +1,17 @@
 // src/components/OAuthButtons.tsx
+import useAuth, { OAUTH_PROVIDERS } from "../store/useAuth";
 
-import { OAUTH_PROVIDERS, useAuth } from "../store/useAuth";
-
-export default function OAuthButtons(){
-
+export default function OAuthButtons() {
   const { loginWithOAuth, loginDemo, oauth } = useAuth();
-
-  // providers 소스는 우선순위: export 상수 → store의 oauth → 기본값
-
-  const providers = OAUTH_PROVIDERS ?? oauth?.providers ?? ["google", "github"];
-
+  const providers = OAUTH_PROVIDERS ?? oauth?.providers ?? ["google"];
   return (
-
-    <div className="grid gap-2">
-
-      {providers.map((p: string) => (
-
-        <button
-
-          key={p}
-
-          onClick={() => loginWithOAuth?.(p)}
-
-          className="w-full px-3 py-2 border rounded-xl hover:bg-gray-50"
-
-        >
-
-          Continue with {p.toUpperCase()}
-
+    <div className="flex gap-2">
+      {providers.map((p) => (
+        <button key={p} onClick={() => loginWithOAuth?.(p)} className="px-3 py-2 rounded border">
+          Continue with {p}
         </button>
-
       ))}
-
-      <button onClick={() => loginDemo?.()} className="w-full px-3 py-2 border rounded-xl">
-
-        Demo login
-
-      </button>
-
+      <button onClick={() => loginDemo?.()} className="px-3 py-2 rounded border">Try Demo</button>
     </div>
-
   );
-
 }

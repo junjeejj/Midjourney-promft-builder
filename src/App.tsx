@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 
-import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom";
+import { BrowserRouter, Routes, Route, NavLink, useLocation } from "react-router-dom";
 
 import BannerTop from "./components/BannerTop";
 
@@ -22,9 +22,13 @@ import Settings from "./pages/Settings";
 
 import Profile from "./pages/Profile";
 
+import Login from "./pages/Login";
+
 import Pricing from "./pages/Pricing";
 
 import Success from "./pages/Success";
+
+import AdsTest from "./pages/AdsTest";
 
 import CreditBadge from "./components/CreditBadge";
 
@@ -35,6 +39,29 @@ import { useAuth } from "./store/useAuth";
 import { useT } from "./i18n";
 
 import LocaleSelect from "./components/LocaleSelect";
+
+import { supabase } from "./lib/supabase";
+
+declare global { interface Window { adsbygoogle: any[] } }
+
+function UseAdsOnRouteChange() {
+  const loc = useLocation();
+  useEffect(() => {
+    try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch {}
+  }, [loc.pathname]);
+  return null;
+}
+
+function AuthBadge() {
+  const { user, signOut } = useAuth();
+  if (!user) return <a href="/login" className="text-sm underline">Login</a>;
+  return (
+    <div className="flex items-center gap-2 text-sm">
+      <span>{user.email ?? user.name ?? "User"}</span>
+      <button onClick={()=>signOut()} className="underline">Logout</button>
+    </div>
+  );
+}
 
 function Nav(){
 
@@ -96,6 +123,8 @@ function Nav(){
 
           <BuyCreditsModal />
 
+          <AuthBadge />
+
           {user ? (
 
             <button onClick={logout} className={`${baseBtn} ${idleBtn}`} title={t("nav.logout")}>
@@ -125,16 +154,31 @@ function Nav(){
 }
 
 export default function App(){
+  const checkSession = useAuth((s) => s.checkSession);
+
+  useEffect(() => {
+    checkSession();
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      // 세션 변경 시 스토어 갱신
+      useAuth.setState({
+        user: session?.user ? { id: session.user.id, email: session.user.email ?? undefined, name: session.user.user_metadata?.name } : null
+      });
+    });
+    return () => { sub.subscription.unsubscribe(); };
+  }, [checkSession]);
 
   return (
 
     <BrowserRouter>
 
+      <UseAdsOnRouteChange />
+
       <BannerTop />
 
       <Nav />
 
-      <div className="min-h-[60vh] pt-28">
+      <div className="min-h-[60vh] pt-20 pb-20">
 
         <Routes>
 
@@ -156,11 +200,13 @@ export default function App(){
 
           <Route path="/profile" element={<Profile />} />
 
-          <Route path="/login" element={<Profile />} />
+          <Route path="/login" element={<Login />} />
 
           <Route path="/pricing" element={<Pricing />} />
 
           <Route path="/success" element={<Success />} />
+
+          <Route path="/ads-test" element={<AdsTest />} />
 
         </Routes>
 

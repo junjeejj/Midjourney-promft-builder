@@ -72,6 +72,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         credits: String(product.credits),
 
+        is_unlimited: product.is_unlimited ? "1" : "0",   // ★ 추가
+
       },
 
     });

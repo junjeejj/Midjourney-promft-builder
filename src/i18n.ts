@@ -150,7 +150,7 @@ const dict = {
 
     },
 
-    final: { helper:"오른쪽에서 최종 프롬프트를 복사하거나 파라미터를 조정하세요." },
+    final: { helper:"최상단에서 최종 프롬프트를 복사하거나 파라미터를 조정하세요." },
 
     common: { next:"다음" }
 
@@ -258,7 +258,7 @@ const dict = {
 
     quality: { title:"Quality / Emphasis", stylize:"Stylize (--stylize)", stylizeHint:"0–1000", chaos:"Chaos (--chaos)", chaosHint:"0–100", q:"Quality (--q)", qHint:"0.5 / 1 / 2", next:"Next" },
 
-    final: { helper:"Use the right side to copy the final prompt or tweak parameters." },
+    final: { helper:"Use the top section to copy the final prompt or tweak parameters." },
 
     common: { next:"Next" }
 

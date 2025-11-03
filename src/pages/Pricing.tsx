@@ -78,7 +78,11 @@ export default function Pricing() {
 
             <div className="font-semibold">{p.name}</div>
 
-            <div className="text-sm opacity-70">{p.credits} {t("credits.label")}</div>
+            <div className="text-sm opacity-70">
+
+              {p.is_unlimited ? "Unlimited" : `${p.credits} ${t("credits.label")}`}
+
+            </div>
 
             <div className="text-xl mt-2">${(p.price_cents/100).toFixed(2)}</div>
 

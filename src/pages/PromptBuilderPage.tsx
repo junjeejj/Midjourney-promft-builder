@@ -46,7 +46,7 @@ export default function PromptBuilderPage() {
 
   return (
 
-    <main className="mx-auto max-w-6xl p-4 space-y-4 pt-20 pb-20">
+    <main className="mx-auto max-w-6xl p-4 space-y-4 pt-0 pb-20">
 
       <div className="grid md:grid-cols-[1fr,380px] gap-4">
 

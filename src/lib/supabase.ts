@@ -1,21 +1,14 @@
-export const supabase: any = {
-  auth: {
-    // demo stub: pretend session is empty
-    getSession: async () => ({ data: { session: null }, error: null }),
+// src/lib/supabase.ts
+import { createClient } from "@supabase/supabase-js";
 
-    // demo stub: no real OAuth yet
-    signInWithOAuth: async () => ({ data: null, error: "not-implemented" }),
+const url = import.meta.env.VITE_SUPABASE_URL;
+const anon = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-    // demo stub: signOut does nothing
-    signOut: async () => ({ error: null }),
+// 런타임 가드: 값이 없으면 명확한 에러를 콘솔에 표시
+if (!url || !anon) {
+  // 프러덕션에서 콘솔 경고만 (문자열 일부 마스킹)
+  const maskedUrl = typeof url === "string" ? url.replace(/(?<=https:\/\/).{3,}(?=\.supabase\.co)/, "****") : url;
+  console.error("[Supabase] Missing VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY. Current:", { url: maskedUrl, anon: !!anon });
+}
 
-    // demo stub: signInWithPassword
-    signInWithPassword: async () => ({ data: null, error: "not-implemented" }),
-
-    // demo stub: signUp
-    signUp: async () => ({ data: null, error: "not-implemented" }),
-
-    // demo stub: onAuthStateChange
-    onAuthStateChange: () => ({ data: { subscription: null }, error: null })
-  }
-};
+export const supabase = createClient(url as string, anon as string);
