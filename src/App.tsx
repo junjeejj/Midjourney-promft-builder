@@ -42,13 +42,17 @@ import LocaleSelect from "./components/LocaleSelect";
 
 import { supabase } from "./lib/supabase";
 
+import { isAdAllowedPath } from "./lib/adsPolicy";
+
 declare global { interface Window { adsbygoogle: any[] } }
 
 function UseAdsOnRouteChange() {
-  const loc = useLocation();
+  const { pathname } = useLocation();
   useEffect(() => {
-    try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch {}
-  }, [loc.pathname]);
+    if (isAdAllowedPath(pathname)) {
+      try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch {}
+    }
+  }, [pathname]);
   return null;
 }
 
