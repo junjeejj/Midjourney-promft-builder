@@ -9,6 +9,8 @@ type State = {
   setStep: (n: number) => void;
   updateSlots: (next: Partial<Slots>) => void;
   updateParams: (next: Partial<Params>) => void;
+  setSlots: (next: Partial<Slots>) => void;
+  setParams: (next: Partial<Params>) => void;
   applyTemplate: (slots: Slots, params: MJParams) => void;
   reset: () => void;
   getPrompt: () => string;
@@ -24,6 +26,8 @@ export const useBuilderStore = create<State>((set, get) => ({
   setStep: (n) => set({ currentStep: n }),
   updateSlots: (next) => set({ slots: { ...get().slots, ...next } }),
   updateParams: (next) => set({ params: { ...get().params, ...next } }),
+  setSlots: (next) => set({ slots: { ...get().slots, ...next } }),
+  setParams: (next) => set({ params: { ...get().params, ...next } }),
   applyTemplate: (slots, params) => {
     const merged = applyDefaultsToParams(params as Params, {}, undefined);
     set({ slots, params: merged });
@@ -31,6 +35,7 @@ export const useBuilderStore = create<State>((set, get) => ({
   reset: () => set({ slots: defaultSlots, params: defaultParams, currentStep: 0 }),
   getPrompt: () => buildPrompt(get().slots, get().params),
 }));
+
 
 
 

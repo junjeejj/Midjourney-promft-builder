@@ -1,35 +1,71 @@
-import React from "react";
+type Step = { key: string; label: string };
 
-type Props = {
-  steps: string[];
-  current: number;
-  onStepClick?: (index: number) => void;
-};
+export default function Stepper({
 
-export default function Stepper({ steps, current, onStepClick }: Props) {
+  steps, active, onStepClick,
+
+}:{
+
+  steps: Step[];
+
+  active: number;
+
+  onStepClick?: (index:number)=>void;
+
+}) {
+
   return (
-    <div className="flex items-center gap-2 py-2">
-      {steps.map((label, i) => (
-        <React.Fragment key={i}>
+
+    <div className="flex items-center gap-3 text-sm">
+
+      {steps.map((s,i)=>(
+
+        <div key={s.key} className="flex items-center gap-2">
+
           <button
-            onClick={() => onStepClick?.(i)}
-            className={`px-3 py-1 rounded-lg border transition text-sm ${
-              i === current
-                ? "bg-blue-500 text-white border-blue-600"
-                : i < current
-                ? "bg-gray-100 border-gray-300"
-                : "bg-white border-gray-200"
-            }`}
+
+            type="button"
+
+            onClick={()=>onStepClick?.(i)}
+
+            className={`w-6 h-6 rounded-full grid place-items-center border transition
+
+              ${i<=active? "bg-black text-white border-black" : "bg-white text-gray-600 hover:bg-gray-50"}`}
+
+            aria-label={`Go to ${s.label}`}
+
+            title={`Go to ${s.label}`}
+
           >
-            {label}
+
+            {i+1}
+
           </button>
-          {i < steps.length - 1 && <div className="w-4 h-0.5 bg-gray-300" />}
-        </React.Fragment>
+
+          <button
+
+            type="button"
+
+            onClick={()=>onStepClick?.(i)}
+
+            className={`${i<=active? "font-medium":"text-gray-600 hover:underline"}`}
+
+            title={`Go to ${s.label}`}
+
+          >
+
+            {s.label}
+
+          </button>
+
+          {i<steps.length-1 && <div className="w-6 h-[1px] bg-gray-300 mx-1" />}
+
+        </div>
+
       ))}
+
     </div>
+
   );
+
 }
-
-
-
-

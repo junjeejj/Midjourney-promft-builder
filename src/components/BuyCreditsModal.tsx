@@ -1,20 +1,57 @@
-import React from "react";
+import { useState } from "react";
 
-export default function BuyCreditsModal({ onClose }:{ onClose: ()=>void }) {
-  const buy = async () => {
-    alert("결제 시스템은 추후 구현 예정입니다.");
-    onClose();
-  };
+import { useWalletStore } from "../store/useWalletStore";
+
+export default function BuyCreditsModal(){
+
+  const { addCredits } = useWalletStore();
+
+  const [open, setOpen] = useState(false);
+
+  const [qty, setQty] = useState(100);
+
+  function buy(){ addCredits(qty); setOpen(false); }
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/30" onClick={onClose}/>
-      <div className="relative bg-white rounded-2xl p-5 w-full max-w-sm space-y-3">
-        <div className="text-lg font-semibold">크레딧 충전</div>
-        <div className="text-sm text-gray-600">100 크레딧 패키지 · 10,000원</div>
-        <button onClick={buy} className="w-full py-2 border rounded-xl">결제 페이지로</button>
-        <button onClick={onClose} className="w-full py-2 border rounded-xl">닫기</button>
-      </div>
-    </div>
-  );
-}
 
+    <>
+
+      <button onClick={()=>setOpen(true)} className="px-2 py-1 border rounded-lg text-sm">Buy Credits</button>
+
+      {open && (
+
+        <div className="fixed inset-0 bg-black/30 grid place-items-center">
+
+          <div className="bg-white rounded-2xl p-4 w-full max-w-sm shadow">
+
+            <div className="font-semibold mb-2">Buy Credits (demo)</div>
+
+            <label className="block text-sm mb-2">
+
+              Amount
+
+              <input type="number" className="w-full border rounded-lg px-3 py-2 mt-1" value={qty} onChange={e=>setQty(Number(e.target.value||0))}/>
+
+            </label>
+
+            <div className="flex justify-end gap-2">
+
+              <button onClick={()=>setOpen(false)} className="px-3 py-2 border rounded-lg">Cancel</button>
+
+              <button onClick={buy} className="px-3 py-2 border rounded-lg bg-black text-white">Purchase</button>
+
+            </div>
+
+            <p className="text-xs text-gray-500 mt-2">※ Real Stripe/PortOne checkout will be wired on deployment.</p>
+
+          </div>
+
+        </div>
+
+      )}
+
+    </>
+
+  );
+
+}

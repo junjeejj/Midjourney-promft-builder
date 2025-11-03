@@ -11,7 +11,7 @@ export default function Favorites() {
   
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">즐겨찾기</h1>
+      <h1 className="text-2xl font-bold mb-6">Favorites</h1>
       
       <div className="grid gap-4">
         {favorites.map((fav) => (
@@ -19,11 +19,12 @@ export default function Favorites() {
             {fav}
           </div>
         ))}
-        {favorites.length === 0 && <div className="text-gray-500 text-center py-8">즐겨찾기가 없습니다.</div>}
+        {favorites.length === 0 && <div className="text-gray-500 text-center py-8">No favorites yet.</div>}
       </div>
     </div>
   );
 }
+
 
 
 

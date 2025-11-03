@@ -15,15 +15,19 @@ export default function SeedLab() {
   
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">시드 랩</h1>
+      <h1 className="text-2xl font-bold mb-6">Similar seed search</h1>
+      
+      <div className="text-sm text-gray-600 mb-4">Desired seed style</div>
       
       <input
         type="text"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        placeholder="시드 검색..."
+        placeholder="Search..."
         className="w-full border rounded-lg px-4 py-3 mb-6"
       />
+      
+      <p className="text-xs text-gray-500 mb-4">Demo: using Picsum images. Real version will match Midjourney gallery/community datasets.</p>
       
       <div className="grid gap-4">
         {filtered.map((s) => (
@@ -40,10 +44,13 @@ export default function SeedLab() {
               </div>
             </div>
             <button
-              onClick={() => updateParams({ seed: s.seed })}
+              onClick={() => {
+                updateParams({ seed: s.seed });
+                navigator.clipboard.writeText(String(s.seed));
+              }}
               className="px-4 py-2 bg-blue-500 text-white rounded-lg"
             >
-              적용
+              Copy seed
             </button>
           </div>
         ))}
@@ -51,6 +58,7 @@ export default function SeedLab() {
     </div>
   );
 }
+
 
 
 

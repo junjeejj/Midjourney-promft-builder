@@ -1,31 +1,53 @@
-import React from "react";
 import { useBuilderStore } from "../../store/useBuilderStore";
 
-export default function ModePresetStep() {
-  const { params, updateParams } = useBuilderStore();
-  
+import { useT, useT as useDict } from "../../i18n";
+
+const presets = (t:any)=>[
+
+  { name: t("mode.photoreal.name"), desc:t("mode.photoreal.desc"), params:{ style:"raw", stylize:150 } },
+
+  { name: t("mode.cinematic.name"), desc:t("mode.cinematic.desc"), params:{ style:"raw", stylize:300 } },
+
+  { name: t("mode.niji.name"),      desc:t("mode.niji.desc"),      params:{ niji:true, style:"cute", stylize:250 } },
+
+];
+
+function Row({ name, desc, onPick }:{ name:string; desc:string; onPick:()=>void }) {
+
   return (
-    <div className="space-y-2">
-      <h2 className="text-lg font-semibold">모드/프리셋 선택</h2>
-      <div className="grid grid-cols-1 gap-1.5">
-        <button
-          onClick={() => updateParams({ niji: !params.niji })}
-          className={`p-2 border rounded-lg transition text-left ${
-            params.niji ? "bg-blue-500 text-white border-blue-600" : "hover:bg-gray-50"
-          }`}
-        >
-          <span className="font-semibold">Niji 모드</span> <span className="text-sm opacity-80">- 애니메이션 스타일 전용 모드</span>
-        </button>
-        <button
-          onClick={() => updateParams({ tile: !params.tile })}
-          className={`p-2 border rounded-lg transition text-left ${
-            params.tile ? "bg-blue-500 text-white border-blue-600" : "hover:bg-gray-50"
-          }`}
-        >
-          <span className="font-semibold">Tile 모드</span> <span className="text-sm opacity-80">- 패턴/타일 반복 생성 모드</span>
-        </button>
-      </div>
-    </div>
+
+    <button type="button" onClick={onPick} className="w-full text-left border rounded-xl p-3 hover:bg-gray-50">
+
+      <div className="font-medium">{name} <span className="text-gray-400">: {desc}</span></div>
+
+    </button>
+
   );
+
 }
 
+export default function ModePresetStep({ onNext }:{ onNext: ()=>void }) {
+
+  const { t } = useT();
+
+  const list = presets(t);
+
+  const { setParams } = useBuilderStore();
+
+  return (
+
+    <div className="border rounded-2xl p-3 bg-white space-y-2">
+
+      <div className="font-medium mb-2">{t("mode.label")}</div>
+
+      {list.map(p=>(
+
+        <Row key={p.name} name={p.name} desc={p.desc} onPick={()=>{ setParams(p.params); onNext(); }} />
+
+      ))}
+
+    </div>
+
+  );
+
+}
