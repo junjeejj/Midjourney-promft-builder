@@ -3,12 +3,20 @@ import { Routes, Route, Outlet, useLocation } from "react-router-dom";
 
 import BannerTop from "./components/BannerTop";
 import BannerBottom from "./components/BannerBottom";
+import TopNav from "./components/TopNav";
 import ErrorBoundary from "./components/system/ErrorBoundary";
 
 // 실제 페이지들 (프로젝트에 있는 페이지로 유지)
 import Builder from "./pages/Builder";
 import Pricing from "./pages/Pricing";
 import Login from "./pages/Login";
+import Templates from "./pages/Templates";
+import SeedLab from "./pages/SeedLab";
+import Favorites from "./pages/Favorites";
+import Defaults from "./pages/Defaults";
+import Billing from "./pages/Billing";
+import Settings from "./pages/Settings";
+import Profile from "./pages/Profile";
 
 declare global {
   interface Window {
@@ -41,8 +49,9 @@ function Layout() {
       </div>
       {/* 본문: 배너 높이만큼 여백을 주는 래퍼 */}
       <div className="app-shell">
-        {/* 만약 상단 스텝바/탑내비가 sticky 라면 sticky-after-banner 클래스를 씌워 주세요 */}
-        {/* <div className="sticky-after-banner"> <Stepper .../> </div> */}
+        <div className="sticky-after-banner">
+          <TopNav pathname={pathname} />
+        </div>
         <Outlet />
       </div>
       {/* Bottom Banner: 고정 */}
@@ -78,6 +87,13 @@ export default function App() {
             }
           />
           <Route path="/pricing" element={<Pricing />} />
+          <Route path="/templates" element={<Templates />} />
+          <Route path="/seed" element={<SeedLab />} />
+          <Route path="/favorites" element={<Favorites />} />
+          <Route path="/defaults" element={<Defaults />} />
+          <Route path="/billing" element={<Billing />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/profile" element={<Profile />} />
         </Route>
         {/* 광고 비노출 권장 라우트 */}
         <Route path="/login" element={<Login />} />
