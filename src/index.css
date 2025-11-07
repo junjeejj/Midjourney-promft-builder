@@ -25,3 +25,28 @@ body {
 
 #root { isolation: isolate; }
 
+/* === Fixed Banner height var & helpers === */
+:root {
+  --bannerH: clamp(56px, 7vw, 90px); /* 모바일~데스크탑에서 자연스럽게 */
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+/* 본문을 배너 높이만큼 아래/위로 밀어주는 레이아웃 래퍼 */
+.app-shell {
+  min-height: 100%;
+  padding-top: var(--bannerH);
+  padding-bottom: var(--bannerH);
+}
+
+/* 배너 아래에 붙는 sticky 요소는 top을 배너 높이에 맞춘다 */
+.sticky-after-banner {
+  position: sticky;
+  top: var(--bannerH);
+  z-index: 30; /* 배너(z-40) 보다는 낮게, 본문보다는 높게 */
+}
+

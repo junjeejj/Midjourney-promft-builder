@@ -30,7 +30,6 @@ function UseAdsOnRouteChange() {
 // 공통 레이아웃: 상/하단 배너 + 여백
 function Layout() {
   const { pathname } = useLocation();
-  const bannerH = "clamp(56px, 7vw, 90px)";
   return (
     <>
       <UseAdsOnRouteChange />
@@ -40,11 +39,10 @@ function Layout() {
           <BannerTop pathname={pathname} />
         </div>
       </div>
-      {/* 본문: 광고 높이만큼 여백을 줘서 겹치지 않게 */}
-      <div
-        className="min-h-screen"
-        style={{ paddingTop: bannerH, paddingBottom: bannerH }}
-      >
+      {/* 본문: 배너 높이만큼 여백을 주는 래퍼 */}
+      <div className="app-shell">
+        {/* 만약 상단 스텝바/탑내비가 sticky 라면 sticky-after-banner 클래스를 씌워 주세요 */}
+        {/* <div className="sticky-after-banner"> <Stepper .../> </div> */}
         <Outlet />
       </div>
       {/* Bottom Banner: 고정 */}
