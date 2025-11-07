@@ -30,14 +30,29 @@ function UseAdsOnRouteChange() {
 // 공통 레이아웃: 상/하단 배너 + 여백
 function Layout() {
   const { pathname } = useLocation();
+  const bannerH = "clamp(56px, 7vw, 90px)";
   return (
     <>
       <UseAdsOnRouteChange />
-      <BannerTop pathname={pathname} />
-      <div className="pt-14 pb-16">
+      {/* Top Banner: 고정 */}
+      <div className="fixed inset-x-0 top-0 z-40 bg-white/95 shadow-sm">
+        <div className="mx-auto max-w-6xl px-3 py-2">
+          <BannerTop pathname={pathname} />
+        </div>
+      </div>
+      {/* 본문: 광고 높이만큼 여백을 줘서 겹치지 않게 */}
+      <div
+        className="min-h-screen"
+        style={{ paddingTop: bannerH, paddingBottom: bannerH }}
+      >
         <Outlet />
       </div>
-      <BannerBottom pathname={pathname} />
+      {/* Bottom Banner: 고정 */}
+      <div className="fixed inset-x-0 bottom-0 z-40 bg-white/95 shadow-[0_-1px_6px_rgba(0,0,0,.06)]">
+        <div className="mx-auto max-w-6xl px-3 py-2">
+          <BannerBottom pathname={pathname} />
+        </div>
+      </div>
     </>
   );
 }
