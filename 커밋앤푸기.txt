@@ -1,0 +1,12 @@
+npm run build
+
+git add src/App.tsx src/index.css
+git commit -m "fix(ui): force visible defaults (bg/text) and visual probe block to bypass white-screen by CSS"
+git push
+
+
+npm run build
+
+git add src/main.tsx src/App.tsx
+git commit -m "feat(app): restore router layout + banners and remove diag pre-mount"
+git push
