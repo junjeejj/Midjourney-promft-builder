@@ -27,7 +27,7 @@ body {
 
 /* === Fixed Banner height var & helpers === */
 :root {
-  --bannerH: clamp(56px, 7vw, 90px); /* 모바일~데스크탑에서 자연스럽게 */
+  --bannerH: calc(clamp(56px, 7vw, 90px) + 1rem); /* 광고 래퍼 padding 포함 높이 */
 }
 
 html,
@@ -48,5 +48,10 @@ body,
   position: sticky;
   top: var(--bannerH);
   z-index: 30; /* 배너(z-40) 보다는 낮게, 본문보다는 높게 */
+}
+
+/* 하단 배너 위에 떠 있는 요소 위치 보정 */
+.above-banner-fixed {
+  bottom: var(--bannerH);
 }
 

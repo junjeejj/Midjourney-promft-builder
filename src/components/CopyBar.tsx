@@ -16,7 +16,7 @@ export default function CopyBar() {
   };
   
   return (
-    <div className="fixed bottom-16 left-0 right-0 bg-white border-t p-4 z-40">
+    <div className="fixed left-0 right-0 bg-white border-t p-4 z-40 above-banner-fixed">
       <div className="flex flex-col items-center justify-center gap-2 max-w-6xl mx-auto">
         <button
           onClick={handleCopy}
