@@ -52,6 +52,94 @@ npm install
 2. 로그인/회원가입 페이지에서 테스트
 3. Supabase Dashboard → Authentication → Users에서 사용자 확인
 
+## 6. 지갑/크레딧 테이블 및 RLS 설정
+
+아래 SQL을 Supabase Dashboard → SQL Editor에 붙여넣고 실행합니다.  
+유저별 지갑(`wallets`)과 거래 내역(`wallet_ledger`)을 만들고, 가입 시 자동 생성/크레딧 증감 함수 및 RLS 정책을 설정합니다.
+
+```sql
+-- wallets: 유저별 크레딧 잔액
+create table if not exists public.wallets (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  balance integer not null default 0,
+  updated_at timestamptz not null default now()
+);
+
+-- 사후 로그 (거래 내역)
+create table if not exists public.wallet_ledger (
+  id bigserial primary key,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  delta integer not null,
+  reason text not null,
+  created_at timestamptz not null default now()
+);
+
+-- 신규 가입시 지갑 자동 생성
+create or replace function public.ensure_wallet_row()
+returns trigger language plpgsql as $$
+begin
+  insert into public.wallets (user_id) values (new.id)
+  on conflict (user_id) do nothing;
+  return new;
+end; $$;
+
+drop trigger if exists ensure_wallet_on_signup on auth.users;
+create trigger ensure_wallet_on_signup
+after insert on auth.users
+for each row execute function public.ensure_wallet_row();
+
+-- 크레딧 차감(원자적)
+create or replace function public.spend_credits(p_user uuid, p_amount int, p_reason text)
+returns boolean language plpgsql security definer as $$
+declare
+  newbal integer;
+begin
+  if p_amount <= 0 then
+    raise exception 'amount must be > 0';
+  end if;
+
+  update public.wallets
+  set balance = balance - p_amount,
+      updated_at = now()
+  where user_id = p_user
+    and balance >= p_amount
+  returning balance into newbal;
+
+  if not found then
+    return false;
+  end if;
+
+  insert into public.wallet_ledger(user_id, delta, reason)
+  values(p_user, -p_amount, p_reason);
+  return true;
+end; $$;
+
+-- 크레딧 지급(관리자/웹훅)
+create or replace function public.grant_credits(p_user uuid, p_amount int, p_reason text)
+returns void language plpgsql security definer as $$
+begin
+  update public.wallets
+  set balance = balance + p_amount,
+      updated_at = now()
+  where user_id = p_user;
+
+  insert into public.wallet_ledger(user_id, delta, reason)
+  values(p_user, p_amount, p_reason);
+end; $$;
+
+-- RLS 정책
+alter table public.wallets enable row level security;
+alter table public.wallet_ledger enable row level security;
+
+drop policy if exists sel_own_wallet on public.wallets;
+create policy sel_own_wallet on public.wallets
+  for select using (auth.uid() = user_id);
+
+drop policy if exists sel_own_ledger on public.wallet_ledger;
+create policy sel_own_ledger on public.wallet_ledger
+  for select using (auth.uid() = user_id);
+```
+
 ## 주의사항
 
 - `.env` 파일은 절대 Git에 커밋하지 마세요 (이미 .gitignore에 추가됨)

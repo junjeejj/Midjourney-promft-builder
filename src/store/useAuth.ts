@@ -13,6 +13,7 @@ export const OAUTH_PROVIDERS = ["google"] as const;
 
 export type AuthState = {
   user: DemoUser | null;
+  token: string | null;
 
   // 메인 API
   signInWithPassword: (email: string, password: string) => Promise<void>;
@@ -34,6 +35,7 @@ export type AuthState = {
 
 export const useAuth = create<AuthState>((set, get) => ({
   user: null,
+  token: null,
 
   oauth: { providers: Array.from(OAUTH_PROVIDERS) },
 
@@ -41,20 +43,27 @@ export const useAuth = create<AuthState>((set, get) => ({
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw new Error(error.message);
     const s = data.session;
-    set({ user: s?.user ? { id: s.user.id, email: s.user.email ?? undefined, name: s.user.user_metadata?.name } : null });
+    set({
+      user: s?.user ? { id: s.user.id, email: s.user.email ?? undefined, name: s.user.user_metadata?.name } : null,
+      token: s?.access_token ?? null,
+    });
   },
 
   async signUp(email, password) {
     const { data, error } = await supabase.auth.signUp({ email, password });
     if (error) throw new Error(error.message);
     const u = data.user;
-    set({ user: u ? { id: u.id, email: u.email ?? undefined, name: u.user_metadata?.name } : null });
+    const session = (await supabase.auth.getSession()).data.session;
+    set({
+      user: u ? { id: u.id, email: u.email ?? undefined, name: u.user_metadata?.name } : null,
+      token: session?.access_token ?? null,
+    });
   },
 
   async signOut() {
     const { error } = await supabase.auth.signOut();
     if (error) throw new Error(error.message);
-    set({ user: null });
+    set({ user: null, token: null });
   },
 
   async signInWithProvider(provider) {
@@ -71,7 +80,10 @@ export const useAuth = create<AuthState>((set, get) => ({
     const { data, error } = await supabase.auth.getSession();
     if (error) return;
     const s = data.session;
-    set({ user: s?.user ? { id: s.user.id, email: s.user.email ?? undefined, name: s.user.user_metadata?.name } : null });
+    set({
+      user: s?.user ? { id: s.user.id, email: s.user.email ?? undefined, name: s.user.user_metadata?.name } : null,
+      token: s?.access_token ?? null,
+    });
   },
 
   // 구버전 호환 별칭
@@ -82,7 +94,10 @@ export const useAuth = create<AuthState>((set, get) => ({
 
   // 데모 로그인(선택)
   loginDemo: async () => {
-    set({ user: { id: "demo", displayName: "Demo User", name: "Demo User", email: "demo@example.com" } });
+    set({
+      user: { id: "demo", displayName: "Demo User", name: "Demo User", email: "demo@example.com" },
+      token: "demo-token",
+    });
   },
 
 }));

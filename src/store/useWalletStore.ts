@@ -1,51 +1,36 @@
 import { create } from "zustand";
-import type { Wallet } from "../types";
 
-type State = {
-  wallet: Wallet;
-  addCredits: (amount: number) => void;
-  consumeCredits: (amount: number) => boolean;
+type WalletState = {
+  balance: number;
+  loading: boolean;
+  fetchBalance: (userId: string) => Promise<void>;
+  spend: (userId: string, amount: number, token: string, reason?: string) => Promise<boolean>;
 };
 
-const KEY = "mj.wallet.v1";
-const defaultWallet: Wallet = { credits: 100, lastUpdated: Date.now() };
-
-export const useWalletStore = create<State>((set, get) => ({
-  wallet: defaultWallet,
-  addCredits: (amount) => {
-    const current = get().wallet;
-    const updated = { credits: current.credits + amount, lastUpdated: Date.now() };
-    set({ wallet: updated });
+export const useWalletStore = create<WalletState>((set) => ({
+  balance: 0,
+  loading: false,
+  fetchBalance: async (userId: string) => {
+    set({ loading: true });
     try {
-      localStorage.setItem(KEY, JSON.stringify(updated));
-    } catch {}
+      const r = await fetch(`/api/credits/balance?userId=${userId}`);
+      const j = await r.json();
+      set({ balance: j.balance ?? 0 });
+    } finally {
+      set({ loading: false });
+    }
   },
-  consumeCredits: (amount) => {
-    const current = get().wallet;
-    if (current.credits < amount) return false;
-    const updated = { credits: current.credits - amount, lastUpdated: Date.now() };
-    set({ wallet: updated });
-    try {
-      localStorage.setItem(KEY, JSON.stringify(updated));
-    } catch {}
-    return true;
+  spend: async (userId, amount, token, reason = "prompt") => {
+    const r = await fetch(`/api/credits/spend`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ userId, amount, reason }),
+    });
+    if (r.ok) {
+      set((s) => ({ balance: Math.max(0, s.balance - amount) }));
+      return true;
+    }
+    return false;
   },
 }));
-
-// Load on init
-if (typeof window !== "undefined") {
-  try {
-    const stored = localStorage.getItem(KEY);
-    if (stored) {
-      useWalletStore.setState({ wallet: JSON.parse(stored) });
-    }
-  } catch {}
-}
-
-
-
-
-
-
-
 
