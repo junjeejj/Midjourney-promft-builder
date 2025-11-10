@@ -126,12 +126,10 @@ export const useAuth = create<AuthState>((set, get) => ({
 
 if (isBrowser) {
   const currentUrl = new URL(window.location.href);
-  const hasOAuthParams =
-    currentUrl.searchParams.has("code") ||
-    currentUrl.searchParams.has("access_token") ||
-    currentUrl.hash.includes("access_token=");
+  const hasCodeParam = currentUrl.searchParams.has("code");
+  const hasAccessTokenFragment = currentUrl.hash.includes("access_token=");
 
-  if (hasOAuthParams) {
+  if (hasCodeParam) {
     (async () => {
       try {
         await supabase.auth.exchangeCodeForSession(window.location.href);
@@ -139,21 +137,17 @@ if (isBrowser) {
         console.error("[Supabase] OAuth exchange failed", err);
       } finally {
         const cleanedUrl = new URL(window.location.href);
-        [
-          "code",
-          "state",
-          "access_token",
-          "refresh_token",
-          "expires_in",
-          "token_type",
-          "type",
-        ].forEach((key) => cleanedUrl.searchParams.delete(key));
-        if (cleanedUrl.hash.includes("access_token")) {
-          cleanedUrl.hash = "";
-        }
+        ["code", "state"].forEach((key) => cleanedUrl.searchParams.delete(key));
         window.history.replaceState({}, document.title, cleanedUrl.toString());
       }
     })();
+  } else if (hasAccessTokenFragment) {
+    // implicit flow: Supabase JS hydrates from the hash on client init.
+    setTimeout(() => {
+      const cleanedUrl = new URL(window.location.href);
+      cleanedUrl.hash = "";
+      window.history.replaceState({}, document.title, cleanedUrl.toString());
+    }, 0);
   }
 
   supabase.auth.getSession().then(({ data }) => {
