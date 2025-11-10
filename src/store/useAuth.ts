@@ -33,6 +33,16 @@ export type AuthState = {
   loginDemo?: () => Promise<void>;
 };
 
+const mapUser = (session: Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"]) =>
+  session?.user
+    ? {
+        id: session.user.id,
+        email: session.user.email ?? undefined,
+        name: session.user.user_metadata?.name,
+        displayName: session.user.user_metadata?.name,
+      }
+    : null;
+
 export const useAuth = create<AuthState>((set, get) => ({
   user: null,
   token: null,
@@ -42,20 +52,19 @@ export const useAuth = create<AuthState>((set, get) => ({
   async signInWithPassword(email, password) {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw new Error(error.message);
-    const s = data.session;
+    const session = data.session;
     set({
-      user: s?.user ? { id: s.user.id, email: s.user.email ?? undefined, name: s.user.user_metadata?.name } : null,
-      token: s?.access_token ?? null,
+      user: mapUser(session),
+      token: session?.access_token ?? null,
     });
   },
 
   async signUp(email, password) {
     const { data, error } = await supabase.auth.signUp({ email, password });
     if (error) throw new Error(error.message);
-    const u = data.user;
     const session = (await supabase.auth.getSession()).data.session;
     set({
-      user: u ? { id: u.id, email: u.email ?? undefined, name: u.user_metadata?.name } : null,
+      user: mapUser(session),
       token: session?.access_token ?? null,
     });
   },
@@ -79,10 +88,10 @@ export const useAuth = create<AuthState>((set, get) => ({
   async checkSession() {
     const { data, error } = await supabase.auth.getSession();
     if (error) return;
-    const s = data.session;
+    const session = data.session;
     set({
-      user: s?.user ? { id: s.user.id, email: s.user.email ?? undefined, name: s.user.user_metadata?.name } : null,
-      token: s?.access_token ?? null,
+      user: mapUser(session),
+      token: session?.access_token ?? null,
     });
   },
 
@@ -101,5 +110,22 @@ export const useAuth = create<AuthState>((set, get) => ({
   },
 
 }));
+
+// 초기 세션 동기화
+supabase.auth.getSession().then(({ data }) => {
+  const session = data.session;
+  useAuth.setState({
+    user: mapUser(session),
+    token: session?.access_token ?? null,
+  });
+});
+
+// 세션 변화 구독
+supabase.auth.onAuthStateChange((_event, session) => {
+  useAuth.setState({
+    user: mapUser(session),
+    token: session?.access_token ?? null,
+  });
+});
 
 export default useAuth;
