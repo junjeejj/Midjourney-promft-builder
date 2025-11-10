@@ -7,6 +7,7 @@ export type DemoUser = {
   email?: string;
   displayName?: string;
   name?: string; // 구버전 호환
+  avatarUrl?: string | null;
 };
 
 export const OAUTH_PROVIDERS = ["google"] as const;
@@ -33,15 +34,24 @@ export type AuthState = {
   loginDemo?: () => Promise<void>;
 };
 
-const mapUser = (session: Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"]) =>
+const mapUser = (
+  session: Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"]
+) =>
   session?.user
     ? {
         id: session.user.id,
         email: session.user.email ?? undefined,
         name: session.user.user_metadata?.name,
         displayName: session.user.user_metadata?.name,
+        avatarUrl:
+          session.user.user_metadata?.avatar_url ??
+          session.user.user_metadata?.picture ??
+          session.user.user_metadata?.avatar ??
+          null,
       }
     : null;
+
+const isBrowser = typeof window !== "undefined";
 
 export const useAuth = create<AuthState>((set, get) => ({
   user: null,
@@ -76,13 +86,11 @@ export const useAuth = create<AuthState>((set, get) => ({
   },
 
   async signInWithProvider(provider) {
-    // provider: 'google' 등. redirectTo는 현재 사이트로.
     const { error } = await supabase.auth.signInWithOAuth({
       provider: provider as any,
-      options: { redirectTo: window.location.origin }
+      options: { redirectTo: window.location.origin },
     });
     if (error) throw new Error(error.message);
-    // OAuth는 리다이렉트 플로우라 여기서 set은 생략
   },
 
   async checkSession() {
@@ -104,28 +112,64 @@ export const useAuth = create<AuthState>((set, get) => ({
   // 데모 로그인(선택)
   loginDemo: async () => {
     set({
-      user: { id: "demo", displayName: "Demo User", name: "Demo User", email: "demo@example.com" },
+      user: {
+        id: "demo",
+        displayName: "Demo User",
+        name: "Demo User",
+        email: "demo@example.com",
+        avatarUrl: null,
+      },
       token: "demo-token",
     });
   },
-
 }));
 
-// 초기 세션 동기화
-supabase.auth.getSession().then(({ data }) => {
-  const session = data.session;
-  useAuth.setState({
-    user: mapUser(session),
-    token: session?.access_token ?? null,
-  });
-});
+if (isBrowser) {
+  const currentUrl = new URL(window.location.href);
+  const hasOAuthParams =
+    currentUrl.searchParams.has("code") ||
+    currentUrl.searchParams.has("access_token") ||
+    currentUrl.hash.includes("access_token=");
 
-// 세션 변화 구독
-supabase.auth.onAuthStateChange((_event, session) => {
-  useAuth.setState({
-    user: mapUser(session),
-    token: session?.access_token ?? null,
+  if (hasOAuthParams) {
+    (async () => {
+      try {
+        await supabase.auth.exchangeCodeForSession(window.location.href);
+      } catch (err) {
+        console.error("[Supabase] OAuth exchange failed", err);
+      } finally {
+        const cleanedUrl = new URL(window.location.href);
+        [
+          "code",
+          "state",
+          "access_token",
+          "refresh_token",
+          "expires_in",
+          "token_type",
+          "type",
+        ].forEach((key) => cleanedUrl.searchParams.delete(key));
+        if (cleanedUrl.hash.includes("access_token")) {
+          cleanedUrl.hash = "";
+        }
+        window.history.replaceState({}, document.title, cleanedUrl.toString());
+      }
+    })();
+  }
+
+  supabase.auth.getSession().then(({ data }) => {
+    const session = data.session;
+    useAuth.setState({
+      user: mapUser(session),
+      token: session?.access_token ?? null,
+    });
   });
-});
+
+  supabase.auth.onAuthStateChange((_event, session) => {
+    useAuth.setState({
+      user: mapUser(session),
+      token: session?.access_token ?? null,
+    });
+  });
+}
 
 export default useAuth;

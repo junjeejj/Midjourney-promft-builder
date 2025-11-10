@@ -12,7 +12,6 @@ const primaryNav = [
   { label: "기본값 설정", to: "/defaults" },
   { label: "결제", to: "/billing" },
   { label: "설정", to: "/settings" },
-  { label: "내정보", to: "/profile" },
 ];
 
 export default function TopNav({ pathname }: { pathname: string }) {
@@ -42,9 +41,7 @@ export default function TopNav({ pathname }: { pathname: string }) {
                   key={item.to}
                   to={item.to}
                   className={`rounded-full px-3 py-1 transition ${
-                    active
-                      ? "bg-black text-white"
-                      : "text-gray-700 hover:bg-gray-100"
+                    active ? "bg-black text-white" : "text-gray-700 hover:bg-gray-100"
                   }`}
                 >
                   {item.label}

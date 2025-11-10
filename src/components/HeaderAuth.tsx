@@ -1,8 +1,22 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../store/useAuth";
 
 export default function HeaderAuth() {
   const { user, signInWithProvider, signOut } = useAuth();
+  const [open, setOpen] = React.useState(false);
+  const dropdownRef = React.useRef<HTMLDivElement | null>(null);
+
+  React.useEffect(() => {
+    if (!open) return;
+    const handleClick = (event: MouseEvent) => {
+      if (!dropdownRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+    window.addEventListener("mousedown", handleClick);
+    return () => window.removeEventListener("mousedown", handleClick);
+  }, [open]);
 
   if (!user) {
     return (
@@ -15,15 +29,44 @@ export default function HeaderAuth() {
     );
   }
 
+  const avatarUrl = user.avatarUrl ?? undefined;
+  const fallbackInitial = user.displayName?.[0]?.toUpperCase() ?? "U";
+
   return (
-    <div className="flex items-center gap-2 text-sm text-gray-700">
-      <span>{user.email ?? user.displayName ?? "사용자"}</span>
+    <div className="relative" ref={dropdownRef}>
       <button
-        onClick={() => signOut()}
-        className="rounded-full px-2 py-1 text-red-500 transition hover:bg-red-50"
+        onClick={() => setOpen((prev) => !prev)}
+        className="h-9 w-9 overflow-hidden rounded-full border border-gray-200 bg-white shadow-sm transition hover:shadow"
+        aria-label="사용자 메뉴 열기"
       >
-        로그아웃
+        {avatarUrl ? (
+          <img src={avatarUrl} alt={user.displayName ?? "사용자"} className="h-full w-full object-cover" />
+        ) : (
+          <span className="flex h-full w-full items-center justify-center text-sm font-semibold text-gray-600">
+            {fallbackInitial}
+          </span>
+        )}
       </button>
+      {open && (
+        <div className="absolute right-0 z-50 mt-2 w-40 rounded-xl border border-gray-100 bg-white p-2 text-sm shadow-lg">
+          <Link
+            to="/profile"
+            className="block rounded-lg px-3 py-2 text-left text-gray-700 transition hover:bg-gray-100"
+            onClick={() => setOpen(false)}
+          >
+            내 정보 보기
+          </Link>
+          <button
+            onClick={() => {
+              setOpen(false);
+              signOut();
+            }}
+            className="block w-full rounded-lg px-3 py-2 text-left text-red-500 transition hover:bg-red-50"
+          >
+            로그아웃
+          </button>
+        </div>
+      )}
     </div>
   );
 }
