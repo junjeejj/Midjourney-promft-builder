@@ -15,7 +15,7 @@ const primaryNav = [
 ];
 
 export default function TopNav({ pathname }: { pathname: string }) {
-  const { user, checkSession } = useAuth();
+  const { user, token, checkSession } = useAuth();
   const { balance, fetchBalance } = useWalletStore();
 
   React.useEffect(() => {
@@ -23,8 +23,10 @@ export default function TopNav({ pathname }: { pathname: string }) {
   }, [checkSession]);
 
   React.useEffect(() => {
-    if (user?.id) fetchBalance(user.id);
-  }, [user?.id, fetchBalance]);
+    if (user?.id && token) {
+      fetchBalance(token);
+    }
+  }, [user?.id, token, fetchBalance]);
 
   return (
     <header className="bg-white/95 backdrop-blur border-b">

@@ -1,5 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import OpenAI from "openai";
+import { getUserFromAuthHeader } from "./_auth";
+import { adminSupabase } from "./_supabase";
 
 const SYSTEM = `You are a Midjourney prompt engineer.
 
@@ -7,38 +9,31 @@ Return a single concise prompt optimized for /imagine.
 
 No code fences, no explanations.`;
 
+const COST_PER_GENERATE = 1;
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
-    const { subject, params, userId } = (req.body as any) || {};
+    const auth = await getUserFromAuthHeader(req);
+    if (!auth) return res.status(401).json({ error: "Unauthorized" });
+
+    const { subject, params } = (req.body as any) || {};
 
     if (!subject || typeof subject !== "string") {
       return res.status(400).json({ error: "subject (string) is required" });
     }
 
-    // (임시) userId 수신
-    if (!userId) return res.status(401).json({ error: "userId required" });
+    const supa = adminSupabase();
 
-    // TODO: 실제 DB 조회로 교체
-    async function hasUnlimited(uid: string) {
-      // 예: users.is_unlimited === true 조회
-      return false; // 임시: 기본 false (DB 연결 전)
-    }
-    async function getBalance(uid: string) { return 5000; } // 기존 임시
-    async function spendCredits(uid: string, amount: number) { console.log("SPEND", uid, amount); }
-
-    const COST_PER_GENERATE = 5;
-
-    if (await hasUnlimited(userId)) {
-      // ★ 무제한: 차감 스킵
-      console.log("UNLIMITED USER - no debit", userId);
-    } else {
-      const balance = await getBalance(userId);
-      if (balance < COST_PER_GENERATE) return res.status(402).json({ error: "Insufficient credits" });
-
-      // ↓↓↓ 기존 OpenAI 호출 전에 선차감(혹은 후차감)
-      await spendCredits(userId, COST_PER_GENERATE);
+    const { data: spendResult, error: spendError } = await supa.rpc("spend_credits", {
+      p_user: auth.userId,
+      p_amount: COST_PER_GENERATE,
+      p_reason: "auto_prompt",
+    });
+    if (spendError) throw spendError;
+    if (!spendResult) {
+      return res.status(402).json({ error: "Insufficient credits" });
     }
 
     const apiKey = process.env.OPENAI_API_KEY;
@@ -47,20 +42,36 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const openai = new OpenAI({ apiKey });
     const userText = buildUserText(subject, params);
 
-    const chat = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: SYSTEM },
-        { role: "user", content: userText }
-      ],
-      temperature: 0.7,
-      max_tokens: 300
-    });
+    try {
+      const chat = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: SYSTEM },
+          { role: "user", content: userText },
+        ],
+        temperature: 0.7,
+        max_tokens: 300,
+      });
 
-    const prompt = chat.choices?.[0]?.message?.content?.trim() || "";
-    if (!prompt) return res.status(500).json({ error: "Empty prompt" });
+      const prompt = chat.choices?.[0]?.message?.content?.trim() || "";
+      if (!prompt) return res.status(500).json({ error: "Empty prompt" });
 
-    return res.status(200).json({ prompt });
+      const { data: wallet, error: walletError } = await supa
+        .from("wallets")
+        .select("balance")
+        .eq("user_id", auth.userId)
+        .maybeSingle();
+      if (walletError && walletError.code !== "PGRST116") throw walletError;
+
+      return res.status(200).json({ prompt, balance: wallet?.balance ?? null });
+    } catch (err) {
+      await supa.rpc("grant_credits", {
+        p_user: auth.userId,
+        p_amount: COST_PER_GENERATE,
+        p_reason: "auto_prompt_refund",
+      });
+      throw err;
+    }
   } catch (err: any) {
     return res.status(500).json({ error: err?.message || "Internal error" });
   }

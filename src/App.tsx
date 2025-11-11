@@ -38,11 +38,36 @@ function UseAdsOnRouteChange() {
 // 공통 레이아웃: 상/하단 배너 + 여백
 function Layout() {
   const { pathname } = useLocation();
+  const topRef = React.useRef<HTMLDivElement | null>(null);
+  const bottomRef = React.useRef<HTMLDivElement | null>(null);
+
+  React.useEffect(() => {
+    const update = () => {
+      const hTop = topRef.current?.getBoundingClientRect().height ?? 0;
+      const hBottom = bottomRef.current?.getBoundingClientRect().height ?? 0;
+      const bannerHeight = Math.ceil(Math.max(hTop, hBottom));
+      if (bannerHeight > 0) {
+        document.documentElement.style.setProperty("--bannerH", `${bannerHeight}px`);
+      }
+    };
+
+    update();
+    const resizeObserver = new ResizeObserver(update);
+    if (topRef.current) resizeObserver.observe(topRef.current);
+    if (bottomRef.current) resizeObserver.observe(bottomRef.current);
+    window.addEventListener("resize", update);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", update);
+    };
+  }, []);
+
   return (
     <>
       <UseAdsOnRouteChange />
       {/* Top Banner: 고정 */}
-      <div className="fixed inset-x-0 top-0 z-40 bg-white/95 shadow-sm">
+      <div ref={topRef} className="fixed inset-x-0 top-0 z-40 bg-white/95 shadow-sm">
         <div className="mx-auto max-w-6xl px-3 py-2">
           <BannerTop pathname={pathname} />
         </div>
@@ -55,7 +80,7 @@ function Layout() {
         <Outlet />
       </div>
       {/* Bottom Banner: 고정 */}
-      <div className="fixed inset-x-0 bottom-0 z-40 bg-white/95 shadow-[0_-1px_6px_rgba(0,0,0,.06)]">
+      <div ref={bottomRef} className="fixed inset-x-0 bottom-0 z-40 bg-white/95 shadow-[0_-1px_6px_rgba(0,0,0,.06)]">
         <div className="mx-auto max-w-6xl px-3 py-2">
           <BannerBottom pathname={pathname} />
         </div>

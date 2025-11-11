@@ -10,7 +10,7 @@ export default function BannerBottom({ pathname }: { pathname: string }) {
 
   return (
     <div className="w-full">
-      <AdSlot slot="1760480869" format="horizontal" />
+      <AdSlot slot="1760480870" format="horizontal" />
     </div>
   );
 

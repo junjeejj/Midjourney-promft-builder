@@ -1,0 +1,28 @@
+name: Post-Deploy Health
+
+on:
+  workflow_dispatch:
+  deployment_status:
+    types: [success]
+
+jobs:
+  healthcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call /api/health
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+        run: |
+          set -e
+          if [ -z "$APP_URL" ]; then
+            echo "APP_URL secret is missing"
+            exit 1
+          fi
+          STATUS=$(curl -s -o /tmp/health.json -w "%{http_code}" "$APP_URL/api/health")
+          cat /tmp/health.json
+          if [ "$STATUS" -ne 200 ]; then
+            echo "Health check failed with status $STATUS"
+            exit 1
+          fi
+
+

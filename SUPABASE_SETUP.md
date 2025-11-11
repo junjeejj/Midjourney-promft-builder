@@ -140,6 +140,73 @@ create policy sel_own_ledger on public.wallet_ledger
   for select using (auth.uid() = user_id);
 ```
 
+### 추가 보강 SQL (권장)
+
+아래 스크립트를 순서대로 실행하면 음수 잔액 방지, 외부 이벤트 추적, Stripe 웹훅 멱등 처리를 위한 구조가 갖춰집니다.
+
+```sql
+-- 1) 잔액 음수 방지 (테이블 제약)
+alter table public.wallets
+  add constraint if not exists wallets_balance_nonnegative check (balance >= 0);
+
+-- 2) 원장에 외부 이벤트 ID 기록용 컬럼/인덱스
+alter table public.wallet_ledger add column if not exists ext_event_id text;
+create index if not exists wallet_ledger_ext_event_idx
+  on public.wallet_ledger (ext_event_id) where ext_event_id is not null;
+
+-- 3) 크레딧 지급 RPC 확장 (외부 이벤트 ID 기록)
+create or replace function public.grant_credits(
+  p_user uuid,
+  p_amount int,
+  p_reason text,
+  p_ext_event_id text default null
+) returns boolean
+language plpgsql
+security definer
+as $$
+begin
+  if p_amount <= 0 then
+    raise exception 'amount must be > 0';
+  end if;
+
+  update public.wallets
+  set balance = balance + p_amount,
+      updated_at = now()
+  where user_id = p_user;
+
+  insert into public.wallet_ledger(user_id, delta, reason, ext_event_id)
+  values(p_user, p_amount, p_reason, p_ext_event_id);
+
+  return true;
+end;
+$$;
+
+-- 4) Stripe 멱등성 기록 테이블 + 원자적 선점(Claim) 함수
+create table if not exists public.webhook_events (
+  event_id text primary key,
+  type text not null,
+  received_at timestamptz default now()
+);
+
+create or replace function public.claim_webhook_event(
+  p_event_id text,
+  p_type text
+) returns boolean
+language plpgsql
+security definer
+as $$
+begin
+  insert into public.webhook_events(event_id, type)
+  values (p_event_id, p_type)
+  on conflict do nothing;
+
+  return found;
+end;
+$$;
+```
+
+> **TIP:** `claim_webhook_event`가 `false`를 반환하면 이미 처리된 이벤트이므로 서버에서는 멱등 처리 후 바로 200 응답을 보내면 됩니다.
+
 ## 주의사항
 
 - `.env` 파일은 절대 Git에 커밋하지 마세요 (이미 .gitignore에 추가됨)

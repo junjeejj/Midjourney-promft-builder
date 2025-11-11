@@ -2,38 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
-
 /* ==== Visibility Guard (force readable default) ==== */
-
-html, body, #root { min-height: 100%; height: auto; }
-
-body {
-
-  margin: 0;
-
-  background: #ffffff !important;
-
-  color: #111111 !important;
-
-  -webkit-font-smoothing: antialiased;
-
-  -moz-osx-font-smoothing: grayscale;
-
-}
-
-*, *::before, *::after { box-sizing: border-box; }
-
-#root { isolation: isolate; }
-
-/* === Fixed Banner height var & helpers === */
-:root {
-  --bannerH: calc(clamp(56px, 7vw, 90px) + 1rem); /* 광고 래퍼 padding 포함 높이 */
-}
-
 html,
 body,
 #root {
-  height: 100%;
+  min-height: 100%;
+  height: auto;
+}
+
+body {
+  margin: 0;
+  background: #ffffff !important;
+  color: #111111 !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+#root {
+  isolation: isolate;
+}
+
+/* === Fixed Banner height var & helpers === */
+:root {
+  --bannerH: 72px; /* 기본값: 런타임에서 실제 배너 높이로 덮어씀 */
 }
 
 /* 본문을 배너 높이만큼 아래/위로 밀어주는 레이아웃 래퍼 */

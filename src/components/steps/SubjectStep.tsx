@@ -7,15 +7,17 @@ import { useT } from "../../i18n";
 export default function SubjectStep({ onNext }: { onNext?: () => void }) {
   const { t } = useT();
   const { user, token } = useAuth();
-  const { slots, setSlots } = useBuilderStore();
-  const { balance, fetchBalance, spend } = useWalletStore();
+  const { slots, params, setSlots } = useBuilderStore();
+  const { balance, fetchBalance, setBalance } = useWalletStore();
 
   const [v, setV] = useState(slots.subject || "");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (user?.id) fetchBalance(user.id);
-  }, [user?.id, fetchBalance]);
+    if (token) {
+      fetchBalance(token);
+    }
+  }, [token, fetchBalance]);
 
   function go() {
     setSlots({ subject: v });
@@ -33,21 +35,26 @@ export default function SubjectStep({ onNext }: { onNext?: () => void }) {
     }
     setLoading(true);
     try {
-      const ok = await spend(user.id, 1, token, "auto_prompt");
-      if (!ok) {
-        alert("크레딧 부족 또는 차감 실패");
-        return;
-      }
-      const payload = {
-        subject: v,
-      };
       const r = await fetch("/api/generate-prompt", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          subject: v,
+          params,
+        }),
       });
       const j = await r.json();
+      if (!r.ok) {
+        alert(j?.error ?? "자동 생성 중 오류가 발생했습니다.");
+        return;
+      }
       const autoText = j?.prompt || "";
+      if (typeof j.balance === "number") {
+        setBalance(j.balance);
+      }
       if (autoText) {
         setV(autoText);
         setSlots({ subject: autoText });
