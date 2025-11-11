@@ -1,12 +1,15 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import Stripe from "stripe";
 import { getUserFromAuthHeader } from "../_auth";
+import { enforceRateLimit } from "../_rateLimit";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     if (req.method !== "POST") return res.status(405).end();
+
+    if (!(await enforceRateLimit(req, res))) return;
 
     const auth = await getUserFromAuthHeader(req);
     if (!auth) return res.status(401).json({ error: "Unauthorized" });

@@ -1,10 +1,13 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { adminSupabase } from "../_supabase";
 import { getUserFromAuthHeader } from "../_auth";
+import { enforceRateLimit } from "../_rateLimit";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     if (req.method !== "GET") return res.status(405).end();
+
+    if (!(await enforceRateLimit(req, res))) return;
 
     const auth = await getUserFromAuthHeader(req);
     if (!auth) return res.status(401).json({ error: "Unauthorized" });

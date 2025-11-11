@@ -2,6 +2,7 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 import OpenAI from "openai";
 import { getUserFromAuthHeader } from "./_auth";
 import { adminSupabase } from "./_supabase";
+import { enforceRateLimit } from "./_rateLimit";
 
 const SYSTEM = `You are a Midjourney prompt engineer.
 
@@ -14,6 +15,8 @@ const COST_PER_GENERATE = 1;
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+
+    if (!(await enforceRateLimit(req, res))) return;
 
     const auth = await getUserFromAuthHeader(req);
     if (!auth) return res.status(401).json({ error: "Unauthorized" });
