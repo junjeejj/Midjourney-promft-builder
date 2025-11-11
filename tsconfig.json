@@ -16,7 +16,7 @@
     "skipLibCheck": true,
 
     "jsx": "react-jsx",
-    "types": ["vite/client"]         // ★ 추가: import.meta.env 타입 지원
+    "types": ["vite/client", "node"]
   },
   "include": ["src"]
 }
