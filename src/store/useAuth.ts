@@ -86,11 +86,21 @@ export const useAuth = create<AuthState>((set, get) => ({
   },
 
   async signInWithProvider(provider) {
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: provider as any,
-      options: { redirectTo: window.location.origin },
+      options: { 
+        redirectTo: `${window.location.origin}/login`,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        },
+      },
     });
-    if (error) throw new Error(error.message);
+    if (error) {
+      console.error("[Auth] OAuth sign in error:", error);
+      throw new Error(error.message || "OAuth 로그인에 실패했습니다.");
+    }
+    // OAuth는 리다이렉트되므로 여기서는 에러만 체크
   },
 
   async checkSession() {

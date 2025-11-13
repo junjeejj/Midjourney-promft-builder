@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../store/useAuth";
 
 export default function HeaderAuth() {
-  const { user, signInWithProvider, signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const [open, setOpen] = React.useState(false);
   const dropdownRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -20,12 +20,12 @@ export default function HeaderAuth() {
 
   if (!user) {
     return (
-      <button
+      <Link
+        to="/login"
         className="rounded-full px-3 py-1 text-gray-700 transition hover:bg-gray-100"
-        onClick={() => signInWithProvider("google")}
       >
-        Google로 로그인
-      </button>
+        로그인
+      </Link>
     );
   }
 

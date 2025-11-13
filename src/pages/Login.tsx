@@ -17,8 +17,15 @@ export default function Login() {
     catch (e: any) { setMsg(e?.message || "회원가입 실패"); }
   }
   async function doProvider(p: string) {
-    try { setMsg(null); await signInWithProvider(p); setMsg("리다이렉트 중…"); }
-    catch (e: any) { setMsg(e?.message || "OAuth 실패"); }
+    try { 
+      setMsg(null); 
+      await signInWithProvider(p); 
+      setMsg("리다이렉트 중…"); 
+    }
+    catch (e: any) { 
+      console.error("OAuth error:", e);
+      setMsg(e?.message || "OAuth 로그인에 실패했습니다. 다시 시도해주세요."); 
+    }
   }
 
   return (
