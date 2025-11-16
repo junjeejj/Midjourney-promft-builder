@@ -1,12 +1,65 @@
 // src/pages/Login.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import useAuth, { OAUTH_PROVIDERS } from "../store/useAuth";
+import { supabase } from "../lib/supabase";
 
 export default function Login() {
   const { signInWithPassword, signUp, signInWithProvider, signOut, user, checkSession } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
+
+  // OAuth 콜백 처리 및 로그인 상태 확인
+  useEffect(() => {
+    const currentUrl = new URL(window.location.href);
+    const hasCode = currentUrl.searchParams.has("code");
+
+    // OAuth 콜백으로 돌아온 경우: 코드 → 세션으로 교환
+    if (hasCode) {
+      (async () => {
+        try {
+          setMsg("로그인 처리 중...");
+          const { data, error } = await supabase.auth.exchangeCodeForSession(window.location.href);
+          if (error) {
+            console.error("[Login] OAuth exchange error:", error);
+            setMsg(error.message || "OAuth 코드 교환에 실패했습니다.");
+            return;
+          }
+
+          // 세션이 생겼으니 전역 상태 동기화
+          await checkSession();
+          setMsg("로그인 완료! 메인 화면으로 이동합니다.");
+          navigate("/");
+        } catch (err: any) {
+          console.error("[Login] OAuth exchange failed:", err);
+          setMsg(err?.message || "OAuth 처리 중 오류가 발생했습니다.");
+        } finally {
+          // URL에서 code/state 파라미터 제거 (새로고침 시 재처리 방지)
+          const cleaned = new URL(window.location.href);
+          ["code", "state", "error", "error_code", "error_description"].forEach((k) =>
+            cleaned.searchParams.delete(k)
+          );
+          window.history.replaceState({}, document.title, cleaned.toString());
+        }
+      })();
+    } else {
+      // 일반 페이지 최초 진입 시 현재 세션만 확인
+      checkSession();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // 로그인 성공 시 리다이렉트
+  useEffect(() => {
+    if (user) {
+      const timer = setTimeout(() => {
+        navigate("/");
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [user, navigate]);
 
   async function doLogin() {
     try { setMsg(null); await signInWithPassword(email, pw); setMsg("로그인 성공"); }
