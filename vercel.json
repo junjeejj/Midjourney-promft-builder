@@ -1,0 +1,8 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  // SPA 라우팅: /api/* 를 제외한 모든 경로를 / 로 리라이트하여 index.html을 서빙
+  "rewrites": [
+    { "source": "/((?!api).*)", "destination": "/" }
+  ]
+}
+
