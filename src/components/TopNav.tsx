@@ -19,8 +19,16 @@ export default function TopNav({ pathname }: { pathname: string }) {
   const { balance, fetchBalance } = useWalletStore();
 
   React.useEffect(() => {
+    // 초기 마운트 시 세션 체크
     checkSession();
-  }, [checkSession]);
+    
+    // OAuth 콜백 감지를 위해 URL 파라미터 확인
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has("code")) {
+      // OAuth 콜백이 처리될 때까지 잠시 대기
+      setTimeout(() => checkSession(), 1000);
+    }
+  }, []); // checkSession을 의존성에서 제거하여 무한 루프 방지
 
   React.useEffect(() => {
     if (user?.id && token) {

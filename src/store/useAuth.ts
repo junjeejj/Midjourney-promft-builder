@@ -94,6 +94,8 @@ export const useAuth = create<AuthState>((set, get) => ({
           access_type: 'offline',
           prompt: 'consent',
         },
+        // 사이트 이름은 Supabase 대시보드의 Authentication > URL Configuration에서 설정해야 합니다
+        // Site URL을 실제 도메인으로 설정하면 Google 로그인 화면에 올바른 이름이 표시됩니다
       },
     });
     if (error) {
@@ -105,12 +107,22 @@ export const useAuth = create<AuthState>((set, get) => ({
 
   async checkSession() {
     const { data, error } = await supabase.auth.getSession();
-    if (error) return;
+    if (error) {
+      console.error("[Auth] Session check error:", error);
+      return;
+    }
     const session = data.session;
+    const mappedUser = mapUser(session);
     set({
-      user: mapUser(session),
+      user: mappedUser,
       token: session?.access_token ?? null,
     });
+    // 세션 체크 후 디버그 로그
+    if (mappedUser) {
+      console.log("[Auth] Session found:", mappedUser.email || mappedUser.id);
+    } else {
+      console.log("[Auth] No active session");
+    }
   },
 
   // 구버전 호환 별칭
@@ -142,9 +154,29 @@ if (isBrowser) {
   if (hasCodeParam) {
     (async () => {
       try {
-        await supabase.auth.exchangeCodeForSession(window.location.href);
+        console.log("[Auth] Processing OAuth callback...");
+        const { data, error } = await supabase.auth.exchangeCodeForSession(window.location.href);
+        if (error) {
+          console.error("[Auth] OAuth exchange error:", error);
+          return;
+        }
+        // 세션 교환 후 상태 업데이트
+        const session = data.session;
+        const mappedUser = mapUser(session);
+        useAuth.setState({
+          user: mappedUser,
+          token: session?.access_token ?? null,
+        });
+        console.log("[Auth] OAuth login successful:", mappedUser?.email || mappedUser?.id);
+        
+        // 로그인 성공 후 메인 페이지로 리다이렉트
+        if (mappedUser) {
+          setTimeout(() => {
+            window.location.href = "/";
+          }, 500);
+        }
       } catch (err) {
-        console.error("[Supabase] OAuth exchange failed", err);
+        console.error("[Auth] OAuth exchange failed", err);
       } finally {
         const cleanedUrl = new URL(window.location.href);
         ["code", "state"].forEach((key) => cleanedUrl.searchParams.delete(key));
@@ -160,17 +192,25 @@ if (isBrowser) {
     }, 0);
   }
 
+  // 초기 세션 체크
   supabase.auth.getSession().then(({ data }) => {
     const session = data.session;
+    const mappedUser = mapUser(session);
     useAuth.setState({
-      user: mapUser(session),
+      user: mappedUser,
       token: session?.access_token ?? null,
     });
+    if (mappedUser) {
+      console.log("[Auth] Initial session loaded:", mappedUser.email || mappedUser.id);
+    }
   });
 
-  supabase.auth.onAuthStateChange((_event, session) => {
+  // 인증 상태 변경 리스너 - 세션 변경 시 즉시 업데이트
+  supabase.auth.onAuthStateChange((event, session) => {
+    console.log("[Auth] Auth state changed:", event, session?.user?.email || "no user");
+    const mappedUser = mapUser(session);
     useAuth.setState({
-      user: mapUser(session),
+      user: mappedUser,
       token: session?.access_token ?? null,
     });
   });
