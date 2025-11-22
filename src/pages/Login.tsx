@@ -41,11 +41,7 @@ export default function Login() {
         setMsg("로그인 처리 중...");
         
         try {
-          // 프로덕션 환경에서는 Supabase가 이미 세션을 처리했을 수 있으므로
-          // 먼저 잠시 대기 후 세션 확인 (프로덕션에서는 더 긴 대기 필요할 수 있음)
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          
-          // Supabase가 자동으로 세션을 처리했는지 확인
+          // Supabase가 자동으로 세션을 처리했는지 먼저 확인
           let { data: sessionData, error: sessionError } = await supabase.auth.getSession();
           
           if (sessionError) {
