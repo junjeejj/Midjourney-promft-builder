@@ -1,6 +1,7 @@
 // src/store/useAuth.ts
 import { create } from "zustand";
 import { supabase } from "../lib/supabase";
+import { OAUTH_PROVIDERS, OAUTH_REDIRECT_PATH, DEMO_USER_ENABLED, DEMO_USER } from "../config/constants";
 
 export type DemoUser = {
   id: string;
@@ -9,8 +10,6 @@ export type DemoUser = {
   name?: string; // 구버전 호환
   avatarUrl?: string | null;
 };
-
-export const OAUTH_PROVIDERS = ["google"] as const;
 
 export type AuthState = {
   user: DemoUser | null;
@@ -86,16 +85,13 @@ export const useAuth = create<AuthState>((set, get) => ({
   },
 
   async signInWithProvider(provider) {
+    // OAuth 콜백 후 리디렉션 URL 구성
+    const redirectTo = `${window.location.origin}${OAUTH_REDIRECT_PATH}`;
+    
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: provider as any,
       options: { 
-        redirectTo: `${window.location.origin}/login`,
-        queryParams: {
-          access_type: 'offline',
-          prompt: 'consent',
-        },
-        // 사이트 이름은 Supabase 대시보드의 Authentication > URL Configuration에서 설정해야 합니다
-        // Site URL을 실제 도메인으로 설정하면 Google 로그인 화면에 올바른 이름이 표시됩니다
+        redirectTo: redirectTo,
       },
     });
     if (error) {
@@ -132,80 +128,43 @@ export const useAuth = create<AuthState>((set, get) => ({
   loginWithOAuth: async (p) => get().signInWithProvider(p),
 
   // 데모 로그인(선택)
-  loginDemo: async () => {
+  loginDemo: DEMO_USER_ENABLED ? async () => {
     set({
       user: {
-        id: "demo",
-        displayName: "Demo User",
-        name: "Demo User",
-        email: "demo@example.com",
-        avatarUrl: null,
+        id: DEMO_USER.id,
+        displayName: DEMO_USER.displayName,
+        name: DEMO_USER.name,
+        email: DEMO_USER.email,
+        avatarUrl: DEMO_USER.avatarUrl,
       },
-      token: "demo-token",
+      token: DEMO_USER.token,
     });
-  },
+  } : undefined,
 }));
 
 if (isBrowser) {
-  const currentUrl = new URL(window.location.href);
-  const hasCodeParam = currentUrl.searchParams.has("code");
-  const hasAccessTokenFragment = currentUrl.hash.includes("access_token=");
+  // 1) 앱 처음 로드될 때, 현재 세션 한 번 가져와서 전역 상태에 넣기
+  supabase.auth.getSession().then(({ data, error }) => {
+    if (error) {
+      console.error("[Auth] Initial session load error:", error);
+      return;
+    }
 
-  if (hasCodeParam) {
-    (async () => {
-      try {
-        console.log("[Auth] Processing OAuth callback...");
-        const { data, error } = await supabase.auth.exchangeCodeForSession(window.location.href);
-        if (error) {
-          console.error("[Auth] OAuth exchange error:", error);
-          return;
-        }
-        // 세션 교환 후 상태 업데이트
-        const session = data.session;
-        const mappedUser = mapUser(session);
-        useAuth.setState({
-          user: mappedUser,
-          token: session?.access_token ?? null,
-        });
-        console.log("[Auth] OAuth login successful:", mappedUser?.email || mappedUser?.id);
-        
-        // 로그인 성공 후 메인 페이지로 리다이렉트
-        if (mappedUser) {
-          setTimeout(() => {
-            window.location.href = "/";
-          }, 500);
-        }
-      } catch (err) {
-        console.error("[Auth] OAuth exchange failed", err);
-      } finally {
-        const cleanedUrl = new URL(window.location.href);
-        ["code", "state"].forEach((key) => cleanedUrl.searchParams.delete(key));
-        window.history.replaceState({}, document.title, cleanedUrl.toString());
-      }
-    })();
-  } else if (hasAccessTokenFragment) {
-    // implicit flow: Supabase JS hydrates from the hash on client init.
-    setTimeout(() => {
-      const cleanedUrl = new URL(window.location.href);
-      cleanedUrl.hash = "";
-      window.history.replaceState({}, document.title, cleanedUrl.toString());
-    }, 0);
-  }
-
-  // 초기 세션 체크
-  supabase.auth.getSession().then(({ data }) => {
     const session = data.session;
     const mappedUser = mapUser(session);
     useAuth.setState({
       user: mappedUser,
       token: session?.access_token ?? null,
     });
+
     if (mappedUser) {
       console.log("[Auth] Initial session loaded:", mappedUser.email || mappedUser.id);
+    } else {
+      console.log("[Auth] No initial session");
     }
   });
 
-  // 인증 상태 변경 리스너 - 세션 변경 시 즉시 업데이트
+  // 2) 세션이 변할 때마다 상태 즉시 반영
   supabase.auth.onAuthStateChange((event, session) => {
     console.log("[Auth] Auth state changed:", event, session?.user?.email || "no user");
     const mappedUser = mapUser(session);

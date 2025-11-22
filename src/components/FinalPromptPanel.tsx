@@ -7,6 +7,7 @@ import { applyDefaultsToParams, buildPrompt } from "../lib/promptAssembler";
 import { stripHints, withHints } from "../lib/annotations";
 
 import { useT } from "../i18n";
+import { TIMEOUTS } from "../config/constants";
 
 export default function FinalPromptPanel() {
 
@@ -26,7 +27,7 @@ export default function FinalPromptPanel() {
 
   async function copyFinal() {
 
-    try { await navigator.clipboard.writeText(finalLine); setCopied(true); setTimeout(()=>setCopied(false), 1200); }
+    try { await navigator.clipboard.writeText(finalLine); setCopied(true); setTimeout(()=>setCopied(false), TIMEOUTS.COPY_FEEDBACK); }
 
     catch {}
 

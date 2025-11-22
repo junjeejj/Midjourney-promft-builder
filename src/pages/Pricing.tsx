@@ -5,6 +5,7 @@ import { CREDIT_PRODUCTS, CreditPackId } from "../config/products";
 import { useAuth } from "../store/useAuth";
 
 import { useT } from "../i18n";
+import { API_ENDPOINTS, ROUTES } from "../config/constants";
 
 export default function Pricing() {
 
@@ -14,7 +15,7 @@ export default function Pricing() {
 
   const [loading, setLoading] = useState<string | null>(null);
 
-  const userId = user?.id || "demo-user"; // TODO: 실제 로그인 유저 ID 사용
+  const userId = user?.id || (import.meta.env.VITE_DEMO_USER_ID || "demo-user");
 
 
 
@@ -24,7 +25,7 @@ export default function Pricing() {
 
       setLoading(productId);
 
-      const res = await fetch("/api/stripe/checkout", {
+      const res = await fetch(API_ENDPOINTS.STRIPE_CHECKOUT, {
 
         method: "POST",
 
@@ -36,9 +37,9 @@ export default function Pricing() {
 
           userId,
 
-          successUrl: window.location.origin + "/success",
+          successUrl: window.location.origin + ROUTES.SUCCESS,
 
-          cancelUrl: window.location.origin + "/pricing",
+          cancelUrl: window.location.origin + ROUTES.PRICING,
 
         }),
 

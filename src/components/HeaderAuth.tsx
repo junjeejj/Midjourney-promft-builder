@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../store/useAuth";
+import { ROUTES } from "../config/constants";
 
 export default function HeaderAuth() {
   const { user, signOut } = useAuth();
@@ -21,7 +22,7 @@ export default function HeaderAuth() {
   if (!user) {
     return (
       <Link
-        to="/login"
+        to={ROUTES.LOGIN}
         className="rounded-full px-3 py-1 text-gray-700 transition hover:bg-gray-100"
       >
         로그인
@@ -50,7 +51,7 @@ export default function HeaderAuth() {
       {open && (
         <div className="absolute right-0 z-50 mt-2 w-40 rounded-xl border border-gray-100 bg-white p-2 text-sm shadow-lg">
           <Link
-            to="/profile"
+            to={ROUTES.PROFILE}
             className="block rounded-lg px-3 py-2 text-left text-gray-700 transition hover:bg-gray-100"
             onClick={() => setOpen(false)}
           >

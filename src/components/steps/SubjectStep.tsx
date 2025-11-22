@@ -3,6 +3,7 @@ import { useBuilderStore } from "../../store/useBuilderStore";
 import { useWalletStore } from "../../store/useWalletStore";
 import { useAuth } from "../../store/useAuth";
 import { useT } from "../../i18n";
+import { API_ENDPOINTS } from "../../config/constants";
 
 export default function SubjectStep({ onNext }: { onNext?: () => void }) {
   const { t } = useT();
@@ -35,7 +36,7 @@ export default function SubjectStep({ onNext }: { onNext?: () => void }) {
     }
     setLoading(true);
     try {
-      const r = await fetch("/api/generate-prompt", {
+      const r = await fetch(API_ENDPOINTS.GENERATE_PROMPT, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

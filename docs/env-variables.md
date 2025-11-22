@@ -3,11 +3,11 @@
 프로젝트를 실행하거나 Vercel에 배포할 때 아래 환경 변수를 설정하세요.
 
 ## Supabase
-- `SUPABASE_URL`
-- `SUPABASE_ANON_KEY`
-- `SUPABASE_SERVICE_ROLE`
-
-클라이언트에서 사용하는 Vite 빌드는 기존대로 `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`가 필요합니다.
+- `SUPABASE_URL` (서버 사이드)
+- `SUPABASE_ANON_KEY` (서버 사이드)
+- `SUPABASE_SERVICE_ROLE` (서버 사이드)
+- `VITE_SUPABASE_URL` (클라이언트 사이드)
+- `VITE_SUPABASE_ANON_KEY` (클라이언트 사이드)
 
 ## Stripe
 - `STRIPE_SECRET_KEY`
@@ -25,6 +25,24 @@
 
 ## OpenAI
 - `OPENAI_API_KEY`
+
+## OAuth 설정 (선택)
+- `VITE_OAUTH_REDIRECT_PATH`: OAuth 콜백 후 리디렉션 경로 (기본값: `/login`)
+- `VITE_OAUTH_PROVIDERS`: OAuth 제공자 목록, 쉼표로 구분 (기본값: `google`)
+  - 예: `VITE_OAUTH_PROVIDERS=google,github`
+
+## API 설정 (선택)
+- `VITE_API_BASE_URL`: API 기본 URL (기본값: `/api`)
+
+## 데모 사용자 설정 (선택)
+- `VITE_DEMO_USER_ENABLED`: 데모 사용자 활성화 여부 (기본값: `false`)
+- `VITE_DEMO_USER_ID`: 데모 사용자 ID (기본값: `demo`)
+- `VITE_DEMO_USER_NAME`: 데모 사용자 이름 (기본값: `Demo User`)
+- `VITE_DEMO_USER_EMAIL`: 데모 사용자 이메일 (기본값: `demo@example.com`)
+- `VITE_DEMO_USER_TOKEN`: 데모 사용자 토큰 (기본값: `demo-token`)
+
+## 개발 서버 설정 (선택)
+- `VITE_DEV_PORT`: 개발 서버 포트 (기본값: `5173`)
 
 > 참고: `.env` 파일은 버전 관리 대상이 아니므로, 예시 값이 필요하면 이 문서를 참고해 직접 생성해 주세요.
 

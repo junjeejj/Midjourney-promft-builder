@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useBuilderStore } from "../store/useBuilderStore";
 import { stripHints } from "../lib/annotations";
 import { buildPrompt } from "../lib/promptAssembler";
+import { TIMEOUTS } from "../config/constants";
 
 export default function CopyBar() {
   const { slots, params } = useBuilderStore();
@@ -12,7 +13,7 @@ export default function CopyBar() {
     const clean = stripHints(prompt);
     await navigator.clipboard.writeText(clean);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setTimeout(() => setCopied(false), TIMEOUTS.COPY_FEEDBACK_LONG);
   };
   
   return (

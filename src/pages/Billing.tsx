@@ -7,6 +7,7 @@ import BuyCreditsModal from "../components/BuyCreditsModal";
 import CreditBadge from "../components/CreditBadge";
 
 import { useT } from "../i18n";
+import { ROUTES } from "../config/constants";
 
 type Props = { onClose?: () => void };
 
@@ -26,7 +27,7 @@ export default function Billing({ onClose }: Props){
 
         <BuyCreditsModal />
 
-        <Link to="/pricing" className="px-3 py-1 border rounded-lg text-sm">
+        <Link to={ROUTES.PRICING} className="px-3 py-1 border rounded-lg text-sm">
 
           {t("credits.buy")}
 

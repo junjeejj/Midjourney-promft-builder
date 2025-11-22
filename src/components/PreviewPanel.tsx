@@ -7,6 +7,7 @@ import { applyDefaultsToParams, buildPrompt } from "../lib/promptAssembler";
 import { stripHints, withHints } from "../lib/annotations";
 
 import { useT } from "../i18n";
+import { TIMEOUTS } from "../config/constants";
 
 export default function PreviewPanel() {
 
@@ -32,7 +33,7 @@ export default function PreviewPanel() {
 
       setCopied(true); 
 
-      setTimeout(()=>setCopied(false), 1200); 
+      setTimeout(()=>setCopied(false), TIMEOUTS.COPY_FEEDBACK); 
 
     } catch {}
 

@@ -1,9 +1,10 @@
 // src/components/OAuthButtons.tsx
-import useAuth, { OAUTH_PROVIDERS } from "../store/useAuth";
+import useAuth from "../store/useAuth";
+import { OAUTH_PROVIDERS, DEMO_USER_ENABLED } from "../config/constants";
 
 export default function OAuthButtons() {
   const { loginWithOAuth, loginDemo, oauth } = useAuth();
-  const providers = OAUTH_PROVIDERS ?? oauth?.providers ?? ["google"];
+  const providers = oauth?.providers ?? OAUTH_PROVIDERS;
   return (
     <div className="flex gap-2">
       {providers.map((p) => (
@@ -11,7 +12,9 @@ export default function OAuthButtons() {
           Continue with {p}
         </button>
       ))}
-      <button onClick={() => loginDemo?.()} className="px-3 py-2 rounded border">Try Demo</button>
+      {DEMO_USER_ENABLED && (
+        <button onClick={() => loginDemo?.()} className="px-3 py-2 rounded border">Try Demo</button>
+      )}
     </div>
   );
 }

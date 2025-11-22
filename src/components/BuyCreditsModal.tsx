@@ -3,6 +3,7 @@
 import { useNavigate } from "react-router-dom";
 
 import { useT } from "../i18n";
+import { ROUTES } from "../config/constants";
 
 export default function BuyCreditsModal({ onClose }: { onClose?: () => void }){
 
@@ -14,7 +15,7 @@ export default function BuyCreditsModal({ onClose }: { onClose?: () => void }){
 
     onClose?.();
 
-    navigate("/pricing");
+    navigate(ROUTES.PRICING);
 
   }
 

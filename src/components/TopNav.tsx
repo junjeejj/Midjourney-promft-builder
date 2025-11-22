@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useWalletStore } from "../store/useWalletStore";
 import { useAuth } from "../store/useAuth";
 import HeaderAuth from "./HeaderAuth";
+import { TIMEOUTS, ROUTES } from "../config/constants";
 
 const primaryNav = [
   { label: "빌더", to: "/builder" },
@@ -26,7 +27,7 @@ export default function TopNav({ pathname }: { pathname: string }) {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has("code")) {
       // OAuth 콜백이 처리될 때까지 잠시 대기
-      setTimeout(() => checkSession(), 1000);
+      setTimeout(() => checkSession(), TIMEOUTS.SESSION_CHECK_DELAY);
     }
   }, []); // checkSession을 의존성에서 제거하여 무한 루프 방지
 
@@ -40,7 +41,7 @@ export default function TopNav({ pathname }: { pathname: string }) {
     <header className="bg-white/95 backdrop-blur border-b">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 text-sm">
         <div className="flex items-center gap-6">
-          <Link to="/" className="text-base font-semibold text-gray-900">
+          <Link to={ROUTES.HOME} className="text-base font-semibold text-gray-900">
             MJ 프롬프트 빌더
           </Link>
           <nav className="hidden items-center gap-2 md:flex">
@@ -68,7 +69,7 @@ export default function TopNav({ pathname }: { pathname: string }) {
             </div>
           )}
           <Link
-            to="/pricing"
+            to={ROUTES.PRICING}
             className="rounded-full border border-black px-3 py-1 font-medium text-black transition hover:bg-black hover:text-white"
           >
             크레딧 구매

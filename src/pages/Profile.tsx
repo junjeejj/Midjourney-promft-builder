@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../store/useAuth";
+import { OAUTH_PROVIDERS } from "../config/constants";
 
 export default function Profile() {
   const {
@@ -53,7 +54,7 @@ export default function Profile() {
     }
   };
 
-  const handleOAuth = async (provider: "google" | "github") => {
+  const handleOAuth = async (provider: string) => {
     setError(null);
     try {
       await doLoginWithOAuth(provider);
@@ -157,18 +158,15 @@ export default function Profile() {
           <div className="mt-4 pt-4 border-t">
             <p className="text-sm text-gray-600 text-center mb-3">or</p>
             <div className="space-y-2">
-              <button
-                onClick={() => handleOAuth("google")}
-                className="w-full px-4 py-2 border rounded-lg hover:bg-gray-50"
-              >
-                Continue with GOOGLE
-              </button>
-              <button
-                onClick={() => handleOAuth("github")}
-                className="w-full px-4 py-2 border rounded-lg hover:bg-gray-50"
-              >
-                Continue with GITHUB
-              </button>
+              {OAUTH_PROVIDERS.map((provider) => (
+                <button
+                  key={provider}
+                  onClick={() => handleOAuth(provider)}
+                  className="w-full px-4 py-2 border rounded-lg hover:bg-gray-50"
+                >
+                  Continue with {provider.toUpperCase()}
+                </button>
+              ))}
             </div>
           </div>
 

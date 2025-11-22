@@ -1,5 +1,7 @@
+import { API_ENDPOINTS } from "../config/constants";
+
 export async function generatePromptFromSubject(subject: string, params?: any): Promise<string> {
-  const res = await fetch("/api/generate-prompt", {
+  const res = await fetch(API_ENDPOINTS.GENERATE_PROMPT, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ subject, params })

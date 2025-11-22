@@ -14,7 +14,8 @@ export const useWalletStore = create<WalletState>((set) => ({
   async fetchBalance(token: string) {
     set({ loading: true });
     try {
-      const r = await fetch("/api/credits/balance", {
+      const { API_ENDPOINTS } = await import("../config/constants");
+      const r = await fetch(API_ENDPOINTS.CREDITS_BALANCE, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const j = await r.json();
@@ -31,7 +32,8 @@ export const useWalletStore = create<WalletState>((set) => ({
   },
   async spend(amount, token, reason = "prompt") {
     try {
-      const r = await fetch("/api/credits/spend", {
+      const { API_ENDPOINTS } = await import("../config/constants");
+      const r = await fetch(API_ENDPOINTS.CREDITS_SPEND, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ amount, reason }),

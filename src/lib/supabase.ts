@@ -1,5 +1,6 @@
 // src/lib/supabase.ts
 import { createClient } from "@supabase/supabase-js";
+import { SUPABASE_PLACEHOLDER_URL, SUPABASE_PLACEHOLDER_ANON_KEY } from "../config/constants";
 
 const url = import.meta.env.VITE_SUPABASE_URL;
 const anon = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -14,11 +15,11 @@ if (!url || !anon) {
 
 // 환경 변수가 없을 때는 더미 클라이언트 생성 (앱이 크래시되지 않도록)
 export const supabase = createClient(
-  url || "https://placeholder.supabase.co",
-  anon || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsYWNlaG9sZGVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NDUxOTIwMDAsImV4cCI6MTk2MDc2ODAwMH0.placeholder"
+  url || SUPABASE_PLACEHOLDER_URL,
+  anon || SUPABASE_PLACEHOLDER_ANON_KEY
 );
 
 // Supabase가 설정되었는지 확인하는 헬퍼
 export const isSupabaseConfigured = () => {
-  return !!(url && anon && url !== "https://placeholder.supabase.co");
+  return !!(url && anon && url !== SUPABASE_PLACEHOLDER_URL);
 };
