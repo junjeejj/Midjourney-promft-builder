@@ -195,6 +195,7 @@ export default function Login() {
   return (
     <div className="mx-auto max-w-md p-6">
       <h1 className="text-2xl font-bold mb-4">로그인</h1>
+      {/* 빌드 버전: 2025-01-17 - "로그인" 표시 확인용 */}
       <div className="mb-3 text-sm opacity-70">세션: {user ? `${user.email ?? user.id}` : "(없음)"}</div>
       <div className="flex flex-col gap-2">
         <input className="border rounded px-3 py-2" placeholder="email" value={email} onChange={e=>setEmail(e.target.value)} />
