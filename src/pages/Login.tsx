@@ -41,18 +41,33 @@ export default function Login() {
         setMsg("로그인 처리 중...");
         
         try {
+          // 프로덕션 환경에서는 Supabase가 이미 세션을 처리했을 수 있으므로
+          // 먼저 잠시 대기 후 세션 확인 (프로덕션에서는 더 긴 대기 필요할 수 있음)
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
           // Supabase가 자동으로 세션을 처리했는지 확인
           let { data: sessionData, error: sessionError } = await supabase.auth.getSession();
           
+          if (sessionError) {
+            console.error("[Login] Session check error:", sessionError);
+          }
+          
           // 세션이 없으면 코드를 세션으로 교환
-          if (!sessionData.session) {
+          if (!sessionData?.session) {
             const code = currentUrl.searchParams.get("code");
             if (code) {
+              console.log("[Login] Exchanging code for session");
               // Supabase는 전체 URL을 전달받아야 함
               const { data, error } = await supabase.auth.exchangeCodeForSession(window.location.href);
               if (error) {
                 console.error("[Login] Exchange error:", error);
                 setMsg(error.message || "OAuth 코드 교환에 실패했습니다.");
+                // URL 정리
+                const cleaned = new URL(window.location.href);
+                ["code", "state", "error", "error_code", "error_description"].forEach((k) =>
+                  cleaned.searchParams.delete(k)
+                );
+                window.history.replaceState({}, document.title, cleaned.toString());
                 oauthProcessingRef.current = false;
                 return;
               }
@@ -61,28 +76,44 @@ export default function Login() {
           }
 
           if (sessionData?.session) {
+            console.log("[Login] Session found, syncing state");
             // 세션이 있으면 상태 동기화
             await checkSession();
-            setMsg("로그인 완료! 메인 화면으로 이동합니다.");
             
-            // URL 정리
+            // URL 정리 (리디렉션 전에)
             const cleaned = new URL(window.location.href);
             ["code", "state", "error", "error_code", "error_description"].forEach((k) =>
               cleaned.searchParams.delete(k)
             );
             window.history.replaceState({}, document.title, cleaned.toString());
             
+            setMsg("로그인 완료! 메인 화면으로 이동합니다.");
+            
+            // 짧은 딜레이 후 리디렉션 (상태 업데이트 시간 확보)
             setTimeout(() => {
               navigate(ROUTES.HOME);
               oauthProcessingRef.current = false;
-            }, TIMEOUTS.LOGIN_REDIRECT);
+            }, 500);
           } else {
+            console.error("[Login] No session after exchange");
             setMsg("세션을 생성할 수 없습니다. 다시 시도해주세요.");
+            // URL 정리
+            const cleaned = new URL(window.location.href);
+            ["code", "state", "error", "error_code", "error_description"].forEach((k) =>
+              cleaned.searchParams.delete(k)
+            );
+            window.history.replaceState({}, document.title, cleaned.toString());
             oauthProcessingRef.current = false;
           }
         } catch (err: any) {
           console.error("[Login] OAuth callback error:", err);
           setMsg(err?.message || "OAuth 처리 중 오류가 발생했습니다.");
+          // URL 정리
+          const cleaned = new URL(window.location.href);
+          ["code", "state", "error", "error_code", "error_description"].forEach((k) =>
+            cleaned.searchParams.delete(k)
+          );
+          window.history.replaceState({}, document.title, cleaned.toString());
           oauthProcessingRef.current = false;
         }
       } else if (!hasCode) {
@@ -103,8 +134,11 @@ export default function Login() {
       const currentUrl = new URL(window.location.href);
       const hasCode = currentUrl.searchParams.has("code");
       
+      console.log("[Login] Auth state changed:", event, hasCode, !!session);
+      
       // OAuth 콜백으로 돌아온 경우에만 처리 (이미 처리 중이 아닐 때만)
       if (event === "SIGNED_IN" && session && hasCode && !oauthProcessingRef.current) {
+        console.log("[Login] SIGNED_IN event detected, processing OAuth callback");
         oauthProcessingRef.current = true;
         await checkSession();
         setMsg("로그인 완료! 메인 화면으로 이동합니다.");
@@ -116,10 +150,9 @@ export default function Login() {
         );
         window.history.replaceState({}, document.title, cleaned.toString());
         
-        setTimeout(() => {
-          navigate(ROUTES.HOME);
-          oauthProcessingRef.current = false;
-        }, TIMEOUTS.LOGIN_REDIRECT);
+        // 즉시 리디렉션
+        navigate(ROUTES.HOME);
+        oauthProcessingRef.current = false;
       }
     });
 
