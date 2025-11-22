@@ -140,8 +140,9 @@ export default function Login() {
       if (event === "SIGNED_IN" && session && hasCode && !oauthProcessingRef.current) {
         console.log("[Login] SIGNED_IN event detected, processing OAuth callback");
         oauthProcessingRef.current = true;
+        
+        // 상태 동기화
         await checkSession();
-        setMsg("로그인 완료! 메인 화면으로 이동합니다.");
         
         // URL 정리
         const cleaned = new URL(window.location.href);
@@ -150,9 +151,13 @@ export default function Login() {
         );
         window.history.replaceState({}, document.title, cleaned.toString());
         
-        // 즉시 리디렉션
-        navigate(ROUTES.HOME);
-        oauthProcessingRef.current = false;
+        setMsg("로그인 완료! 메인 화면으로 이동합니다.");
+        
+        // 짧은 딜레이 후 리디렉션 (상태 업데이트 시간 확보)
+        setTimeout(() => {
+          navigate(ROUTES.HOME);
+          oauthProcessingRef.current = false;
+        }, 500);
       }
     });
 

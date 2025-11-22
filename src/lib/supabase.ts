@@ -14,9 +14,18 @@ if (!url || !anon) {
 }
 
 // 환경 변수가 없을 때는 더미 클라이언트 생성 (앱이 크래시되지 않도록)
+// 프로덕션 환경에서 쿠키/세션 처리를 위해 auth 옵션 명시
 export const supabase = createClient(
   url || SUPABASE_PLACEHOLDER_URL,
-  anon || SUPABASE_PLACEHOLDER_ANON_KEY
+  anon || SUPABASE_PLACEHOLDER_ANON_KEY,
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+      flowType: 'pkce',
+    },
+  }
 );
 
 // Supabase가 설정되었는지 확인하는 헬퍼
