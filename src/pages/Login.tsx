@@ -47,12 +47,9 @@ export default function Login() {
           // 세션이 없으면 코드를 세션으로 교환
           if (!sessionData.session) {
             const code = currentUrl.searchParams.get("code");
-            const state = currentUrl.searchParams.get("state");
             if (code) {
-              // Supabase 문서에 따르면 전체 URL 또는 { code, state } 객체를 전달해야 함
-              const { data, error } = await supabase.auth.exchangeCodeForSession(
-                state ? { code, state } : window.location.href
-              );
+              // Supabase는 전체 URL을 전달받아야 함
+              const { data, error } = await supabase.auth.exchangeCodeForSession(window.location.href);
               if (error) {
                 console.error("[Login] Exchange error:", error);
                 setMsg(error.message || "OAuth 코드 교환에 실패했습니다.");
