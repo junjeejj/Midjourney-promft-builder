@@ -18,24 +18,34 @@ const primaryNav = [
 export default function TopNav({ pathname }: { pathname: string }) {
   const { user, token, checkSession } = useAuth();
   const { balance, fetchBalance } = useWalletStore();
+  
+  // Zustand store 함수들의 최신 참조를 유지
+  const checkSessionRef = React.useRef(checkSession);
+  const fetchBalanceRef = React.useRef(fetchBalance);
+  
+  React.useEffect(() => {
+    checkSessionRef.current = checkSession;
+    fetchBalanceRef.current = fetchBalance;
+  }, [checkSession, fetchBalance]);
 
   React.useEffect(() => {
     // 초기 마운트 시 세션 체크
-    checkSession();
+    checkSessionRef.current();
     
     // OAuth 콜백 감지를 위해 URL 파라미터 확인
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has("code")) {
       // OAuth 콜백이 처리될 때까지 잠시 대기
-      setTimeout(() => checkSession(), TIMEOUTS.SESSION_CHECK_DELAY);
+      setTimeout(() => checkSessionRef.current(), TIMEOUTS.SESSION_CHECK_DELAY);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // checkSession을 의존성에서 제거하여 무한 루프 방지
 
   React.useEffect(() => {
     if (user?.id && token) {
-      fetchBalance(token);
+      fetchBalanceRef.current(token);
     }
-  }, [user?.id, token, fetchBalance]);
+  }, [user?.id, token]);
 
   return (
     <header className="bg-white/95 backdrop-blur border-b">

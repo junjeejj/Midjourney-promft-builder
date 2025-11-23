@@ -1,5 +1,5 @@
 // src/pages/Login.tsx
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import useAuth from "../store/useAuth";
 import { supabase } from "../lib/supabase";
 import { OAUTH_PROVIDERS, TIMEOUTS, ROUTES } from "../config/constants";
@@ -10,6 +10,12 @@ export default function Login() {
   const [pw, setPw] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
   const oauthProcessingRef = useRef(false);
+  const checkSessionRef = useRef(checkSession);
+  
+  // checkSession 참조를 최신으로 유지
+  React.useEffect(() => {
+    checkSessionRef.current = checkSession;
+  }, [checkSession]);
 
   // OAuth 콜백 처리 및 로그인 상태 확인
   useEffect(() => {
@@ -72,7 +78,7 @@ export default function Login() {
           if (sessionData?.session) {
             console.log("[Login] Session found, syncing state", sessionData.session.user.email);
             // 세션이 있으면 상태 동기화
-            await checkSession();
+            await checkSessionRef.current();
             
             // 상태 업데이트 확인을 위해 잠시 대기
             await new Promise(resolve => setTimeout(resolve, 300));
@@ -121,12 +127,13 @@ export default function Login() {
         }
       } else if (!hasCode) {
         // 일반 페이지 최초 진입 시 현재 세션만 확인
-        checkSession();
+        checkSessionRef.current();
       }
     };
 
     handleOAuthCallback();
-  }, [checkSession]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // onAuthStateChange 이벤트 구독 (OAuth 콜백 처리 - 폴백)
   useEffect(() => {
@@ -144,7 +151,7 @@ export default function Login() {
         oauthProcessingRef.current = true;
         
         // 상태 동기화
-        await checkSession();
+        await checkSessionRef.current();
         
         // 상태 업데이트 확인을 위해 잠시 대기
         await new Promise(resolve => setTimeout(resolve, 300));
@@ -166,7 +173,8 @@ export default function Login() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [checkSession]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // 로그인 성공 시 리다이렉트 (폴백) - OAuth 콜백이 아닐 때만
   useEffect(() => {
@@ -226,7 +234,7 @@ export default function Login() {
           ))}
         </div>
       </div>
-      <div className="mt-4 text-sm text-blue-600 cursor-pointer underline" onClick={()=>checkSession()}>세션 다시 확인</div>
+      <div className="mt-4 text-sm text-blue-600 cursor-pointer underline" onClick={()=>checkSessionRef.current()}>세션 다시 확인</div>
       {msg && <div className="mt-4 text-sm text-rose-600">{msg}</div>}
     </div>
   );
