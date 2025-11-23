@@ -1,13 +1,11 @@
 // src/pages/Login.tsx
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
 import useAuth from "../store/useAuth";
 import { supabase } from "../lib/supabase";
 import { OAUTH_PROVIDERS, TIMEOUTS, ROUTES } from "../config/constants";
 
 export default function Login() {
   const { signInWithPassword, signUp, signInWithProvider, signOut, user, checkSession } = useAuth();
-  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
