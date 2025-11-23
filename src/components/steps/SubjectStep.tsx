@@ -13,12 +13,19 @@ export default function SubjectStep({ onNext }: { onNext?: () => void }) {
 
   const [v, setV] = useState(slots.subject || "");
   const [loading, setLoading] = useState(false);
+  
+  // Zustand store 함수의 최신 참조를 유지
+  const fetchBalanceRef = React.useRef(fetchBalance);
+  
+  React.useEffect(() => {
+    fetchBalanceRef.current = fetchBalance;
+  }, [fetchBalance]);
 
   useEffect(() => {
     if (token) {
-      fetchBalance(token);
+      fetchBalanceRef.current(token);
     }
-  }, [token, fetchBalance]);
+  }, [token]);
 
   function go() {
     setSlots({ subject: v });
