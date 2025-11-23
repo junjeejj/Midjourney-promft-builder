@@ -169,7 +169,8 @@ export default function Login() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [checkSession]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // 로그인 성공 시 리다이렉트 (폴백) - OAuth 콜백이 아닐 때만
   useEffect(() => {
