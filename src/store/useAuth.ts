@@ -35,20 +35,24 @@ export type AuthState = {
 
 const mapUser = (
   session: Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"]
-) =>
-  session?.user
-    ? {
-        id: session.user.id,
-        email: session.user.email ?? undefined,
-        name: session.user.user_metadata?.name,
-        displayName: session.user.user_metadata?.name,
-        avatarUrl:
-          session.user.user_metadata?.avatar_url ??
-          session.user.user_metadata?.picture ??
-          session.user.user_metadata?.avatar ??
-          null,
-      }
-    : null;
+) => {
+  if (!session?.user) return null;
+  
+  const avatarUrl =
+    session.user.user_metadata?.avatar_url ??
+    session.user.user_metadata?.picture ??
+    session.user.user_metadata?.avatar ??
+    session.user.user_metadata?.photoURL ?? // Google OAuth 추가 필드
+    null;
+  
+  return {
+    id: session.user.id,
+    email: session.user.email ?? undefined,
+    name: session.user.user_metadata?.name,
+    displayName: session.user.user_metadata?.name,
+    avatarUrl,
+  };
+};
 
 const isBrowser = typeof window !== "undefined";
 
@@ -113,12 +117,6 @@ export const useAuth = create<AuthState>((set, get) => ({
       user: mappedUser,
       token: session?.access_token ?? null,
     });
-    // 세션 체크 후 디버그 로그
-    if (mappedUser) {
-      console.log("[Auth] Session found:", mappedUser.email || mappedUser.id);
-    } else {
-      console.log("[Auth] No active session");
-    }
   },
 
   // 구버전 호환 별칭
@@ -156,17 +154,10 @@ if (isBrowser) {
       user: mappedUser,
       token: session?.access_token ?? null,
     });
-
-    if (mappedUser) {
-      console.log("[Auth] Initial session loaded:", mappedUser.email || mappedUser.id);
-    } else {
-      console.log("[Auth] No initial session");
-    }
   });
 
   // 2) 세션이 변할 때마다 상태 즉시 반영
   supabase.auth.onAuthStateChange((event, session) => {
-    console.log("[Auth] Auth state changed:", event, session?.user?.email || "no user");
     const mappedUser = mapUser(session);
     useAuth.setState({
       user: mappedUser,

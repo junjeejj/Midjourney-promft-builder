@@ -32,6 +32,7 @@ export default function HeaderAuth() {
 
   const avatarUrl = user.avatarUrl ?? undefined;
   const fallbackInitial = user.displayName?.[0]?.toUpperCase() ?? "U";
+  const [imgError, setImgError] = React.useState(false);
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -40,8 +41,15 @@ export default function HeaderAuth() {
         className="h-9 w-9 overflow-hidden rounded-full border border-gray-200 bg-white shadow-sm transition hover:shadow"
         aria-label="사용자 메뉴 열기"
       >
-        {avatarUrl ? (
-          <img src={avatarUrl} alt={user.displayName ?? "사용자"} className="h-full w-full object-cover" />
+        {avatarUrl && !imgError ? (
+          <img 
+            src={avatarUrl} 
+            alt={user.displayName ?? "사용자"} 
+            className="h-full w-full object-cover"
+            onError={() => {
+              setImgError(true);
+            }}
+          />
         ) : (
           <span className="flex h-full w-full items-center justify-center text-sm font-semibold text-gray-600">
             {fallbackInitial}
