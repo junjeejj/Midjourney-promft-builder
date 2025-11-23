@@ -7,6 +7,7 @@ export default function HeaderAuth() {
   const { user, signOut } = useAuth();
   const [open, setOpen] = React.useState(false);
   const dropdownRef = React.useRef<HTMLDivElement | null>(null);
+  const [imgError, setImgError] = React.useState(false);
 
   React.useEffect(() => {
     if (!open) return;
@@ -32,7 +33,6 @@ export default function HeaderAuth() {
 
   const avatarUrl = user.avatarUrl ?? undefined;
   const fallbackInitial = user.displayName?.[0]?.toUpperCase() ?? "U";
-  const [imgError, setImgError] = React.useState(false);
 
   return (
     <div className="relative" ref={dropdownRef}>
