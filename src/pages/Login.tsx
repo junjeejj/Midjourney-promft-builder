@@ -126,8 +126,7 @@ export default function Login() {
     };
 
     handleOAuthCallback();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [checkSession]);
 
   // onAuthStateChange 이벤트 구독 (OAuth 콜백 처리 - 폴백)
   useEffect(() => {
@@ -167,8 +166,7 @@ export default function Login() {
     return () => {
       subscription.unsubscribe();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [checkSession]);
 
   // 로그인 성공 시 리다이렉트 (폴백) - OAuth 콜백이 아닐 때만
   useEffect(() => {
