@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Routes, Route, Outlet, useLocation } from "react-router-dom";
 
 import BannerTop from "./components/BannerTop";
 import BannerBottom from "./components/BannerBottom";
 import TopNav from "./components/TopNav";
 import ErrorBoundary from "./components/system/ErrorBoundary";
+import { AdSenseProvider, requestAdFill } from "./components/ads/AdSenseProvider";
 
 // 실제 페이지들 (프로젝트에 있는 페이지로 유지)
 import Builder from "./pages/Builder";
@@ -17,22 +18,12 @@ import Defaults from "./pages/Defaults";
 import Billing from "./pages/Billing";
 import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
+import PromptBuilderV2 from "./pages/PromptBuilderV2";
 
 declare global {
   interface Window {
     adsbygoogle: any[];
   }
-}
-
-// 라우트 변경 때 AdSense 리프레시 (광고 자원 재요청)
-function UseAdsOnRouteChange() {
-  const { pathname } = useLocation();
-  React.useEffect(() => {
-    try {
-      (window.adsbygoogle = window.adsbygoogle || []).push({});
-    } catch {}
-  }, [pathname]);
-  return null;
 }
 
 // 공통 레이아웃: 상/하단 배너 + 여백
@@ -65,7 +56,6 @@ function Layout() {
 
   return (
     <>
-      <UseAdsOnRouteChange />
       {/* Top Banner: 고정 */}
       <div ref={topRef} className="fixed inset-x-0 top-0 z-40 bg-white/95 shadow-sm">
         <div className="mx-auto max-w-6xl px-3 py-2">
@@ -92,6 +82,8 @@ function Layout() {
 export default function App() {
   return (
     <ErrorBoundary>
+      <AdSenseProvider />
+      <RouteAwareAdFill />
       <Routes>
         <Route element={<Layout />}>
           {/* 홈을 빌더로 연결 */}
@@ -119,6 +111,7 @@ export default function App() {
           <Route path="/billing" element={<Billing />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/builder-v2" element={<PromptBuilderV2 />} />
         </Route>
         {/* 광고 비노출 권장 라우트 */}
         <Route path="/login" element={<Login />} />
@@ -128,4 +121,12 @@ export default function App() {
       </Routes>
     </ErrorBoundary>
   );
+}
+
+function RouteAwareAdFill() {
+  const loc = useLocation();
+  useEffect(() => {
+    requestAdFill();
+  }, [loc.pathname, loc.search, loc.hash]);
+  return null;
 }

@@ -8,8 +8,8 @@ type RateLimiter = {
   limit: (key: string) => Promise<RateLimitResult>;
 };
 
-const WINDOW_MS = 60_000;
-const LIMIT = 30;
+const WINDOW_MS = Number(process.env.RATE_LIMIT_WINDOW_MS || 60_000);
+const LIMIT = Number(process.env.RATE_LIMIT_LIMIT || 30);
 
 type RateLimiterCache = {
   memory?: RateLimiter;

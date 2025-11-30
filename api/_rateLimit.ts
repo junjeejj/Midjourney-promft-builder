@@ -39,6 +39,9 @@ export async function enforceRateLimit(
     return true;
   } catch (err) {
     console.error("[RateLimit] enforcement failed", err);
-    return true; // fail-open
+    const retry = Date.now() + 30_000;
+    res.setHeader("Retry-After", "30");
+    res.status(429).json({ error: "rate_limited", retry_after: retry });
+    return false;
   }
 }

@@ -3,6 +3,7 @@ import OpenAI from "openai";
 import { getUserFromAuthHeader } from "./_auth";
 import { adminSupabase } from "./_supabase";
 import { enforceRateLimit } from "./_rateLimit";
+import { GeneratePromptSchema, type GeneratePromptInput } from "../src/lib/validation";
 
 const SYSTEM = `You are a Midjourney prompt engineer.
 
@@ -14,84 +15,83 @@ const COST_PER_GENERATE = 1;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
-    if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+    // 표준 에러 포맷 사용
+    const bad = (code: string, message: string, status = 400) => 
+      res.status(status).json({ ok: false, error: { code, message } });
+    
+    if (req.method !== "POST") return bad("METHOD_NOT_ALLOWED", "POST only", 405);
 
     if (!(await enforceRateLimit(req, res))) return;
 
     const auth = await getUserFromAuthHeader(req);
-    if (!auth) return res.status(401).json({ error: "Unauthorized" });
+    if (!auth) return bad("UNAUTHORIZED", "Authentication required", 401);
 
-    const { subject, params } = (req.body as any) || {};
-
-    if (!subject || typeof subject !== "string") {
-      return res.status(400).json({ error: "subject (string) is required" });
+    // 입력 검증
+    const parsed = GeneratePromptSchema.safeParse(req.body ?? {});
+    if (!parsed.success) {
+      return bad("INVALID_INPUT", parsed.error.issues.map(i => i.message).join("; "));
     }
+    const { subject, params } = parsed.data;
 
     const supa = adminSupabase();
-
-    const { data: spendResult, error: spendError } = await supa.rpc("spend_credits", {
-      p_user: auth.userId,
-      p_amount: COST_PER_GENERATE,
-      p_reason: "auto_prompt",
-    });
-    if (spendError) throw spendError;
-    if (!spendResult) {
-      return res.status(402).json({ error: "Insufficient credits" });
+    const { data: wallet } = await supa
+      .from("wallets")
+      .select("balance, unlimited")
+      .eq("user_id", auth.userId)
+      .maybeSingle();
+    const unlimited = !!wallet?.unlimited;
+    if (!unlimited && (wallet?.balance ?? 0) < COST_PER_GENERATE) {
+      return bad("NOT_ENOUGH_CREDITS", "Insufficient credits", 402);
     }
 
     const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) return res.status(500).json({ error: "Missing OPENAI_API_KEY" });
+    if (!apiKey) return bad("MISSING_API_KEY", "OPENAI_API_KEY not configured", 500);
 
     const openai = new OpenAI({ apiKey });
-    const userText = buildUserText(subject, params);
+    const rsp = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      temperature: 0.8,
+      messages: [
+        { role: "system", content: SYSTEM },
+        { role: "user", content: buildUserText(subject, params) }
+      ],
+    });
+    const text = rsp.choices[0]?.message?.content?.trim();
+    if (!text) return bad("OPENAI_EMPTY", "Empty completion", 502);
 
-    try {
-      const chat = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [
-          { role: "system", content: SYSTEM },
-          { role: "user", content: userText },
-        ],
-        temperature: 0.7,
-        max_tokens: 300,
+    if (!unlimited) {
+      const { error: spendErr } = await supa.rpc("spend_credits", { 
+        p_user: auth.userId, 
+        p_amount: COST_PER_GENERATE, 
+        p_reason: "generate" 
       });
-
-      const prompt = chat.choices?.[0]?.message?.content?.trim() || "";
-      if (!prompt) return res.status(500).json({ error: "Empty prompt" });
-
-      const { data: wallet, error: walletError } = await supa
-        .from("wallets")
-        .select("balance")
-        .eq("user_id", auth.userId)
-        .maybeSingle();
-      if (walletError && walletError.code !== "PGRST116") throw walletError;
-
-      return res.status(200).json({ prompt, balance: wallet?.balance ?? null });
-    } catch (err) {
-      await supa.rpc("grant_credits", {
-        p_user: auth.userId,
-        p_amount: COST_PER_GENERATE,
-        p_reason: "auto_prompt_refund",
-      });
-      throw err;
+      if (spendErr) throw spendErr;
     }
+    return res.status(200).json({ ok: true, prompt: text });
   } catch (err: any) {
-    return res.status(500).json({ error: err?.message || "Internal error" });
+    return res.status(500).json({ 
+      ok: false, 
+      error: { code: "INTERNAL_ERROR", message: String(err?.message || err) } 
+    });
   }
 }
 
-function buildUserText(subject: string, params: any) {
+function buildUserText(subject: string, params: GeneratePromptInput["params"]) {
   const parts: string[] = [];
   parts.push(`Subject: ${subject}`);
   if (params?.ar) parts.push(`Aspect: --ar ${params.ar}`);
-  if (params?.s) parts.push(`Stylize: --s ${params.s}`);
+  if (params?.stylize) parts.push(`Stylize: --stylize ${params.stylize}`);
   if (params?.chaos) parts.push(`Chaos: --chaos ${params.chaos}`);
-  if (params?.weird) parts.push(`Weird: --weird ${params.weird}`);
-  if (params?.raw) parts.push(`Use --raw`);
   if (params?.tile) parts.push(`Use --tile`);
-  if (params?.quality) parts.push(`Quality: --q ${params.quality}`);
-  if (params?.v) parts.push(`Version: --v ${params.v}`);
-  if (params?.no) parts.push(`No: --no ${String(params.no).slice(0, 100)}`);
+  if (params?.q) parts.push(`Quality: --q ${params.q}`);
+  if (params?.version) parts.push(`Version: --v ${params.version}`);
+  if (params?.no) parts.push(`No: --no ${params.no.join(", ").slice(0, 100)}`);
+  if (params?.seed) parts.push(`Seed: --seed ${params.seed}`);
+  if (params?.stop) parts.push(`Stop: --stop ${params.stop}`);
+  if (params?.repeat) parts.push(`Repeat: --repeat ${params.repeat}`);
+  if (params?.sref) parts.push(`Style Reference: --sref ${params.sref}`);
+  if (params?.cref) parts.push(`Character Reference: --cref ${params.cref}`);
+  if (params?.niji) parts.push(`Use --niji`);
 
   return `Make ONE Midjourney /imagine prompt for the subject with these hints:
 

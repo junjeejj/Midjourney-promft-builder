@@ -11,11 +11,10 @@ export default function Pricing() {
 
   const { t } = useT();
 
-  const { user } = useAuth();
+  const { user, token } = useAuth();
 
   const [loading, setLoading] = useState<string | null>(null);
 
-  const userId = user?.id || (import.meta.env.VITE_DEMO_USER_ID || "demo-user");
 
 
 
@@ -25,17 +24,23 @@ export default function Pricing() {
 
       setLoading(productId);
 
+      if (!token) {
+        alert("로그인이 필요합니다.");
+        return;
+      }
+
       const res = await fetch(API_ENDPOINTS.STRIPE_CHECKOUT, {
 
         method: "POST",
 
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
 
         body: JSON.stringify({
 
-          productId,
-
-          userId,
+          tier: productId, // productId를 tier로 매핑
 
           successUrl: window.location.origin + ROUTES.SUCCESS,
 
@@ -45,15 +50,37 @@ export default function Pricing() {
 
       });
 
-      if (!res.ok) throw new Error(await res.text());
+      if (!res.ok) {
+        // 에러 응답을 JSON으로 파싱 시도
+        let errorMessage = `Server error (${res.status})`;
+        try {
+          const errorData = await res.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch {
+          // JSON 파싱 실패 시 텍스트로 시도
+          try {
+            const errorText = await res.text();
+            errorMessage = errorText || errorMessage;
+          } catch {
+            // 파싱 실패 시 기본 메시지 사용
+          }
+        }
+        throw new Error(errorMessage);
+      }
 
       const { url } = await res.json();
+
+      if (!url) {
+        throw new Error("No checkout URL received");
+      }
 
       window.location.href = url;
 
     } catch (e: any) {
 
-      alert(e?.message || "Checkout failed");
+      const errorMsg = e?.message || "Checkout failed";
+      console.error("[Pricing] Checkout error:", e);
+      alert(errorMsg);
 
     } finally {
 

@@ -77,3 +77,4 @@ Vercel Dashboard → Project Settings → Environment Variables에서 다음을 
 두 환경 모두 Supabase Redirect URLs에 등록되어 있어야 합니다.
 
 
+

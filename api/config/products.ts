@@ -4,7 +4,7 @@ export const CREDIT_PRODUCTS: Record<CreditPackId, {
 
   name: string;
 
-  credits: number;        // 무제한일 경우 0으로 두고,
+  credits: number;        // 무제한일 경우 0
 
   price_cents: number;
 
@@ -20,6 +20,6 @@ export const CREDIT_PRODUCTS: Record<CreditPackId, {
 
   pro:     { name: "Pro Pack",     credits: 5000,  price_cents: 2900, currency: "usd" },
 
-  studio:  { name: "Studio Pack",  credits: 0,     price_cents: 9900, currency: "usd", is_unlimited: true }, // ★ 무제한
+  studio:  { name: "Studio Pack",  credits: 0,     price_cents: 9900, currency: "usd", is_unlimited: true },
 
 };

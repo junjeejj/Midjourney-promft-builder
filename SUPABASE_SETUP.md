@@ -207,6 +207,57 @@ $$;
 
 > **TIP:** `claim_webhook_event`가 `false`를 반환하면 이미 처리된 이벤트이므로 서버에서는 멱등 처리 후 바로 200 응답을 보내면 됩니다.
 
+## 7. Supabase 마이그레이션 (안정화 패치)
+
+아래 SQL을 Supabase SQL Editor에서 순서대로 실행하세요.
+
+```sql
+-- 결제 이벤트 이중처리 방지용 테이블
+create table if not exists public.stripe_events (
+  id text primary key,
+  received_at timestamptz not null default now()
+);
+
+-- 무제한 플래그 추가
+alter table public.wallets
+  add column if not exists unlimited boolean not null default false;
+
+-- 원장 테이블 명칭이 wallet_ledger 라면 기존 이름 유지
+-- (credit_ledger는 wallet_ledger의 별칭으로 사용 가능)
+-- 기존 wallet_ledger가 있다면 그대로 사용
+
+-- 크레딧 지급 함수 업데이트 (무제한 플래그 고려)
+create or replace function public.grant_credits(p_user uuid, p_amount integer, p_reason text)
+returns void language plpgsql as $$
+begin
+  update public.wallets set balance = coalesce(balance,0) + greatest(p_amount,0)
+  where user_id = p_user;
+  insert into public.wallet_ledger(user_id, delta, reason)
+  values (p_user, greatest(p_amount,0), coalesce(p_reason,'grant'));
+end; $$;
+
+-- 크레딧 차감 함수 업데이트 (무제한 플래그 고려)
+create or replace function public.spend_credits(p_user uuid, p_amount integer, p_reason text)
+returns void language plpgsql as $$
+declare cur_balance integer;
+begin
+  select balance into cur_balance from public.wallets where user_id = p_user for update;
+  if cur_balance is null or cur_balance < p_amount then
+    raise exception 'NOT_ENOUGH_CREDITS';
+  end if;
+  update public.wallets set balance = cur_balance - p_amount where user_id = p_user;
+  insert into public.wallet_ledger(user_id, delta, reason)
+  values (p_user, -greatest(p_amount,0), coalesce(p_reason,'spend'));
+end; $$;
+
+-- RLS 정책 업데이트
+alter table public.wallets enable row level security;
+create policy if not exists wallets_select_own on public.wallets
+for select using (auth.uid() = user_id);
+create policy if not exists wallets_update_own on public.wallets
+for update using (auth.uid() = user_id);
+```
+
 ## 주의사항
 
 - `.env` 파일은 절대 Git에 커밋하지 마세요 (이미 .gitignore에 추가됨)

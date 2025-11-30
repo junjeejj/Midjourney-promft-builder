@@ -1,25 +1,31 @@
 // 환경 변수 및 상수 설정
 
-// Supabase 설정
+// Supabase 설정 (클라이언트 공개키만 사용)
 export const SUPABASE_PLACEHOLDER_URL = "https://placeholder.supabase.co";
-export const SUPABASE_PLACEHOLDER_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsYWNlaG9sZGVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NDUxOTIwMDAsImV4cCI6MTk2MDc2ODAwMH0.placeholder";
+export const SUPABASE_PLACEHOLDER_ANON_KEY = "placeholder";
 
 // OAuth 설정
 export const OAUTH_REDIRECT_PATH = import.meta.env.VITE_OAUTH_REDIRECT_PATH || "/login";
-export const OAUTH_PROVIDERS = (import.meta.env.VITE_OAUTH_PROVIDERS?.split(",") || ["google"]).filter(Boolean) as readonly string[];
+export const OAUTH_PROVIDERS = (import.meta.env.VITE_OAUTH_PROVIDERS || "google")
+  .split(",")
+  .map(s => s.trim())
+  .filter(Boolean) as readonly string[];
 
 // API 설정
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 export const API_ENDPOINTS = {
-  STRIPE_CHECKOUT: `${API_BASE_URL}/stripe/checkout`,
+  // Vercel 서버리스 함수 경로 (Supabase Edge Function이 아님)
+  STRIPE_CHECKOUT: "/api/stripe/checkout",
   CREDITS_BALANCE: `${API_BASE_URL}/credits/balance`,
   CREDITS_SPEND: `${API_BASE_URL}/credits/spend`,
   GENERATE_PROMPT: `${API_BASE_URL}/generate-prompt`,
 } as const;
 
+export const ADSENSE_CLIENT = import.meta.env.VITE_ADSENSE_CLIENT || "";
+
 // 타임아웃 설정 (밀리초)
 export const TIMEOUTS = {
-  OAUTH_CALLBACK: 1000,
+  OAUTH_CALLBACK: 1000 * 30,
   LOGIN_REDIRECT: 1000,
   USER_REDIRECT: 2000,
   COPY_FEEDBACK: 1200, // 복사 완료 피드백 표시 시간

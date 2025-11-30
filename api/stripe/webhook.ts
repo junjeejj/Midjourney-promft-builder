@@ -5,7 +5,7 @@ import { adminSupabase } from "../_supabase";
 
 export const config = { api: { bodyParser: false } } as any;
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2024-11-20.acacia" as any });
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") return res.status(405).end();
@@ -18,56 +18,58 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const event = stripe.webhooks.constructEvent(raw, sig, secret);
     const supa = adminSupabase();
 
-    const { data: claimed, error: claimErr } = await supa.rpc("claim_webhook_event", {
-      p_event_id: event.id,
-      p_type: event.type,
-    });
-    if (claimErr) throw claimErr;
-    if (!claimed) {
-      return res.status(200).json({ ok: true, idempotent: true });
-    }
+    // 공통 가드: Stripe 이벤트 중복 처리 방지
+    const eventId = event.id;
+    const { data: seen } = await supa
+      .from("stripe_events")
+      .insert({ id: eventId })
+      .select("id")
+      .single()
+      .catch(() => ({ data: null })); // unique 충돌 시 이미 처리됨
+    if (!seen) return res.status(200).json({ ok: true, skipped: "DUPLICATE_EVENT" });
 
-    const creditGrant: Record<string, number> = {
-      starter: 1000,
-      pro: 5000,
-      studio: 999_999_999,
-    };
+    const { CREDIT_PRODUCTS } = await import("../config/products");
 
-    if (event.type === "checkout.session.completed") {
-      const session = event.data.object as Stripe.Checkout.Session;
-      const userId = (session.metadata?.userId as string) || null;
-      const tier = (session.metadata?.tier as string) || "starter";
+    if (event.type === "checkout.session.completed" || event.type === "invoice.paid") {
+      let session: Stripe.Checkout.Session | Stripe.Invoice;
+      let packId: keyof typeof CREDIT_PRODUCTS | undefined;
+      let userId: string | undefined;
 
-      if (userId) {
-        await supa.rpc("grant_credits", {
-          p_user: userId,
-          p_amount: creditGrant[tier] ?? 0,
-          p_reason: `stripe:${event.type}:${tier}`,
-          p_ext_event_id: event.id,
+      if (event.type === "checkout.session.completed") {
+        session = event.data.object as Stripe.Checkout.Session;
+        packId = session.metadata?.packId as keyof typeof CREDIT_PRODUCTS | undefined;
+        userId = session.client_reference_id || session.metadata?.userId;
+      } else {
+        const invoice = event.data.object as Stripe.Invoice;
+        const subscriptionId = typeof invoice.subscription === "string" ? invoice.subscription : null;
+        if (!subscriptionId) return res.status(200).json({ ok: true, skipped: "NO_SUBSCRIPTION" });
+        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+        packId = subscription.metadata?.packId as keyof typeof CREDIT_PRODUCTS | undefined;
+        userId = subscription.metadata?.userId;
+      }
+
+      if (!packId || !userId) return res.status(200).json({ ok: true, skipped: "MISSING_IDS" });
+      
+      const product = CREDIT_PRODUCTS[packId];
+      if (!product) return res.status(200).json({ ok: true, skipped: "INVALID_PACK" });
+
+      if (product.is_unlimited) {
+        await supa.from("wallets").update({ unlimited: true }).eq("user_id", userId);
+      } else {
+        await supa.rpc("grant_credits", { 
+          p_user: userId, 
+          p_amount: product.credits, 
+          p_reason: event.type === "checkout.session.completed" ? "stripe_checkout" : "stripe_invoice_paid" 
         });
       }
-    } else if (event.type === "invoice.paid") {
-      const invoice = event.data.object as Stripe.Invoice;
-      const subscriptionId = typeof invoice.subscription === "string" ? invoice.subscription : null;
-
-      if (subscriptionId) {
-        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-        const userId = subscription.metadata?.userId;
-        const tier = subscription.metadata?.tier ?? "starter";
-
-        if (userId) {
-          await supa.rpc("grant_credits", {
-            p_user: userId,
-            p_amount: creditGrant[tier] ?? 0,
-            p_reason: `stripe:${event.type}:${tier}`,
-            p_ext_event_id: event.id,
-          });
-        }
-      }
+      return res.status(200).json({ ok: true });
     }
 
-    return res.status(200).json({ received: true });
+    return res.status(200).json({ ok: true, received: true });
   } catch (err: any) {
-    return res.status(400).send(`Webhook Error: ${err.message}`);
+    return res.status(400).json({ 
+      ok: false, 
+      error: { code: "WEBHOOK_ERROR", message: String(err?.message || err) } 
+    });
   }
 }
