@@ -8,7 +8,7 @@ export const SUPABASE_PLACEHOLDER_ANON_KEY = "placeholder";
 export const OAUTH_REDIRECT_PATH = import.meta.env.VITE_OAUTH_REDIRECT_PATH || "/login";
 export const OAUTH_PROVIDERS = (import.meta.env.VITE_OAUTH_PROVIDERS || "google")
   .split(",")
-  .map(s => s.trim())
+  .map((s: string) => s.trim())
   .filter(Boolean) as readonly string[];
 
 // API 설정

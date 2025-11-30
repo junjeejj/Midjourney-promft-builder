@@ -3,7 +3,7 @@ import { requestAdFill } from "./AdSenseProvider";
 
 type Props = { slot?: string; format?: string; style?: React.CSSProperties };
 export default function AdSlot({ slot="display", format="auto", style }: Props){
-  const ref = useRef<HTMLInsElement | null>(null);
+  const ref = useRef<HTMLElement | null>(null);
   useEffect(()=>{ if (ref.current) requestAdFill(); },[]);
   return (
     <ins
