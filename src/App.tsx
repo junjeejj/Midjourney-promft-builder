@@ -22,7 +22,7 @@ import PromptBuilderV2 from "./pages/PromptBuilderV2";
 
 declare global {
   interface Window {
-    adsbygoogle: any[];
+    adsbygoogle?: any[];
   }
 }
 
