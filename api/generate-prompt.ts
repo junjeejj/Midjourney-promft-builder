@@ -1,9 +1,44 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import OpenAI from "openai";
-import { getUserFromAuthHeader } from "./_auth";
 import { adminSupabase } from "./_supabase";
 import { enforceRateLimit } from "./_rateLimit";
 import { GeneratePromptSchema, type GeneratePromptInput } from "../src/lib/validation";
+
+// 간단한 JWT 파서: Authorization 헤더에서 userId 뽑아오기
+type AuthInfo = {
+  userId: string;
+};
+
+function getUserFromAuthHeader(req: any): AuthInfo | null {
+  const authHeader =
+    (req.headers?.authorization as string | undefined) ??
+    (req.headers?.Authorization as string | undefined);
+
+  if (!authHeader || typeof authHeader !== "string") {
+    return null;
+  }
+
+  const [, token] = authHeader.split(" ");
+  if (!token) return null;
+
+  const parts = token.split(".");
+  if (parts.length !== 3) return null;
+
+  try {
+    const payloadJson = Buffer.from(parts[1], "base64").toString("utf8");
+    const payload = JSON.parse(payloadJson);
+
+    const sub =
+      (payload.sub as string | undefined) ??
+      (payload.user_id as string | undefined);
+
+    if (!sub) return null;
+
+    return { userId: sub };
+  } catch {
+    return null;
+  }
+}
 
 const SYSTEM = `You are a Midjourney prompt engineer.
 
