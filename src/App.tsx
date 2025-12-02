@@ -19,6 +19,7 @@ import Billing from "./pages/Billing";
 import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
 import PromptBuilderV2 from "./pages/PromptBuilderV2";
+import PayPalSuccess from "./pages/PayPalSuccess";
 
 declare global {
   interface Window {
@@ -116,6 +117,7 @@ export default function App() {
         {/* 광고 비노출 권장 라우트 */}
         <Route path="/login" element={<Login />} />
         <Route path="/success" element={<div style={{ padding: 24 }}>결제가 완료되었습니다.</div>} />
+        <Route path="/paypal-success" element={<PayPalSuccess />} />
         {/* 404 */}
         <Route path="*" element={<div style={{ padding: 24 }}>페이지를 찾을 수 없습니다.</div>} />
       </Routes>

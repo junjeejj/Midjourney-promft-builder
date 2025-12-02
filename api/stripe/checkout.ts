@@ -50,15 +50,15 @@ function getUserIdFromAuthHeader(req: VercelRequest): string | null {
 
 
 
-// ★ 여기에 Stripe에서 복사한 진짜 price ID 넣기
+// ★ 환경변수 기반 + 테스트용 기본값
+const STARTER_PRICE_ID =
+  process.env.STRIPE_PRICE_STARTER ?? "price_1SYUy3DmMKf1UQTO4m0uVZa7"; // 지금 쓰는 테스트 price
 
-const STARTER_PRICE_ID = "price_1SYUy3DmMKf1UQTO4m0uVZa7";
+const PRO_PRICE_ID =
+  process.env.STRIPE_PRICE_PRO ?? STARTER_PRICE_ID;
 
-// 필요하면 나중에 따로 빼서 쓰려고 남겨둠
-
-const PRO_PRICE_ID = STARTER_PRICE_ID;
-
-const STUDIO_PRICE_ID = STARTER_PRICE_ID;
+const STUDIO_PRICE_ID =
+  process.env.STRIPE_PRICE_STUDIO ?? STARTER_PRICE_ID;
 
 
 
@@ -127,8 +127,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
 
-
-    // ★ 환경변수 안 씀! 무조건 여기 하드코딩 값만 사용
 
     const priceMap: Record<string, string | undefined> = {
 

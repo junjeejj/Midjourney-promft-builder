@@ -41,9 +41,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(405).json({ error: "Method not allowed" });
     }
 
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = process.env.OPENAI_API_KEY?.trim();
     if (!apiKey) {
-      console.error("[generate-prompt] missing OPENAI_API_KEY");
+      console.error("[generate-prompt] missing OPENAI_API_KEY", {
+        hasEnv: !!process.env.OPENAI_API_KEY,
+        envKeys: Object.keys(process.env).filter(k => k.includes("OPENAI")),
+        allEnvKeys: Object.keys(process.env).slice(0, 10), // 처음 10개만 샘플로
+      });
       return res
         .status(500)
         .json({ error: "missing OPENAI_API_KEY", code: "MISSING_API_KEY" });

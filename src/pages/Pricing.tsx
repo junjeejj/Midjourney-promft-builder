@@ -6,6 +6,7 @@ import { useAuth } from "../store/useAuth";
 
 import { useT } from "../i18n";
 import { API_ENDPOINTS, ROUTES } from "../config/constants";
+import { supabase } from "../lib/supabase";
 
 export default function Pricing() {
 
@@ -19,75 +20,48 @@ export default function Pricing() {
 
 
   async function buy(productId: CreditPackId) {
-
     try {
-
       setLoading(productId);
 
-      if (!token) {
+      // 1) 현재 로그인 세션에서 액세스 토큰 꺼내기
+      const { data, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) throw sessionError;
+      const accessToken = data.session?.access_token;
+      if (!accessToken) {
         alert("로그인이 필요합니다.");
         return;
       }
 
-      const res = await fetch(API_ENDPOINTS.STRIPE_CHECKOUT, {
-
+      // 2) 우리 백엔드 PayPal 주문 생성 API 호출
+      const res = await fetch("/api/paypal/create-order", {
         method: "POST",
-
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${accessToken}`,
         },
-
-        body: JSON.stringify({
-
-          tier: productId, // productId를 tier로 매핑
-
-          successUrl: window.location.origin + ROUTES.SUCCESS,
-
-          cancelUrl: window.location.origin + ROUTES.PRICING,
-
-        }),
-
+        body: JSON.stringify({ tier: productId }),
       });
 
+      const json = await res.json();
       if (!res.ok) {
-        // 에러 응답을 JSON으로 파싱 시도
-        let errorMessage = `Server error (${res.status})`;
-        try {
-          const errorData = await res.json();
-          errorMessage = errorData.error || errorMessage;
-        } catch {
-          // JSON 파싱 실패 시 텍스트로 시도
-          try {
-            const errorText = await res.text();
-            errorMessage = errorText || errorMessage;
-          } catch {
-            // 파싱 실패 시 기본 메시지 사용
-          }
-        }
-        throw new Error(errorMessage);
+        console.error("paypal create-order error", json);
+        alert(json.error || "PayPal 주문 생성 중 오류가 발생했습니다.");
+        return;
       }
 
-      const { url } = await res.json();
-
-      if (!url) {
-        throw new Error("No checkout URL received");
+      if (!json.approveUrl) {
+        alert("PayPal 승인 URL이 없습니다.");
+        return;
       }
 
-      window.location.href = url;
-
-    } catch (e: any) {
-
-      const errorMsg = e?.message || "Checkout failed";
-      console.error("[Pricing] Checkout error:", e);
-      alert(errorMsg);
-
+      // 3) PayPal 결제 페이지로 이동
+      window.location.href = json.approveUrl;
+    } catch (err: any) {
+      console.error(err);
+      alert(err?.message || "결제 준비 중 오류가 발생했습니다.");
     } finally {
-
       setLoading(null);
-
     }
-
   }
 
 

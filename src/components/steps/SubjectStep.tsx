@@ -9,7 +9,7 @@ export default function SubjectStep({ onNext }: { onNext?: () => void }) {
   const { t } = useT();
   const { user, token } = useAuth();
   const { slots, params, setSlots } = useBuilderStore();
-  const { balance, fetchBalance, setBalance } = useWalletStore();
+  const { balance, fetchBalance, setBalance, spend } = useWalletStore();
 
   const [v, setV] = useState(slots.subject || "");
   const [loading, setLoading] = useState(false);
@@ -43,6 +43,7 @@ export default function SubjectStep({ onNext }: { onNext?: () => void }) {
     }
     setLoading(true);
     try {
+      // 1) 프롬프트 생성 호출
       const r = await fetch(API_ENDPOINTS.GENERATE_PROMPT, {
         method: "POST",
         headers: {
@@ -59,15 +60,28 @@ export default function SubjectStep({ onNext }: { onNext?: () => void }) {
         alert(j?.error ?? "자동 생성 중 오류가 발생했습니다.");
         return;
       }
-      const autoText = j?.prompt || "";
-      if (typeof j.balance === "number") {
-        setBalance(j.balance);
-      }
+      
+      // 2) /imagine 제거해서 Subject에 넣기
+      let autoText = (j?.prompt ?? "").trim();
+      autoText = autoText.replace(/^\/imagine(\s+prompt:)?\s*/i, "");
+      
       if (autoText) {
         setV(autoText);
         setSlots({ subject: autoText });
       }
-    } catch {
+
+      // 3) 크레딧 1 차감
+      const spendResult = await spend(1, token, "ai_prompt");
+      if (!spendResult.ok) {
+        console.warn("[SubjectStep] credit spend failed");
+      }
+
+      // 4) 크레딧 잔액 새로고침 (spend가 이미 업데이트하지만 안전을 위해)
+      if (token) {
+        await fetchBalance(token);
+      }
+    } catch (err) {
+      console.error("[SubjectStep] auto prompt error", err);
       alert("자동 생성 중 오류가 발생했습니다.");
     } finally {
       setLoading(false);
