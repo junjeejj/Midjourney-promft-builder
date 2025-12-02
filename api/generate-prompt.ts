@@ -1,25 +1,20 @@
+// api/generate-prompt.ts
+
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import OpenAI from "openai";
-import { adminSupabase } from "./_supabase";
-import { enforceRateLimit } from "./_rateLimit";
-import { GeneratePromptSchema, type GeneratePromptInput } from "../src/lib/validation";
 
-// 간단한 JWT 파서: Authorization 헤더에서 userId 뽑아오기
-type AuthInfo = {
-  userId: string;
-};
-
-function getUserFromAuthHeader(req: any): AuthInfo | null {
+/**
+ * Authorization: Bearer <JWT>
+ * Supabase JWT 안에서 user id를 뽑아오는 간단한 헬퍼
+ */
+function getUserIdFromAuthHeader(req: VercelRequest): string | null {
   const authHeader =
-    (req.headers?.authorization as string | undefined) ??
-    (req.headers?.Authorization as string | undefined);
+    (req.headers.authorization as string | undefined) ??
+    (req.headers.Authorization as string | undefined);
 
-  if (!authHeader || typeof authHeader !== "string") {
-    return null;
-  }
+  if (!authHeader || typeof authHeader !== "string") return null;
 
-  const [, token] = authHeader.split(" ");
-  if (!token) return null;
+  const [scheme, token] = authHeader.split(" ");
+  if (scheme.toLowerCase() !== "bearer" || !token) return null;
 
   const parts = token.split(".");
   if (parts.length !== 3) return null;
@@ -28,116 +23,137 @@ function getUserFromAuthHeader(req: any): AuthInfo | null {
     const payloadJson = Buffer.from(parts[1], "base64").toString("utf8");
     const payload = JSON.parse(payloadJson);
 
-    const sub =
-      (payload.sub as string | undefined) ??
-      (payload.user_id as string | undefined);
-
-    if (!sub) return null;
-
-    return { userId: sub };
+    // supabase JWT 에서는 보통 sub / user_id 중 하나에 유저 id 가 들어 있음
+    return payload.sub || payload.user_id || null;
   } catch {
     return null;
   }
 }
 
-const SYSTEM = `You are a Midjourney prompt engineer.
-
-Return a single concise prompt optimized for /imagine.
-
-No code fences, no explanations.`;
-
-const COST_PER_GENERATE = 1;
+// OpenAI 관련 상수
+const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
+// 원하면 Vercel 환경 변수로 바꿀 수 있음 (OPENAI_MODEL 같은 이름으로)
+const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
-    // 표준 에러 포맷 사용
-    const bad = (code: string, message: string, status = 400) => 
-      res.status(status).json({ ok: false, error: { code, message } });
-    
-    if (req.method !== "POST") return bad("METHOD_NOT_ALLOWED", "POST only", 405);
-
-    if (!(await enforceRateLimit(req, res))) return;
-
-    const auth = await getUserFromAuthHeader(req);
-    if (!auth) return bad("UNAUTHORIZED", "Authentication required", 401);
-
-    // 입력 검증
-    const parsed = GeneratePromptSchema.safeParse(req.body ?? {});
-    if (!parsed.success) {
-      return bad("INVALID_INPUT", parsed.error.issues.map(i => i.message).join("; "));
-    }
-    const { subject, params } = parsed.data;
-
-    const supa = adminSupabase();
-    const { data: wallet } = await supa
-      .from("wallets")
-      .select("balance, unlimited")
-      .eq("user_id", auth.userId)
-      .maybeSingle();
-    const unlimited = !!wallet?.unlimited;
-    if (!unlimited && (wallet?.balance ?? 0) < COST_PER_GENERATE) {
-      return bad("NOT_ENOUGH_CREDITS", "Insufficient credits", 402);
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
     }
 
     const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) return bad("MISSING_API_KEY", "OPENAI_API_KEY not configured", 500);
-
-    const openai = new OpenAI({ apiKey });
-    const rsp = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      temperature: 0.8,
-      messages: [
-        { role: "system", content: SYSTEM },
-        { role: "user", content: buildUserText(subject, params) }
-      ],
-    });
-    const text = rsp.choices[0]?.message?.content?.trim();
-    if (!text) return bad("OPENAI_EMPTY", "Empty completion", 502);
-
-    if (!unlimited) {
-      const { error: spendErr } = await supa.rpc("spend_credits", { 
-        p_user: auth.userId, 
-        p_amount: COST_PER_GENERATE, 
-        p_reason: "generate" 
-      });
-      if (spendErr) throw spendErr;
+    if (!apiKey) {
+      console.error("[generate-prompt] missing OPENAI_API_KEY");
+      return res
+        .status(500)
+        .json({ error: "missing OPENAI_API_KEY", code: "MISSING_API_KEY" });
     }
-    return res.status(200).json({ ok: true, prompt: text });
-  } catch (err: any) {
-    return res.status(500).json({ 
-      ok: false, 
-      error: { code: "INTERNAL_ERROR", message: String(err?.message || err) } 
+
+    // 로그인 확인 (JWT만 간단히 체크)
+    const userId = getUserIdFromAuthHeader(req);
+    if (!userId) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    // 프론트에서 보내는 payload 읽기
+    const body: any = (req as any).body || {};
+
+    // Subject 입력창 내용
+    const subject: string = (body.subject ?? "").toString().trim();
+
+    // 선택 요약(Selection Summary) 쪽에서 보내는 문자열들(있으면 사용, 없어도 동작)
+    const selectionSummary: string = (body.selectionSummary ?? "").toString().trim();
+
+    const previewPrompt: string = (body.previewPrompt ?? "").toString().trim();
+
+    if (!subject) {
+      return res.status(400).json({ error: "subject_required" });
+    }
+
+    // OpenAI에 보낼 메시지 구성
+    const userLines: string[] = [];
+
+    userLines.push(`Subject: ${subject}`);
+
+    if (selectionSummary) {
+      userLines.push(`Selected parameters: ${selectionSummary}`);
+    }
+
+    if (previewPrompt) {
+      userLines.push(
+        `Current base prompt (you may improve on this): ${previewPrompt}`
+      );
+    }
+
+    const messages = [
+      {
+        role: "system" as const,
+        content:
+          "You are an expert Midjourney prompt engineer. " +
+          "User will give you a subject (in Korean or English) and some parameters. " +
+          "Your job is to return ONE single Midjourney prompt string that will work well with /imagine. " +
+          "Do NOT explain, do NOT add quotes, just return the final prompt text only.",
+      },
+      {
+        role: "user" as const,
+        content: userLines.join("\n"),
+      },
+    ];
+
+    // OpenAI Chat Completions 호출 (SDK 안 쓰고 fetch만 사용)
+    const response = await fetch(OPENAI_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: OPENAI_MODEL,
+        messages,
+        // 살짝 랜덤하게
+        temperature: 0.9,
+        max_tokens: 300,
+      }),
     });
+
+    if (!response.ok) {
+      const text = await response.text().catch(() => "");
+      console.error(
+        "[generate-prompt] OpenAI error",
+        response.status,
+        response.statusText,
+        text
+      );
+      return res
+        .status(500)
+        .json({ error: "openai_request_failed", status: response.status });
+    }
+
+    const data: any = await response.json();
+    let content = data?.choices?.[0]?.message?.content;
+
+    // 일부 모델은 content 를 배열로 줄 수 있어서 방어코드
+    if (Array.isArray(content)) {
+      content = content
+        .map((c: any) => (typeof c?.text === "string" ? c.text : ""))
+        .join("");
+    }
+
+    const prompt = (content || "").toString().trim();
+
+    if (!prompt) {
+      console.error("[generate-prompt] empty completion", data);
+      return res
+        .status(500)
+        .json({ error: "empty_completion", raw: data ?? null });
+    }
+
+    // 프론트가 거의 100% 이 형태를 기대하고 있음
+    return res.status(200).json({ prompt });
+  } catch (err: any) {
+    console.error("[generate-prompt] unexpected error", err);
+    return res
+      .status(500)
+      .json({ error: err?.message || "unknown_error", code: "UNEXPECTED" });
   }
 }
-
-function buildUserText(subject: string, params: GeneratePromptInput["params"]) {
-  const parts: string[] = [];
-  parts.push(`Subject: ${subject}`);
-  if (params?.ar) parts.push(`Aspect: --ar ${params.ar}`);
-  if (params?.stylize) parts.push(`Stylize: --stylize ${params.stylize}`);
-  if (params?.chaos) parts.push(`Chaos: --chaos ${params.chaos}`);
-  if (params?.tile) parts.push(`Use --tile`);
-  if (params?.q) parts.push(`Quality: --q ${params.q}`);
-  if (params?.version) parts.push(`Version: --v ${params.version}`);
-  if (params?.no) parts.push(`No: --no ${params.no.join(", ").slice(0, 100)}`);
-  if (params?.seed) parts.push(`Seed: --seed ${params.seed}`);
-  if (params?.stop) parts.push(`Stop: --stop ${params.stop}`);
-  if (params?.repeat) parts.push(`Repeat: --repeat ${params.repeat}`);
-  if (params?.sref) parts.push(`Style Reference: --sref ${params.sref}`);
-  if (params?.cref) parts.push(`Character Reference: --cref ${params.cref}`);
-  if (params?.niji) parts.push(`Use --niji`);
-
-  return `Make ONE Midjourney /imagine prompt for the subject with these hints:
-
-${parts.join("\n")}
-
-Rules:
-
-- Return only the final prompt line (no commentary).
-
-- Keep it 1–2 lines, vivid, concrete nouns, lighting, composition.
-
-- Append valid MJ params inferred above at the end.`;
-}
-
