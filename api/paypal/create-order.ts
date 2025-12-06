@@ -109,7 +109,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       process.env.SITE_URL ||
       "https://www.midjourneybuilder.com";
 
-    const returnUrl = `${origin}/paypal-success`;
+    // tier 정보를 쿼리로 같이 싣는다
+    const returnUrl = `${origin}/paypal-success?tier=${encodeURIComponent(
+      tier
+    )}`;
     const cancelUrl = `${origin}/pricing`;
 
     const accessToken = await getPayPalAccessToken();
@@ -171,4 +174,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .json({ error: err?.message || "unknown_error" });
   }
 }
+
+
 

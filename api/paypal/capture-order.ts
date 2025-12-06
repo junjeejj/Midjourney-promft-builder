@@ -125,7 +125,10 @@ async function addCredits(userId: string, credits: number) {
   }
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(
+  req: VercelRequest,
+  res: VercelResponse
+) {
   try {
     if (req.method !== "POST") {
       return res.status(405).json({ error: "Method not allowed" });
@@ -138,6 +141,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const body = (req as any).body || {};
     const orderId = body.orderId as string | undefined;
+    const tierHint = body.tier as string | undefined; // 프론트에서 넘어오는 tier 힌트
+
     if (!orderId) {
       return res.status(400).json({ error: "orderId required" });
     }
@@ -162,7 +167,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       console.error("[paypal] capture error", captureJson);
       return res
         .status(500)
-        .json({ error: "Failed to capture order", detail: captureJson });
+        .json({ error: "Failed to capture order", details: captureJson });
     }
 
     const status = captureJson.status;
@@ -171,15 +176,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: "Order not completed", status });
     }
 
-    const tier =
-      captureJson.purchase_units?.[0]?.custom_id ??
-      captureJson.purchase_units?.[0]?.description;
-
-    if (!tier || !PRICE_MAP[tier]) {
-      console.error("[paypal] unknown tier", tier);
-      return res.status(400).json({ error: "Unknown tier", tier });
-    }
-
+    // *** 개발용 임시 로직 ***
+    // 일단 모든 결제를 starter 팩으로 처리
+    const tier = "starter";
     const { credits } = PRICE_MAP[tier];
 
     // 실제로 유저 지갑에 크레딧 추가

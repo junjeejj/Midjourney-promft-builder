@@ -14,6 +14,7 @@ const PayPalSuccessPage = () => {
   useEffect(() => {
     const run = async () => {
       const orderId = query.get("token"); // PayPal 이 return_url?token=... 으로 돌려보냄
+      const tier = query.get("tier"); // 우리가 쿼리에 실어 보낸 tier
       if (!orderId) {
         alert("orderId 가 없습니다.");
         navigate("/pricing");
@@ -41,7 +42,7 @@ const PayPalSuccessPage = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({ orderId }),
+        body: JSON.stringify({ orderId, tier }),
       });
 
       const json = await res.json();
@@ -69,4 +70,6 @@ const PayPalSuccessPage = () => {
 };
 
 export default PayPalSuccessPage;
+
+
 
