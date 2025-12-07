@@ -73,8 +73,12 @@ export default function SubjectStep({ onNext }: { onNext?: () => void }) {
       // 3) 크레딧 1 차감
       const spendResult = await spend(1, token, "ai_prompt");
       if (!spendResult.ok) {
-        console.warn("[SubjectStep] credit spend failed");
+        console.error("[SubjectStep] credit spend failed", spendResult);
+        alert("크레딧 차감에 실패했습니다. 잔액을 확인해주세요.");
+        return;
       }
+      
+      console.log("[SubjectStep] credit spent successfully", spendResult);
 
       // 4) 크레딧 잔액 새로고침 (spend가 이미 업데이트하지만 안전을 위해)
       if (token) {

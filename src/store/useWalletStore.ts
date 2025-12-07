@@ -33,24 +33,30 @@ export const useWalletStore = create<WalletState>((set) => ({
   async spend(amount, token, reason = "prompt") {
     try {
       const { API_ENDPOINTS } = await import("../config/constants");
+      console.log("[Wallet] spending credits", { amount, reason, endpoint: API_ENDPOINTS.CREDITS_SPEND });
       const r = await fetch(API_ENDPOINTS.CREDITS_SPEND, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ amount, reason }),
       });
       const j = await r.json();
+      console.log("[Wallet] spend response", { status: r.status, ok: r.ok, body: j });
       if (!r.ok) {
-        return { ok: false };
+        console.error("[Wallet] spend API error", { status: r.status, error: j });
+        return { ok: false, error: j.error || j.message || "Unknown error" };
       }
       if (typeof j.balance === "number") {
         set({ balance: j.balance });
+        console.log("[Wallet] balance updated to", j.balance);
       } else if (amount) {
+        // 폴백: API에서 balance를 반환하지 않으면 클라이언트에서 차감
         set((s) => ({ balance: Math.max(0, s.balance - amount) }));
+        console.log("[Wallet] balance updated (fallback)");
       }
       return { ok: true, balance: j.balance };
     } catch (err) {
       console.error("[Wallet] spend failed", err);
-      return { ok: false };
+      return { ok: false, error: err instanceof Error ? err.message : "Network error" };
     }
   },
   setBalance(value) {
