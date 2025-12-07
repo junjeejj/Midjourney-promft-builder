@@ -11,6 +11,8 @@ import CameraComposeLightStep from "../components/steps/CameraComposeLightStep";
 import QualityStep from "../components/steps/QualityStep";
 import PreviewPanel from "../components/PreviewPanel";
 import SideBar from "../components/SideBar";
+import SelectedSummary from "../components/SelectedSummary";
+import ParamPanel from "../components/ParamPanel";
 
 export default function Builder(){
 
@@ -56,11 +58,19 @@ export default function Builder(){
               <div className="space-y-2 rounded-2xl border bg-white p-4">
                 <div className="font-medium">Preview</div>
                 <p className="text-sm text-gray-600">
-                  왼쪽 사이드바 하단의 요약/파라미터 패널을 참고해 최종 프롬프트를 확인하세요.
+                  오른쪽 요약/파라미터 패널을 참고해 최종 프롬프트를 확인하세요.
                 </p>
               </div>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* 오른쪽 패널 */}
+      <div className="w-96 flex-shrink-0 border-l bg-white overflow-y-auto">
+        <div className="p-4 space-y-4">
+          <SelectedSummary />
+          <ParamPanel />
         </div>
       </div>
     </main>

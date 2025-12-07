@@ -438,3 +438,123 @@ export const SIDE_BAR_CATEGORIES: Category[] = [
   },
 ];
 
+// Camera Motion (Video) 카테고리
+export const CAMERA_MOTION_CATEGORIES: Category[] = [
+  {
+    id: "pan",
+    name: "Pan (좌우 패닝 · 수평 회전)",
+    tokens: [
+      { token: "cinematic camera pan to the right", description: "카메라가 오른쪽으로 부드럽게 회전하며 이동하는 패닝" },
+      { token: "cinematic camera pan to the left", description: "카메라가 왼쪽으로 부드럽게 회전하며 이동하는 패닝" },
+      { token: "slow pan to the right", description: "천천히 오른쪽으로 회전하는 느린 패닝" },
+      { token: "slow pan to the left", description: "천천히 왼쪽으로 회전하는 느린 패닝" },
+      { token: "fast pan to the right", description: "빠르게 오른쪽으로 휙 돌아가는 패닝" },
+      { token: "fast pan to the left", description: "빠르게 왼쪽으로 휙 돌아가는 패닝" },
+      { token: "whip pan to the right", description: "순간적으로 오른쪽으로 튀듯이 움직이는 휩 패닝" },
+      { token: "whip pan to the left", description: "순간적으로 왼쪽으로 튀듯이 움직이는 휩 패닝" },
+      { token: "horizontal pan from left to right", description: "왼쪽에서 오른쪽으로 화면을 훑어 나가는 수평 패닝" },
+      { token: "horizontal pan from right to left", description: "오른쪽에서 왼쪽으로 화면을 훑어 나가는 수평 패닝" },
+    ],
+  },
+  {
+    id: "tilt",
+    name: "Tilt (상하 틸트 · 수직 회전)",
+    tokens: [
+      { token: "cinematic camera tilt up", description: "카메라가 아래에서 위로 부드럽게 올려다보는 틸트" },
+      { token: "cinematic camera tilt down", description: "카메라가 위에서 아래로 부드럽게 내려다보는 틸트" },
+      { token: "slow tilt up", description: "천천히 위로 올려주는 느린 틸트" },
+      { token: "slow tilt down", description: "천천히 아래로 내려주는 느린 틸트" },
+      { token: "fast tilt up", description: "빠르게 위로 치솟는 틸트" },
+      { token: "fast tilt down", description: "빠르게 아래로 떨어지는 틸트" },
+    ],
+  },
+  {
+    id: "dolly",
+    name: "Dolly (앞뒤로 이동 · 카메라 자체가 움직임)",
+    tokens: [
+      { token: "slow dolly in", description: "카메라가 피사체 쪽으로 천천히 다가가는 무빙" },
+      { token: "slow dolly out", description: "카메라가 피사체에서 천천히 멀어지는 무빙" },
+      { token: "fast dolly in", description: "카메라가 빠르게 앞으로 치고 들어가는 무빙" },
+      { token: "fast dolly out", description: "카메라가 빠르게 뒤로 빠지는 무빙" },
+      { token: "subtle push-in shot", description: "눈치 못 챌 정도로 아주 부드럽게 앞으로 밀고 들어가는 샷" },
+      { token: "pull-back shot", description: "조용히 뒤로 빠지면서 전체 상황을 드러내는 샷" },
+      { token: "dramatic push-in on the subject", description: "주인공에게 강하게 다가가며 긴장감을 높이는 푸시인" },
+    ],
+  },
+  {
+    id: "tracking",
+    name: "Tracking (피사체를 따라가는 무빙)",
+    tokens: [
+      { token: "forward tracking shot", description: "피사체와 함께 앞으로 나아가며 따라가는 샷" },
+      { token: "backward tracking shot", description: "피사체는 다가오고 카메라는 뒤로 물러나는 샷" },
+      { token: "sideways tracking shot to the right", description: "피사체와 나란히 오른쪽 방향으로 이동하며 따라가는 샷" },
+      { token: "sideways tracking shot to the left", description: "피사체와 나란히 왼쪽 방향으로 이동하며 따라가는 샷" },
+      { token: "over-the-shoulder tracking shot", description: "어깨 너머 시점으로 뒤에서 따라가는 샷" },
+      { token: "following the character from behind", description: "캐릭터 뒤에서 계속 따라가는 카메라 무빙" },
+      { token: "leading the character from the front", description: "캐릭터 앞에서 뒤로 물러나며 이끌어가는 카메라 무빙" },
+    ],
+  },
+  {
+    id: "orbit",
+    name: "Orbit & 360 (피사체를 중심으로 회전)",
+    tokens: [
+      { token: "orbiting camera move around the subject", description: "피사체를 중심으로 원을 그리며 도는 카메라 무빙" },
+      { token: "slow 360 degree orbit around the subject", description: "피사체를 한 바퀴 천천히 도는 360도 회전" },
+      { token: "fast 360 degree spin around the subject", description: "피사체 주변을 빠르게 회전하며 도는 무빙" },
+      { token: "half-circle orbit from left to right", description: "왼쪽 뒤에서 오른쪽 앞까지 반원 형태로 도는 무빙" },
+      { token: "half-circle orbit from right to left", description: "오른쪽 뒤에서 왼쪽 앞까지 반원 형태로 도는 무빙" },
+    ],
+  },
+  {
+    id: "crane",
+    name: "Crane & Vertical Move (위아래로 이동하는 카메라)",
+    tokens: [
+      { token: "crane up shot", description: "아래에서 위로 높이 떠오르는 크레인 무빙" },
+      { token: "crane down shot", description: "위에서 아래로 내려오는 크레인 무빙" },
+      { token: "rising camera move from ground to sky", description: "지면에서 시작해 하늘까지 천천히 올라가는 무빙" },
+      { token: "descending camera move from sky to ground", description: "하늘에서 시작해 지면으로 내려오는 무빙" },
+      { token: "top-down reveal move", description: "위에서 아래로 내려오면서 피사체를 드러내는 무빙" },
+      { token: "vertical rise above the city", description: "도시 위로 곧게 떠오르는 수직 상승 무빙" },
+    ],
+  },
+  {
+    id: "handheld",
+    name: "Handheld & Stabilized (손떨림 · 짐벌 느낌)",
+    tokens: [
+      { token: "handheld shaky camera move", description: "손으로 들고 찍어 약간 흔들리는 다큐 같은 무빙" },
+      { token: "subtle handheld camera move", description: "아주 미세하게 흔들려서 리얼한 느낌만 주는 무빙" },
+      { token: "smooth gimbal camera move", description: "짐벌이나 스테디캠으로 매우 부드럽게 움직이는 무빙" },
+      { token: "steadycam walking shot", description: "캐릭터와 함께 걸어가는 자연스러운 워킹 샷" },
+      { token: "intense shaky cam during action", description: "격한 액션 중에 크게 흔들리는 카메라 무빙" },
+      { token: "floating camera move", description: "마치 공중에 떠 있는 것처럼 부드럽게 미끄러지는 무빙" },
+    ],
+  },
+  {
+    id: "zoom",
+    name: "Zoom & Focus (줌 · 포커스 이동, 영상용)",
+    tokens: [
+      { token: "slow zoom in", description: "천천히 화면을 확대해 피사체에 집중하는 줌 인" },
+      { token: "slow zoom out", description: "천천히 화면을 축소해 전체 상황을 드러내는 줌 아웃" },
+      { token: "fast zoom in", description: "빠르게 피사체 쪽으로 확대하는 줌 인" },
+      { token: "fast zoom out", description: "빠르게 멀어지는 줌 아웃" },
+      { token: "snap zoom in", description: "순간적으로 튀듯이 확대되는 줌 인" },
+      { token: "snap zoom out", description: "순간적으로 튀듯이 축소되는 줌 아웃" },
+      { token: "rack focus from foreground to background", description: "앞에 있는 물체에서 뒤 배경으로 초점이 이동하는 포커스 이동" },
+      { token: "rack focus from background to foreground", description: "배경에서 앞 피사체로 초점이 이동하는 포커스 이동" },
+    ],
+  },
+  {
+    id: "complex",
+    name: "Complex Cinematic Moves (복합 시네마 무빙)",
+    tokens: [
+      { token: "slow dolly in with slight pan to the right", description: "천천히 앞으로 다가가면서 살짝 오른쪽으로 회전하는 복합 무빙" },
+      { token: "slow dolly in with slight pan to the left", description: "천천히 앞으로 다가가면서 살짝 왼쪽으로 회전하는 복합 무빙" },
+      { token: "orbiting camera with slow dolly in", description: "피사체를 돌면서 동시에 조금씩 가까워지는 무빙" },
+      { token: "crane up with forward tracking", description: "앞으로 나아가면서 동시에 위로 떠오르는 크레인 무빙" },
+      { token: "crane down with backward tracking", description: "뒤로 물러나면서 동시에 위에서 아래로 내려오는 크레인 무빙" },
+      { token: "handheld tracking through a narrow corridor", description: "좁은 복도를 손들고 따라가는 긴장감 있는 무빙" },
+      { token: "smooth gimbal orbit around the character", description: "캐릭터를 중심으로 짐벌로 부드럽게 도는 무빙" },
+    ],
+  },
+];
+

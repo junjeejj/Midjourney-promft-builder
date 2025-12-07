@@ -96,6 +96,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           "You are an expert Midjourney prompt engineer. " +
           "User will give you a subject (in Korean or English) and some parameters. " +
           "Your job is to return ONE single Midjourney prompt string that will work well with /imagine. " +
+          "IMPORTANT: Do NOT translate Midjourney parameters. Keep all parameters exactly as they are: " +
+          "--ar, --stylize, --chaos, --q, --seed, --style, --tile, --niji, --sref, --cref, --no, " +
+          "--stop, --repeat, --v, --stealth, --oref, --ow, --profile, --iw, --weird, --draft, --raw. " +
+          "These parameters must remain in English and unchanged. " +
           "Do NOT explain, do NOT add quotes, just return the final prompt text only.",
       },
       {
@@ -143,7 +147,35 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         .join("");
     }
 
-    const prompt = (content || "").toString().trim();
+    let prompt = (content || "").toString().trim();
+
+    // 미드저니 파라미터 보호: 번역된 파라미터를 원래대로 복원
+    const paramMap: Record<string, string> = {
+      "--스타일화": "--stylize",
+      "--혼돈": "--chaos",
+      "--품질": "--q",
+      "--시드": "--seed",
+      "--스타일": "--style",
+      "--타일": "--tile",
+      "--니지": "--niji",
+      "--비밀": "--stealth",
+      "--초안": "--draft",
+      "--원시": "--raw",
+      "스타일화": "--stylize",
+      "혼돈": "--chaos",
+      "품질": "--q",
+      "시드": "--seed",
+    };
+
+    // 파라미터 복원
+    for (const [korean, english] of Object.entries(paramMap)) {
+      const regex = new RegExp(`\\b${korean}\\b`, "gi");
+      prompt = prompt.replace(regex, english);
+    }
+
+    // --ar, --v 같은 숫자가 붙은 파라미터도 보호
+    prompt = prompt.replace(/--(?:종횡비|비율|아스펙트|aspect)\s*(\d+:\d+)/gi, "--ar $1");
+    prompt = prompt.replace(/--(?:버전|version|v)\s*(\d+(?:\.\d+)?)/gi, "--v $1");
 
     if (!prompt) {
       console.error("[generate-prompt] empty completion", data);

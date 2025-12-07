@@ -1,14 +1,22 @@
 // src/components/SideBar.tsx
 import { useState } from "react";
 import { useBuilderStore } from "../store/useBuilderStore";
-import { SIDE_BAR_CATEGORIES } from "../config/SIDE_BAR";
-import SelectedSummary from "./SelectedSummary";
-import ParamPanel from "./ParamPanel";
+import { SIDE_BAR_CATEGORIES, CAMERA_MOTION_CATEGORIES } from "../config/SIDE_BAR";
+
+type Mode = "image" | "camera-motion";
 
 export default function SideBar() {
   const { slots, setSlots } = useBuilderStore();
+  const [mode, setMode] = useState<Mode>("image");
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState("");
+
+  // 모드 변경 시 펼쳐진 카테고리 초기화
+  const handleModeChange = (newMode: Mode) => {
+    setMode(newMode);
+    setExpandedCategories(new Set()); // 모드 변경 시 펼쳐진 카테고리 초기화
+    setSearchQuery(""); // 검색어도 초기화
+  };
 
   // 카테고리 펼치기/접기 토글
   function toggleCategory(categoryId: string) {
@@ -44,8 +52,11 @@ export default function SideBar() {
     setSlots({ subject: tokens.join(", ") });
   }
 
+  // 현재 모드에 따른 카테고리 선택
+  const currentCategories = mode === "image" ? SIDE_BAR_CATEGORIES : CAMERA_MOTION_CATEGORIES;
+
   // 검색 필터링
-  const filteredCategories = SIDE_BAR_CATEGORIES.map((category) => ({
+  const filteredCategories = currentCategories.map((category) => ({
     ...category,
     tokens: category.tokens.filter(
       (token) =>
@@ -56,8 +67,16 @@ export default function SideBar() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-120px)] border-r bg-white">
-      {/* 상단: 검색바 */}
-      <div className="border-b p-3 bg-white">
+      {/* 상단: 모드 전환 버튼 + 검색바 */}
+      <div className="border-b p-3 bg-white space-y-2">
+        {/* 모드 전환 버튼 */}
+        <button
+          onClick={() => handleModeChange(mode === "image" ? "camera-motion" : "image")}
+          className="w-full px-3 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition"
+        >
+          {mode === "image" ? "Camera Motion" : "Image"}
+        </button>
+        {/* 검색바 */}
         <input
           type="text"
           placeholder="검색..."
@@ -67,7 +86,7 @@ export default function SideBar() {
         />
       </div>
 
-      {/* 중간: 아코디언 카테고리 목록 (스크롤 가능) */}
+      {/* 아코디언 카테고리 목록 (스크롤 가능) */}
       <div className="flex-1 overflow-y-auto">
         <div className="p-2 space-y-1">
           {filteredCategories.map((category) => {
@@ -120,14 +139,6 @@ export default function SideBar() {
               </div>
             );
           })}
-        </div>
-      </div>
-
-      {/* 하단: SelectedSummary + ParamPanel */}
-      <div className="border-t bg-white overflow-y-auto" style={{ maxHeight: "40vh" }}>
-        <div className="p-3 space-y-3">
-          <SelectedSummary />
-          <ParamPanel />
         </div>
       </div>
     </div>
