@@ -3,7 +3,8 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { adminSupabase } from "../_supabase";
 import { getUserFromAuthHeader } from "../_auth";
-import { enforceRateLimit } from "../_rateLimit";
+// 레이트 리밋은 일시적으로 비활성화 (서버 사이드 호환성 문제)
+// import { enforceRateLimit } from "../_rateLimit";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
@@ -12,8 +13,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(405).json({ error: "Method not allowed" });
     }
 
-    // 2) 레이트 리밋
-    if (!(await enforceRateLimit(req, res))) return;
+    // 2) 레이트 리밋은 일시적으로 비활성화
+    // TODO: 서버 사이드 호환 레이트 리밋 구현 필요
 
     // 3) 인증 (헤더에서 유저 가져오기)
     const auth = await getUserFromAuthHeader(req);
