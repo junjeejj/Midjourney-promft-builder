@@ -2,7 +2,29 @@
 
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
-import { getUserFromAuthHeader } from "../_auth";
+
+// getUserIdFromAuthHeader: capture-order.ts와 동일한 패턴
+function getUserIdFromAuthHeader(req: VercelRequest): string | null {
+  const authHeader = (req.headers.authorization ||
+    // @ts-ignore
+    req.headers.Authorization) as string | undefined;
+
+  if (!authHeader) return null;
+  const [, token] = authHeader.split(" ");
+  if (!token) return null;
+
+  const parts = token.split(".");
+  if (parts.length !== 3) return null;
+
+  try {
+    const payloadJson = Buffer.from(parts[1], "base64").toString("utf8");
+    const payload = JSON.parse(payloadJson);
+    return payload.sub || payload.user_id || null;
+  } catch {
+    return null;
+  }
+}
+
 // 레이트 리밋은 일시적으로 비활성화 (서버 사이드 호환성 문제)
 // import { enforceRateLimit } from "../_rateLimit";
 
@@ -18,20 +40,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // 2) 레이트 리밋은 일시적으로 비활성화
     // TODO: 서버 사이드 호환 레이트 리밋 구현 필요
 
-    // 3) 인증 (헤더에서 유저 가져오기)
-    let auth;
-    try {
-      auth = await getUserFromAuthHeader(req);
-    } catch (authError: any) {
-      console.error("[credits/spend] auth error", authError);
-      return res.status(401).json({ error: "Authentication failed", details: authError?.message });
-    }
-    
-    if (!auth) {
+    // 3) 인증 (헤더에서 유저 ID 가져오기)
+    const userId = getUserIdFromAuthHeader(req);
+    if (!userId) {
       return res.status(401).json({ error: "Unauthorized" });
     }
     
-    console.log("[credits/spend] auth successful", { userId: auth.userId });
+    console.log("[credits/spend] auth successful", { userId });
 
     // 4) 바디 파라미터
     const body = (req as any).body || {};
@@ -63,7 +78,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const { data: wallet, error: walletError } = await supa
       .from("wallets")
       .select("balance, unlimited")
-      .eq("user_id", auth.userId)
+      .eq("user_id", userId)
       .maybeSingle();
 
     if (walletError && walletError.code !== "PGRST116") {
@@ -102,7 +117,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         balance: newBalance,
         updated_at: new Date().toISOString(),
       })
-      .eq("user_id", auth.userId);
+      .eq("user_id", userId);
 
     if (updateError) {
       console.error("[credits/spend] update wallet error", updateError);
@@ -113,7 +128,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // (wallet_ledger 같은 거 있으면 여기서 insert 한 번 더 해주면 됨)
 
     // 10) 최종 응답
-    console.log("[credits/spend] success", { userId: auth.userId, amount, newBalance });
+    console.log("[credits/spend] success", { userId, amount, newBalance });
     return res.status(200).json({
       ok: true,
       balance: newBalance,
