@@ -63,7 +63,7 @@ async function getPayPalAccessToken() {
 
 const PRICE_MAP: Record<
   string,
-  { value: string; credits: number; name: string }
+  { value: string; credits: number; name: string; is_unlimited?: boolean }
 > = {
   starter: {
     value: "5.00",
@@ -79,6 +79,7 @@ const PRICE_MAP: Record<
     value: "45.00",
     credits: 999999,
     name: "Studio Pack",
+    is_unlimited: true,
   },
 };
 
@@ -92,13 +93,13 @@ const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE, {
   auth: { persistSession: false },
 });
 
-async function addCredits(userId: string, credits: number) {
+async function addCredits(userId: string, credits: number, isUnlimited: boolean = false) {
   // wallets 테이블 구조: user_id (uuid), balance (int4), unlimited (bool) 라고 가정
   const { data, error } = await supabaseAdmin
     .from("wallets")
-    .select("balance")
+    .select("balance, unlimited")
     .eq("user_id", userId)
-    .single();
+    .maybeSingle();
 
   if (error && error.code !== "PGRST116") {
     // PGRST116 = row not found
@@ -106,15 +107,16 @@ async function addCredits(userId: string, credits: number) {
     throw error;
   }
 
+  // 무제한 계정이면 balance는 그대로 두고 unlimited만 설정
   const current = data?.balance ?? 0;
-  const newBalance = current + credits;
+  const newBalance = isUnlimited ? current : current + credits;
 
   const { error: upsertError } = await supabaseAdmin.from("wallets").upsert(
     {
       user_id: userId,
       balance: newBalance,
       updated_at: new Date().toISOString(),
-      unlimited: false,
+      unlimited: isUnlimited,
     },
     { onConflict: "user_id" }
   );
@@ -176,18 +178,32 @@ export default async function handler(
       return res.status(400).json({ error: "Order not completed", status });
     }
 
-    // *** 개발용 임시 로직 ***
-    // 일단 모든 결제를 starter 팩으로 처리
-    const tier = "starter";
-    const { credits } = PRICE_MAP[tier];
+    // PayPal 주문에서 tier 정보 추출
+    // 1) custom_id에서 추출 (가장 신뢰할 수 있음)
+    // 2) tierHint를 폴백으로 사용
+    const purchaseUnit = captureJson.purchase_units?.[0];
+    const customId = purchaseUnit?.custom_id as string | undefined;
+    const tierFromOrder = customId && PRICE_MAP[customId] ? customId : null;
+    
+    // tier 결정: custom_id > tierHint > 오류
+    let tier: string | null = tierFromOrder || tierHint || null;
+    
+    if (!tier || !PRICE_MAP[tier]) {
+      console.error("[paypal/capture-order] invalid tier", { tier, customId, tierHint, captureJson });
+      return res.status(400).json({ error: "Unable to determine tier from order" });
+    }
 
-    // 실제로 유저 지갑에 크레딧 추가
-    await addCredits(userId, credits);
+    const tierInfo = PRICE_MAP[tier];
+    const { credits, is_unlimited = false } = tierInfo;
+
+    // 실제로 유저 지갑에 크레딧 추가 (무제한 플래그 포함)
+    await addCredits(userId, credits, is_unlimited);
 
     return res.status(200).json({
       ok: true,
       tier,
-      creditsAdded: credits,
+      creditsAdded: is_unlimited ? 999999 : credits,
+      unlimited: is_unlimited,
     });
   } catch (err: any) {
     console.error("[paypal/capture-order] unexpected error", err);
