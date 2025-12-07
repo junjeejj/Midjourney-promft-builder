@@ -65,9 +65,6 @@ function Layout() {
       </div>
       {/* 본문: 배너 높이만큼 여백을 주는 래퍼 */}
       <div className="app-shell">
-        <div className="sticky-after-banner">
-          <TopNav pathname={pathname} />
-        </div>
         <Outlet />
       </div>
       {/* Bottom Banner: 고정 */}

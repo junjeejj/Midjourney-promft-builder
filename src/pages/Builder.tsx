@@ -12,6 +12,7 @@ import QualityStep from "../components/steps/QualityStep";
 import PreviewPanel from "../components/PreviewPanel";
 import SelectedSummary from "../components/SelectedSummary";
 import ParamPanel from "../components/ParamPanel";
+import SideBar from "../components/SideBar";
 
 export default function Builder(){
 
@@ -36,28 +37,38 @@ export default function Builder(){
   const next = ()=> setI(s=> Math.min(s+1, steps.length-1));
 
   return (
-    <main className="mx-auto max-w-6xl space-y-4 p-4">
-      <Stepper steps={steps} active={i} onStepClick={setI} />
-      <PreviewPanel />
-      <div className="grid gap-4 md:grid-cols-[minmax(0,1fr),360px]">
-        <div className="space-y-4">
-          {i===0 && <AspectStep onNext={next} />}
-          {i===1 && <ModePresetStep onNext={next} />}
-          {i===2 && <SubjectStep onNext={next} />}
-          {i===3 && <CameraComposeLightStep onNext={next} />}
-          {i===4 && <QualityStep onNext={next} />}
-          {i===5 && (
-            <div className="space-y-2 rounded-2xl border bg-white p-4">
-              <div className="font-medium">Preview</div>
-              <p className="text-sm text-gray-600">
-                오른쪽 요약/파라미터 패널을 참고해 최종 프롬프트를 확인하세요.
-              </p>
+    <main className="flex h-[calc(100vh-120px)]">
+      {/* 왼쪽 사이드바 */}
+      <div className="w-96 flex-shrink-0">
+        <SideBar />
+      </div>
+
+      {/* 중앙 메인 컨텐츠 */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="mx-auto max-w-6xl space-y-4 p-4">
+          <Stepper steps={steps} active={i} onStepClick={setI} />
+          <PreviewPanel />
+          <div className="grid gap-4 md:grid-cols-[minmax(0,1fr),360px]">
+            <div className="space-y-4">
+              {i===0 && <AspectStep onNext={next} />}
+              {i===1 && <ModePresetStep onNext={next} />}
+              {i===2 && <SubjectStep onNext={next} />}
+              {i===3 && <CameraComposeLightStep onNext={next} />}
+              {i===4 && <QualityStep onNext={next} />}
+              {i===5 && (
+                <div className="space-y-2 rounded-2xl border bg-white p-4">
+                  <div className="font-medium">Preview</div>
+                  <p className="text-sm text-gray-600">
+                    오른쪽 요약/파라미터 패널을 참고해 최종 프롬프트를 확인하세요.
+                  </p>
+                </div>
+              )}
             </div>
-          )}
-        </div>
-        <div className="space-y-4">
-          <SelectedSummary />
-          <ParamPanel />
+            <div className="space-y-4">
+              <SelectedSummary />
+              <ParamPanel />
+            </div>
+          </div>
         </div>
       </div>
     </main>
