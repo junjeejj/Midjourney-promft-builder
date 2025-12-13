@@ -1,7 +1,7 @@
 import { isAdAllowedPath } from "../lib/adsPolicy";
 import { useEffect, useRef } from "react";
 
-export default function BannerBottom({ pathname }: { pathname: string }) {
+export default function BannerLeft({ pathname }: { pathname: string }) {
   const kakaoAdRef = useRef<HTMLModElement>(null);
 
   useEffect(() => {
@@ -32,18 +32,16 @@ export default function BannerBottom({ pathname }: { pathname: string }) {
   if (!isAdAllowedPath(pathname)) return null;
 
   return (
-    <div className="w-full flex justify-end">
-      {/* 카카오 애드핏 광고 (320x50, 오른쪽 정렬) */}
-      <div className="flex justify-end min-h-[50px]">
-        <ins 
-          ref={kakaoAdRef}
-          className="kakao_ad_area" 
-          style={{ display: "none" }}
-          data-ad-unit="DAN-zFIy5wUsSsJpPN8Y"
-          data-ad-width="320"
-          data-ad-height="50"
-        ></ins>
-      </div>
+    <div className="flex justify-center w-full min-h-[50px]">
+      <ins 
+        ref={kakaoAdRef}
+        className="kakao_ad_area" 
+        style={{ display: "none" }}
+        data-ad-unit="DAN-qqwPV9r6HhzrmeuX"
+        data-ad-width="320"
+        data-ad-height="50"
+      ></ins>
     </div>
   );
 }
+

@@ -1,4 +1,3 @@
-import AdSlot from "./ads/AdSlot";
 import { isAdAllowedPath } from "../lib/adsPolicy";
 import { useEffect, useRef } from "react";
 
@@ -33,20 +32,18 @@ export default function BannerTop({ pathname }: { pathname: string }) {
   if (!isAdAllowedPath(pathname)) return null;
 
   return (
-    <div className="w-full flex flex-col items-center gap-2">
-      {/* 카카오 애드핏 광고 */}
-      <div className="flex justify-center w-full min-h-[90px]">
+    <div className="w-full flex justify-end">
+      {/* 카카오 애드핏 광고 (320x50, 오른쪽 정렬) */}
+      <div className="flex justify-end min-h-[50px]">
         <ins 
           ref={kakaoAdRef}
           className="kakao_ad_area" 
           style={{ display: "none" }}
           data-ad-unit="DAN-zFIy5wUsSsJpPN8Y"
-          data-ad-width="728"
-          data-ad-height="90"
+          data-ad-width="320"
+          data-ad-height="50"
         ></ins>
       </div>
-      {/* 기존 AdSense 광고 */}
-      <AdSlot slot="1760480869" format="horizontal" />
     </div>
   );
 }

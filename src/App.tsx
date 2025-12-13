@@ -3,7 +3,6 @@ import { Routes, Route, Outlet, useLocation } from "react-router-dom";
 
 import BannerTop from "./components/BannerTop";
 import BannerBottom from "./components/BannerBottom";
-import TopNav from "./components/TopNav";
 import ErrorBoundary from "./components/system/ErrorBoundary";
 import { AdSenseProvider, requestAdFill } from "./components/ads/AdSenseProvider";
 
@@ -57,9 +56,9 @@ function Layout() {
 
   return (
     <>
-      {/* Top Banner: 고정 */}
+      {/* Top Banner: 고정, 오른쪽 정렬 */}
       <div ref={topRef} className="fixed inset-x-0 top-0 z-40 bg-white/95 shadow-sm">
-        <div className="mx-auto max-w-6xl px-3 py-2">
+        <div className="w-full px-3 py-2">
           <BannerTop pathname={pathname} />
         </div>
       </div>
@@ -67,9 +66,9 @@ function Layout() {
       <div className="app-shell">
         <Outlet />
       </div>
-      {/* Bottom Banner: 고정 */}
+      {/* Bottom Banner: 고정, 오른쪽 정렬 */}
       <div ref={bottomRef} className="fixed inset-x-0 bottom-0 z-40 bg-white/95 shadow-[0_-1px_6px_rgba(0,0,0,.06)]">
-        <div className="mx-auto max-w-6xl px-3 py-2">
+        <div className="w-full px-3 py-2">
           <BannerBottom pathname={pathname} />
         </div>
       </div>
