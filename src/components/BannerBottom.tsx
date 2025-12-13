@@ -33,7 +33,7 @@ export default function BannerBottom({ pathname }: { pathname: string }) {
 
   return (
     <div className="w-full flex justify-end">
-      {/* 카카오 애드핏 광고 (320x50, 오른쪽 정렬) */}
+      {/* 오른쪽 광고 (320x50) */}
       <div className="flex justify-end min-h-[50px]">
         <ins 
           ref={kakaoAdRef}

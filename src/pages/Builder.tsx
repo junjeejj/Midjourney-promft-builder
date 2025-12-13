@@ -14,11 +14,8 @@ import SideBar from "../components/SideBar";
 import SelectedSummary from "../components/SelectedSummary";
 import ParamPanel from "../components/ParamPanel";
 import UserInfo from "../components/UserInfo";
-import BannerLeft from "../components/BannerLeft";
-import { useLocation } from "react-router-dom";
 
 export default function Builder(){
-  const { pathname } = useLocation();
 
   const steps: Step[] = [
 
@@ -42,16 +39,9 @@ export default function Builder(){
 
   return (
     <main className="flex h-[calc(100vh-120px)]">
-      {/* 왼쪽 광고 + 사이드바 */}
-      <div className="flex flex-shrink-0">
-        {/* 왼쪽 광고 영역 (320px) */}
-        <div className="w-[320px] flex-shrink-0 border-r bg-white p-2">
-          <BannerLeft pathname={pathname} />
-        </div>
-        {/* 왼쪽 사이드바 */}
-        <div className="w-96 flex-shrink-0">
-          <SideBar />
-        </div>
+      {/* 왼쪽 사이드바 */}
+      <div className="w-96 flex-shrink-0">
+        <SideBar />
       </div>
 
       {/* 중앙 메인 컨텐츠 */}
