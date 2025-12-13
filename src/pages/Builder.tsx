@@ -13,6 +13,7 @@ import PreviewPanel from "../components/PreviewPanel";
 import SideBar from "../components/SideBar";
 import SelectedSummary from "../components/SelectedSummary";
 import ParamPanel from "../components/ParamPanel";
+import UserInfo from "../components/UserInfo";
 
 export default function Builder(){
 
@@ -69,6 +70,8 @@ export default function Builder(){
       {/* 오른쪽 패널 */}
       <div className="w-96 flex-shrink-0 border-l bg-white overflow-y-auto">
         <div className="p-4 space-y-4">
+          {/* 사용자 정보 및 크레딧 (맨 위) */}
+          <UserInfo />
           <SelectedSummary />
           <ParamPanel />
         </div>
