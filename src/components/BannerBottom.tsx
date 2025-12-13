@@ -3,7 +3,7 @@ import { isAdAllowedPath } from "../lib/adsPolicy";
 import { useEffect, useRef } from "react";
 
 export default function BannerBottom({ pathname }: { pathname: string }) {
-  const kakaoAdRef = useRef<HTMLDivElement>(null);
+  const kakaoAdRef = useRef<HTMLModElement>(null);
 
   useEffect(() => {
     // 카카오 애드핏 스크립트 로드 확인 및 광고 초기화
