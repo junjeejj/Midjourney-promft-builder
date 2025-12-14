@@ -39,7 +39,7 @@ export default function BannerTop({ pathname }: { pathname: string }) {
           ref={kakaoAdRef}
           className="kakao_ad_area" 
           style={{ display: "none" }}
-          data-ad-unit="DAN-zFIy5wUsSsJpPN8Y"
+          data-ad-unit="DAN-qqwPV9r6HhzrmeuX"
           data-ad-width="320"
           data-ad-height="50"
         ></ins>
