@@ -2,10 +2,14 @@
 import { useState } from "react";
 import { useBuilderStore } from "../store/useBuilderStore";
 import { SIDE_BAR_CATEGORIES, CAMERA_MOTION_CATEGORIES } from "../config/SIDE_BAR";
+import { useT } from "../i18n";
+import { useLocale } from "../store/useLocale";
 
 type Mode = "image" | "camera-motion";
 
 export default function SideBar() {
+  const { t } = useT();
+  const { locale } = useLocale();
   const { slots, setSlots } = useBuilderStore();
   const [mode, setMode] = useState<Mode>("image");
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
@@ -55,9 +59,21 @@ export default function SideBar() {
   // 현재 모드에 따른 카테고리 선택
   const currentCategories = mode === "image" ? SIDE_BAR_CATEGORIES : CAMERA_MOTION_CATEGORIES;
 
+  // 카테고리 이름에서 언어에 따라 표시할 이름 추출
+  // 형식: "Style & Mood (스타일 & 무드)" -> ko: 전체, en: 괄호 앞부분만
+  function getCategoryName(name: string): string {
+    const match = name.match(/^(.+?)\s*\((.+?)\)$/);
+    if (match) {
+      const [, enName] = match;
+      return locale === "en" ? enName.trim() : name;
+    }
+    return name;
+  }
+
   // 검색 필터링
   const filteredCategories = currentCategories.map((category) => ({
     ...category,
+    name: getCategoryName(category.name),
     tokens: category.tokens.filter(
       (token) =>
         token.token.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -74,12 +90,12 @@ export default function SideBar() {
           onClick={() => handleModeChange(mode === "image" ? "camera-motion" : "image")}
           className="w-full px-3 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition"
         >
-          {mode === "image" ? "Camera Motion" : "Image"}
+          {mode === "image" ? t("sidebar.cameraMotion") : t("sidebar.image")}
         </button>
         {/* 검색바 */}
         <input
           type="text"
-          placeholder="검색..."
+          placeholder={t("sidebar.search")}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -128,9 +144,11 @@ export default function SideBar() {
                           }`}
                         >
                           <div className="font-medium">{tokenItem.token}</div>
-                          <div className="text-xs text-gray-500 mt-0.5">
-                            {tokenItem.description}
-                          </div>
+                          {locale === "ko" && (
+                            <div className="text-xs text-gray-500 mt-0.5">
+                              {tokenItem.description}
+                            </div>
+                          )}
                         </button>
                       );
                     })}

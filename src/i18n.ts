@@ -162,6 +162,26 @@ const dict = {
 
     builder: {
       previewHelper: "오른쪽 요약/파라미터 패널을 참고해 최종 프롬프트를 확인하세요."
+    },
+
+    sidebar: {
+      search: "검색...",
+      cameraMotion: "Camera Motion",
+      image: "Image"
+    },
+
+    preview: {
+      reset: "프롬프트 초기화",
+      hintNote: "(파라미터를 설명하는 문구는 지워집니다)"
+    },
+
+    params: {
+      currentValue: "현재 값",
+      versionPlaceholder: "예: 5, 5.1, 6, 7",
+      imageUrlPlaceholder: "이미지 URL",
+      profilePlaceholder: "프로필 이름",
+      noPlaceholder: "예: text, watermark, people",
+      addButton: "추가"
     }
 
   },
@@ -284,6 +304,26 @@ const dict = {
 
     builder: {
       previewHelper: "Refer to the summary/parameter panel on the right to review the final prompt."
+    },
+
+    sidebar: {
+      search: "Search...",
+      cameraMotion: "Camera Motion",
+      image: "Image"
+    },
+
+    preview: {
+      reset: "Reset Prompt",
+      hintNote: "(Parameter descriptions will be removed)"
+    },
+
+    params: {
+      currentValue: "Current value",
+      versionPlaceholder: "e.g., 5, 5.1, 6, 7",
+      imageUrlPlaceholder: "Image URL",
+      profilePlaceholder: "Profile name",
+      noPlaceholder: "e.g., text, watermark, people",
+      addButton: "Add"
     }
 
   }

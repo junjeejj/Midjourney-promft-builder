@@ -61,7 +61,7 @@ export default function PreviewPanel() {
 
         >
 
-          프롬프트 초기화
+          {t("preview.reset")}
 
         </button>
 
@@ -91,7 +91,7 @@ export default function PreviewPanel() {
 
       <p className="text-xs text-gray-500 mt-2 text-center">
 
-        (파라미터를 설명하는 문구는 지워집니다)
+        {t("preview.hintNote")}
 
       </p>
 

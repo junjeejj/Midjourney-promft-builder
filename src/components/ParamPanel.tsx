@@ -44,7 +44,7 @@ function SliderField({ label, min, max, step, value, onChange, hint }:{label:str
 
         />
 
-        <div className="text-xs text-gray-600 text-center">현재 값: {value}</div>
+        <div className="text-xs text-gray-600 text-center">{t("params.currentValue")}: {value}</div>
 
       </div>
 
@@ -290,7 +290,7 @@ export default function ParamPanel() {
 
             value={params.version || ""} 
 
-            placeholder="예: 5, 5.1, 6, 7"
+            placeholder={t("params.versionPlaceholder")}
 
             onChange={e=>setParams({ version: e.target.value || null })}
 
@@ -314,7 +314,7 @@ export default function ParamPanel() {
 
             value={params.sref || ""} 
 
-            placeholder="이미지 URL"
+            placeholder={t("params.imageUrlPlaceholder")}
 
             onChange={e=>setParams({ sref: e.target.value || null })}
 
@@ -332,7 +332,7 @@ export default function ParamPanel() {
 
             value={params.oref || ""} 
 
-            placeholder="이미지 URL"
+            placeholder={t("params.imageUrlPlaceholder")}
 
             onChange={e=>setParams({ oref: e.target.value || null })}
 
@@ -350,7 +350,7 @@ export default function ParamPanel() {
 
             value={params.profile || ""} 
 
-            placeholder="프로필 이름"
+            placeholder={t("params.profilePlaceholder")}
 
             onChange={e=>setParams({ profile: e.target.value || null })}
 
@@ -368,7 +368,7 @@ export default function ParamPanel() {
 
               className="flex-1 border rounded-lg px-3 py-2 text-sm"
 
-              placeholder="예: text, watermark, people"
+              placeholder={t("params.noPlaceholder")}
 
               value={noInput}
 
@@ -378,7 +378,7 @@ export default function ParamPanel() {
 
             />
 
-            <button onClick={addNoItem} className="px-3 py-2 bg-blue-500 text-white rounded-lg text-sm">추가</button>
+            <button onClick={addNoItem} className="px-3 py-2 bg-blue-500 text-white rounded-lg text-sm">{t("params.addButton")}</button>
 
           </div>
 
