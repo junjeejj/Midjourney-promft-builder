@@ -21,13 +21,12 @@ const dict = {
     },
 
     preview: {
-
       title: "프롬프트 미리보기(괄호 설명 포함)",
-
       final: "최종 프롬프트 (복사해서 미드저니에 붙여넣기)",
-
-      copy: "프롬프트 복사", copied: "복사됨"
-
+      copy: "프롬프트 복사", 
+      copied: "복사됨",
+      reset: "프롬프트 초기화",
+      hintNote: "(파라미터를 설명하는 문구는 지워집니다)"
     },
 
     params: { 
@@ -53,6 +52,12 @@ const dict = {
       stealthHint: "웹 갤러리 비공개",
       draftHint: "빠른 러프 컨셉 드로잉 모드",
       nijiHint: "애니메이션 스타일 모드",
+      currentValue: "현재 값",
+      versionPlaceholder: "예: 5, 5.1, 6, 7",
+      imageUrlPlaceholder: "이미지 URL",
+      profilePlaceholder: "프로필 이름",
+      noPlaceholder: "예: text, watermark, people",
+      addButton: "추가"
     },
     summary: {
       title: "선택 요약",
@@ -168,20 +173,6 @@ const dict = {
       search: "검색...",
       cameraMotion: "Camera Motion",
       image: "Image"
-    },
-
-    preview: {
-      reset: "프롬프트 초기화",
-      hintNote: "(파라미터를 설명하는 문구는 지워집니다)"
-    },
-
-    params: {
-      currentValue: "현재 값",
-      versionPlaceholder: "예: 5, 5.1, 6, 7",
-      imageUrlPlaceholder: "이미지 URL",
-      profilePlaceholder: "프로필 이름",
-      noPlaceholder: "예: text, watermark, people",
-      addButton: "추가"
     }
 
   },
@@ -200,7 +191,14 @@ const dict = {
 
     steps: { aspect:"Aspect", mode:"Mode", subject:"Subject", ccl:"Camera/Composition/Lighting", quality:"Quality", preview:"Preview" },
 
-    preview: { title:"Prompt Preview (with hints)", final:"Final Prompt (copy and paste to Midjourney)", copy:"Copy Prompt", copied:"Copied" },
+    preview: { 
+      title:"Prompt Preview (with hints)", 
+      final:"Final Prompt (copy and paste to Midjourney)", 
+      copy:"Copy Prompt", 
+      copied:"Copied",
+      reset: "Reset Prompt",
+      hintNote: "(Parameter descriptions will be removed)"
+    },
 
     params: { 
       panel: "Required / Extra Parameters",
@@ -225,6 +223,12 @@ const dict = {
       stealthHint: "web gallery private",
       draftHint: "quick rough concept drawing mode",
       nijiHint: "anime-style mode",
+      currentValue: "Current value",
+      versionPlaceholder: "e.g., 5, 5.1, 6, 7",
+      imageUrlPlaceholder: "Image URL",
+      profilePlaceholder: "Profile name",
+      noPlaceholder: "e.g., text, watermark, people",
+      addButton: "Add"
     },
     summary: {
       title: "Selection Summary",
@@ -310,20 +314,6 @@ const dict = {
       search: "Search...",
       cameraMotion: "Camera Motion",
       image: "Image"
-    },
-
-    preview: {
-      reset: "Reset Prompt",
-      hintNote: "(Parameter descriptions will be removed)"
-    },
-
-    params: {
-      currentValue: "Current value",
-      versionPlaceholder: "e.g., 5, 5.1, 6, 7",
-      imageUrlPlaceholder: "Image URL",
-      profilePlaceholder: "Profile name",
-      noPlaceholder: "e.g., text, watermark, people",
-      addButton: "Add"
     }
 
   }

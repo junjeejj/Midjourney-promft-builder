@@ -18,7 +18,7 @@ function Field({ label, children, hint }:{label:string; children:any; hint?:stri
 
 }
 
-function SliderField({ label, min, max, step, value, onChange, hint }:{label:string; min:number; max:number; step?:number; value:number; onChange:(v:number)=>void; hint?:string}) {
+function SliderField({ label, min, max, step, value, onChange, hint, t }:{label:string; min:number; max:number; step?:number; value:number; onChange:(v:number)=>void; hint?:string; t:(path:string)=>string}) {
 
   return (
 
@@ -146,6 +146,8 @@ export default function ParamPanel() {
 
           hint={t("params.stylizeHint")}
 
+          t={t}
+
         />
 
         <SliderField 
@@ -161,6 +163,8 @@ export default function ParamPanel() {
           onChange={v=>setParams({ chaos: v })}
 
           hint={t("params.chaosHint")}
+
+          t={t}
 
         />
 
@@ -180,6 +184,8 @@ export default function ParamPanel() {
 
           hint={t("params.qHint")}
 
+          t={t}
+
         />
 
         <SliderField 
@@ -195,6 +201,8 @@ export default function ParamPanel() {
           onChange={v=>setParams({ stop: v })}
 
           hint={t("params.stopHint")}
+
+          t={t}
 
         />
 
@@ -212,6 +220,8 @@ export default function ParamPanel() {
 
           hint={t("params.seedHint")}
 
+          t={t}
+
         />
 
         <SliderField 
@@ -227,6 +237,8 @@ export default function ParamPanel() {
           onChange={v=>setParams({ repeat: v })}
 
           hint={t("params.repeatHint")}
+
+          t={t}
 
         />
 
@@ -244,6 +256,8 @@ export default function ParamPanel() {
 
           hint={t("params.weirdHint")}
 
+          t={t}
+
         />
 
         <SliderField 
@@ -259,6 +273,8 @@ export default function ParamPanel() {
           onChange={v=>setParams({ ow: v })}
 
           hint={t("params.owHint")}
+
+          t={t}
 
         />
 
@@ -277,6 +293,8 @@ export default function ParamPanel() {
           onChange={v=>setParams({ iw: v })}
 
           hint={t("params.iwHint")}
+
+          t={t}
 
         />
 
