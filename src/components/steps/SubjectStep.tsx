@@ -34,11 +34,11 @@ export default function SubjectStep({ onNext }: { onNext?: () => void }) {
 
   async function handleAutoPrompt() {
     if (!user?.id || !token) {
-      alert("로그인이 필요합니다.");
+      alert(t("subject.loginRequired"));
       return;
     }
     if (balance < 1) {
-      alert("크레딧이 부족합니다. 결제에서 충전해 주세요.");
+      alert(t("subject.insufficientCredits"));
       return;
     }
     setLoading(true);
@@ -57,7 +57,7 @@ export default function SubjectStep({ onNext }: { onNext?: () => void }) {
       });
       const j = await r.json();
       if (!r.ok) {
-        alert(j?.error ?? "자동 생성 중 오류가 발생했습니다.");
+        alert(j?.error ?? t("subject.errorGenerating"));
         return;
       }
       
@@ -74,7 +74,7 @@ export default function SubjectStep({ onNext }: { onNext?: () => void }) {
       const spendResult = await spend(1, token, "ai_prompt");
       if (!spendResult.ok) {
         console.error("[SubjectStep] credit spend failed", spendResult);
-        alert("크레딧 차감에 실패했습니다. 잔액을 확인해주세요.");
+        alert(t("subject.errorDeducting"));
         return;
       }
       
@@ -86,7 +86,7 @@ export default function SubjectStep({ onNext }: { onNext?: () => void }) {
       }
     } catch (err) {
       console.error("[SubjectStep] auto prompt error", err);
-      alert("자동 생성 중 오류가 발생했습니다.");
+      alert(t("subject.errorGenerating"));
     } finally {
       setLoading(false);
     }
@@ -110,10 +110,10 @@ export default function SubjectStep({ onNext }: { onNext?: () => void }) {
           disabled={loading}
           className="rounded bg-blue-600 px-3 py-2 text-white transition hover:bg-blue-700 disabled:opacity-50"
         >
-          {loading ? "생성 중…" : "AI 프롬프트 자동 생성 (1 크레딧)"}
+          {loading ? t("subject.generating") : t("subject.autoGenerate")}
         </button>
         {user?.id && (
-          <span className="text-sm text-gray-600">보유 크레딧: {balance}</span>
+          <span className="text-sm text-gray-600">{t("subject.creditsBalance")}: {balance}</span>
         )}
         <button onClick={go} className="rounded-xl border px-3 py-2">
           {t("common.next")}

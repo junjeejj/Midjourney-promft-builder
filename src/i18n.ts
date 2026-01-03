@@ -146,7 +146,9 @@ const dict = {
 
       qHint:"0.5 / 1 / 2",
 
-      next:"다음"
+      next:"다음",
+
+      currentValue:"현재 값"
 
     },
 
@@ -256,11 +258,25 @@ const dict = {
 
     ccl: { title:"Camera / Composition / Lighting", camera:"Camera", composition:"Composition", lighting:"Lighting" },
 
-    quality: { title:"Quality / Emphasis", stylize:"Stylize (--stylize)", stylizeHint:"0–1000", chaos:"Chaos (--chaos)", chaosHint:"0–100", q:"Quality (--q)", qHint:"0.5 / 1 / 2", next:"Next" },
+    quality: { title:"Quality / Emphasis", stylize:"Stylize (--stylize)", stylizeHint:"0–1000", chaos:"Chaos (--chaos)", chaosHint:"0–100", q:"Quality (--q)", qHint:"0.5 / 1 / 2", next:"Next", currentValue:"Current value" },
 
     final: { helper:"Use the top section to copy the final prompt or tweak parameters." },
 
-    common: { next:"Next" }
+    common: { next:"Next" },
+
+    subject: {
+      loginRequired: "Login required.",
+      insufficientCredits: "Insufficient credits. Please recharge in Payment.",
+      generating: "Generating…",
+      autoGenerate: "AI Prompt Auto Generate (1 credit)",
+      creditsBalance: "Credits",
+      errorGenerating: "An error occurred during auto generation.",
+      errorDeducting: "Failed to deduct credits. Please check your balance."
+    },
+
+    builder: {
+      previewHelper: "Refer to the summary/parameter panel on the right to review the final prompt."
+    }
 
   }
 

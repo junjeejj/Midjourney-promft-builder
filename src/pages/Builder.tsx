@@ -14,8 +14,11 @@ import SideBar from "../components/SideBar";
 import SelectedSummary from "../components/SelectedSummary";
 import ParamPanel from "../components/ParamPanel";
 import UserInfo from "../components/UserInfo";
+import { useT } from "../i18n";
 
 export default function Builder(){
+
+  const { t } = useT();
 
   const steps: Step[] = [
 
@@ -59,7 +62,7 @@ export default function Builder(){
               <div className="space-y-2 rounded-2xl border bg-white p-4">
                 <div className="font-medium">Preview</div>
                 <p className="text-sm text-gray-600">
-                  오른쪽 요약/파라미터 패널을 참고해 최종 프롬프트를 확인하세요.
+                  {t("builder.previewHelper")}
                 </p>
               </div>
             )}

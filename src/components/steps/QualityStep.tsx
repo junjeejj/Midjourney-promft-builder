@@ -52,7 +52,7 @@ export default function QualityStep({ onNext }:{ onNext?: ()=>void }) {
 
             />
 
-            <div className="text-xs text-gray-600 text-center">현재 값: {params.stylize ?? 100}</div>
+            <div className="text-xs text-gray-600 text-center">{t("quality.currentValue")}: {params.stylize ?? 100}</div>
 
           </div>
 
@@ -78,7 +78,7 @@ export default function QualityStep({ onNext }:{ onNext?: ()=>void }) {
 
             />
 
-            <div className="text-xs text-gray-600 text-center">현재 값: {params.chaos ?? 0}</div>
+            <div className="text-xs text-gray-600 text-center">{t("quality.currentValue")}: {params.chaos ?? 0}</div>
 
           </div>
 
@@ -106,7 +106,7 @@ export default function QualityStep({ onNext }:{ onNext?: ()=>void }) {
 
             />
 
-            <div className="text-xs text-gray-600 text-center">현재 값: {params.q ?? 1}</div>
+            <div className="text-xs text-gray-600 text-center">{t("quality.currentValue")}: {params.q ?? 1}</div>
 
           </div>
 

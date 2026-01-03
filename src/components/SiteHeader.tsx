@@ -34,9 +34,9 @@ export default function SiteHeader() {
           <button
             className="px-3 py-2 rounded-xl text-sm border bg-white hover:bg-gray-50 transition"
             onClick={() => setLang(lang === "ko" ? "en" : "ko")}
-            title="Language"
+            title={lang === "ko" ? "Switch to English" : "한국어로 전환"}
           >
-            {lang === "ko" ? "EN" : "KO"}
+            {lang === "ko" ? "언어 설정 EN" : "Language KO"}
           </button>
         </div>
       </div>

@@ -1,121 +1,250 @@
 export type GuideDoc = {
   slug: string;
-  title: string;
-  description: string;
-  body: string[];
+  title: { ko: string; en: string };
+  description: { ko: string; en: string };
+  body: { ko: string[]; en: string[] };
   updatedAt: string;
 };
 
 export const GUIDES: GuideDoc[] = [
   {
     slug: "prompt-basics",
-    title: "프롬프트 기본기: 좋은 요청의 뼈대 만들기",
-    description: "주제·스타일·구도·조명·재질·카메라·제약조건 순서로 안정적인 프롬프트를 만드는 방법",
+    title: {
+      ko: "프롬프트 기본기: 좋은 요청의 뼈대 만들기",
+      en: "Prompt Basics: Building a Solid Foundation"
+    },
+    description: {
+      ko: "주제·스타일·구도·조명·재질·카메라·제약조건 순서로 안정적인 프롬프트를 만드는 방법",
+      en: "How to create stable prompts in the order: subject, style, composition, lighting, materials, camera, constraints"
+    },
     updatedAt: "2026-01-02",
-    body: [
-      "프롬프트는 '멋진 문장'이 아니라 '명확한 요구사항 목록'에 가깝습니다. 가장 흔들리지 않는 순서는 (1) 주제(무엇을) → (2) 스타일(어떤 분위기/표현) → (3) 구도(배치) → (4) 조명(빛의 방향/성격/시간대) → (5) 재질/디테일(표면감) → (6) 카메라/렌즈(촬영 느낌) → (7) 제약조건(원하지 않는 요소/비율)입니다. 이 순서대로 적으면 모델이 의도를 잡기 쉬워요.",
-      "추상적인 표현('감성적으로', '예쁘게')은 기준이 사람마다 달라 결과가 요동칩니다. 대신 관찰 가능한 단서로 바꾸세요. 예: '따뜻한 색온도, 낮은 대비, 얕은 심도, 필름 그레인, 부드러운 확산광'처럼요. 단서가 구체적일수록 결과가 더 일관됩니다.",
-      "한 번에 완벽하려고 하지 말고, 첫 결과를 보고 수정하는 루프로 가세요. 색감은 마음에 드는데 배경이 복잡하면 '배경 단순, 미니멀'만 추가하면 됩니다. 프롬프트는 '초안 → 피드백 → 수정'이 가장 빠릅니다."
-    ],
+    body: {
+      ko: [
+        "프롬프트는 '멋진 문장'이 아니라 '명확한 요구사항 목록'에 가깝습니다. 가장 흔들리지 않는 순서는 (1) 주제(무엇을) → (2) 스타일(어떤 분위기/표현) → (3) 구도(배치) → (4) 조명(빛의 방향/성격/시간대) → (5) 재질/디테일(표면감) → (6) 카메라/렌즈(촬영 느낌) → (7) 제약조건(원하지 않는 요소/비율)입니다. 이 순서대로 적으면 모델이 의도를 잡기 쉬워요.",
+        "추상적인 표현('감성적으로', '예쁘게')은 기준이 사람마다 달라 결과가 요동칩니다. 대신 관찰 가능한 단서로 바꾸세요. 예: '따뜻한 색온도, 낮은 대비, 얕은 심도, 필름 그레인, 부드러운 확산광'처럼요. 단서가 구체적일수록 결과가 더 일관됩니다.",
+        "한 번에 완벽하려고 하지 말고, 첫 결과를 보고 수정하는 루프로 가세요. 색감은 마음에 드는데 배경이 복잡하면 '배경 단순, 미니멀'만 추가하면 됩니다. 프롬프트는 '초안 → 피드백 → 수정'이 가장 빠릅니다."
+      ],
+      en: [
+        "A prompt is closer to a 'clear list of requirements' than a 'beautiful sentence'. The most stable order is (1) Subject (what) → (2) Style (mood/expression) → (3) Composition (layout) → (4) Lighting (direction/character/time) → (5) Materials/Details (texture) → (6) Camera/Lens (shooting feel) → (7) Constraints (unwanted elements/ratio). Writing in this order helps the model understand your intent.",
+        "Abstract expressions ('emotionally', 'beautifully') vary by person and cause inconsistent results. Instead, replace them with observable clues. For example: 'warm color temperature, low contrast, shallow depth, film grain, soft diffused light'. The more specific the clues, the more consistent the results.",
+        "Don't try to be perfect at once—go with a loop of reviewing the first result and making adjustments. If you like the colors but the background is cluttered, just add 'background simple, minimal'. Prompts work best with 'draft → feedback → revision'."
+      ]
+    }
   },
   {
     slug: "subject-style",
-    title: "주제와 스타일 분리하기: 결과를 흔들지 않는 방법",
-    description: "주제(객체)를 고정하고 스타일(표현)만 바꿔 통제력을 높이는 작성법",
+    title: {
+      ko: "주제와 스타일 분리하기: 결과를 흔들지 않는 방법",
+      en: "Separating Subject and Style: Keeping Results Stable"
+    },
+    description: {
+      ko: "주제(객체)를 고정하고 스타일(표현)만 바꿔 통제력을 높이는 작성법",
+      en: "How to fix the subject (object) and only change the style (expression) for better control"
+    },
     updatedAt: "2026-01-02",
-    body: [
-      "초보자는 '주제'와 '스타일'을 한 덩어리로 적는 경우가 많아요. 그러면 스타일이 바뀌는 순간 주제까지 흔들립니다. 좋은 방법은 주제를 먼저 명사로 고정하고, 스타일은 별도 구획으로 둡니다. 예: 'single subject of a small cabin(주제) + misty dawn, watercolor texture, pastel palette(스타일)'처럼요.",
-      "심사/정책 측면에서 특정 유명 작가/브랜드/IP를 직접 언급하는 방식은 불필요한 리스크가 생길 수 있어요. 대신 'watercolor, pen drawing, 3D render, low-poly, minimal poster' 같은 일반적 표현을 권합니다. 스타일 키워드는 2~4개로 간결하게 유지하면 충돌이 줄어듭니다.",
-      "스타일을 미세 조정할 때는 '색감(따뜻/차갑), 대비(높/낮), 질감(매끈/거칠), 빛(부드러움/강함)' 같은 레버를 추가하세요. 큰 키워드를 갈아엎기보다 작은 레버를 조절하는 편이 예측 가능성이 올라갑니다."
-    ],
+    body: {
+      ko: [
+        "초보자는 '주제'와 '스타일'을 한 덩어리로 적는 경우가 많아요. 그러면 스타일이 바뀌는 순간 주제까지 흔들립니다. 좋은 방법은 주제를 먼저 명사로 고정하고, 스타일은 별도 구획으로 둡니다. 예: 'single subject of a small cabin(주제) + misty dawn, watercolor texture, pastel palette(스타일)'처럼요.",
+        "심사/정책 측면에서 특정 유명 작가/브랜드/IP를 직접 언급하는 방식은 불필요한 리스크가 생길 수 있어요. 대신 'watercolor, pen drawing, 3D render, low-poly, minimal poster' 같은 일반적 표현을 권합니다. 스타일 키워드는 2~4개로 간결하게 유지하면 충돌이 줄어듭니다.",
+        "스타일을 미세 조정할 때는 '색감(따뜻/차갑), 대비(높/낮), 질감(매끈/거칠), 빛(부드러움/강함)' 같은 레버를 추가하세요. 큰 키워드를 갈아엎기보다 작은 레버를 조절하는 편이 예측 가능성이 올라갑니다."
+      ],
+      en: [
+        "Beginners often write 'subject' and 'style' as one block. This causes the subject to shift when the style changes. A better approach is to fix the subject first as a noun, then place style in a separate section. Example: 'single subject of a small cabin (subject) + misty dawn, watercolor texture, pastel palette (style)'.",
+        "From a review/policy perspective, directly mentioning specific famous artists/brands/IPs can create unnecessary risks. Instead, use general expressions like 'watercolor, pen drawing, 3D render, low-poly, minimal poster'. Keep style keywords concise (2-4) to reduce conflicts.",
+        "When fine-tuning style, add levers like 'color tone (warm/cool), contrast (high/low), texture (smooth/rough), light (soft/strong)'. Adjusting small levers rather than overhauling major keywords increases predictability."
+      ]
+    }
   },
   {
     slug: "composition",
-    title: "구도(Composition)로 퀄리티를 끌어올리기",
-    description: "중앙·삼분할·대칭·여백 같은 구도 지시로 '전문가 느낌'을 만드는 법",
+    title: {
+      ko: "구도(Composition)로 퀄리티를 끌어올리기",
+      en: "Raising Quality with Composition"
+    },
+    description: {
+      ko: "중앙·삼분할·대칭·여백 같은 구도 지시로 '전문가 느낌'을 만드는 법",
+      en: "How to create a 'professional feel' with composition instructions like center, rule of thirds, symmetry, negative space"
+    },
     updatedAt: "2026-01-02",
-    body: [
-      "이미지의 '전문가 느낌'은 종종 구도에서 갈립니다. 구도 지시는 어려운 용어가 아니라 자연어로 충분해요. 예: '중앙 구도, 넓은 여백, 피사체는 하단 1/3, 배경 단순'처럼요. 제품/아이콘은 중앙 구도가 안정적이고, 풍경은 삼분할(하늘 2/3, 지면 1/3)이 자주 잘 먹힙니다.",
-      "구도가 깨질 때는 모델이 '피사체가 여러 개'라고 해석할 때가 많습니다. 이때는 'single subject, one object only, centered subject' 같은 힌트를 넣어 개수를 고정하세요. 여백을 주고 싶다면 'solid background, no pattern, no texture'처럼 배경 제약도 함께 주는 게 깔끔합니다.",
-      "구도 지시는 과하게 많이 넣기보다 핵심 1~2개만 고르세요. '대칭+삼분할+대각'처럼 서로 다른 구도가 섞이면 모델이 중간 타협을 하며 흐릿해질 수 있습니다."
-    ],
+    body: {
+      ko: [
+        "이미지의 '전문가 느낌'은 종종 구도에서 갈립니다. 구도 지시는 어려운 용어가 아니라 자연어로 충분해요. 예: '중앙 구도, 넓은 여백, 피사체는 하단 1/3, 배경 단순'처럼요. 제품/아이콘은 중앙 구도가 안정적이고, 풍경은 삼분할(하늘 2/3, 지면 1/3)이 자주 잘 먹힙니다.",
+        "구도가 깨질 때는 모델이 '피사체가 여러 개'라고 해석할 때가 많습니다. 이때는 'single subject, one object only, centered subject' 같은 힌트를 넣어 개수를 고정하세요. 여백을 주고 싶다면 'solid background, no pattern, no texture'처럼 배경 제약도 함께 주는 게 깔끔합니다.",
+        "구도 지시는 과하게 많이 넣기보다 핵심 1~2개만 고르세요. '대칭+삼분할+대각'처럼 서로 다른 구도가 섞이면 모델이 중간 타협을 하며 흐릿해질 수 있습니다."
+      ],
+      en: [
+        "The 'professional feel' of an image often comes from composition. Composition instructions don't need technical terms—natural language is enough. Example: 'centered composition, wide negative space, subject in lower third, simple background'. Center composition works well for products/icons, and rule of thirds (sky 2/3, ground 1/3) often works for landscapes.",
+        "When composition breaks, the model often interprets it as 'multiple subjects'. In this case, add hints like 'single subject, one object only, centered subject' to fix the count. If you want negative space, also add background constraints like 'solid background, no pattern, no texture' for a clean result.",
+        "Rather than adding too many composition instructions, pick 1-2 key ones. Mixing different compositions like 'symmetry + rule of thirds + diagonal' can cause the model to compromise and blur."
+      ]
+    }
   },
   {
     slug: "lighting",
-    title: "조명 한 줄로 분위기 고정하기",
-    description: "확산광·역광·골든아워·스튜디오 라이트로 감정선을 컨트롤",
+    title: {
+      ko: "조명 한 줄로 분위기 고정하기",
+      en: "Setting the Mood with One Line of Lighting"
+    },
+    description: {
+      ko: "확산광·역광·골든아워·스튜디오 라이트로 감정선을 컨트롤",
+      en: "Controlling the emotional line with diffused light, backlight, golden hour, studio light"
+    },
     updatedAt: "2026-01-02",
-    body: [
-      "조명은 분위기를 한 방에 고정하는 레버입니다. 같은 장면이라도 '부드러운 확산광'은 포근하고, '강한 역광'은 드라마틱하며, '차가운 형광등'은 현실적인 느낌이 납니다. 프롬프트에 조명을 넣을 때는 '방향(정면/측면/역광) + 성격(부드러움/강함) + 시간대(새벽/노을/밤)'만 잡아도 충분해요.",
-      "예: 'early morning mist, soft diffused light, low contrast'는 감성적이고, 'sunset backlight, long shadows, high contrast'는 영화적인 분위기를 만듭니다. 색감이 원하는 톤과 다르면 조명부터 수정하는 게 빠릅니다.",
-      "조명이 너무 과하면 디테일이 죽을 수 있어요. 그럴 땐 'soft but clear details'처럼 디테일 유지 힌트를 추가하거나 대비를 살짝 낮춰 균형을 맞춰보세요."
-    ],
+    body: {
+      ko: [
+        "조명은 분위기를 한 방에 고정하는 레버입니다. 같은 장면이라도 '부드러운 확산광'은 포근하고, '강한 역광'은 드라마틱하며, '차가운 형광등'은 현실적인 느낌이 납니다. 프롬프트에 조명을 넣을 때는 '방향(정면/측면/역광) + 성격(부드러움/강함) + 시간대(새벽/노을/밤)'만 잡아도 충분해요.",
+        "예: 'early morning mist, soft diffused light, low contrast'는 감성적이고, 'sunset backlight, long shadows, high contrast'는 영화적인 분위기를 만듭니다. 색감이 원하는 톤과 다르면 조명부터 수정하는 게 빠릅니다.",
+        "조명이 너무 과하면 디테일이 죽을 수 있어요. 그럴 땐 'soft but clear details'처럼 디테일 유지 힌트를 추가하거나 대비를 살짝 낮춰 균형을 맞춰보세요."
+      ],
+      en: [
+        "Lighting is a lever that fixes the mood in one shot. Even the same scene feels cozy with 'soft diffused light', dramatic with 'strong backlight', and realistic with 'cool fluorescent'. When adding lighting to a prompt, just set 'direction (front/side/back) + character (soft/strong) + time (dawn/sunset/night)'.",
+        "Example: 'early morning mist, soft diffused light, low contrast' creates an emotional feel, while 'sunset backlight, long shadows, high contrast' creates a cinematic mood. If the color tone differs from what you want, start by adjusting the lighting.",
+        "If lighting is too strong, details can die. In that case, add hints like 'soft but clear details' or slightly lower the contrast to balance."
+      ]
+    }
   },
   {
     slug: "materials-textures",
-    title: "재질·질감으로 '진짜 같은 느낌' 만들기",
-    description: "나무·금속·유리·종이 같은 재질 단서를 넣어 퀄리티를 높이는 방법",
+    title: {
+      ko: "재질·질감으로 '진짜 같은 느낌' 만들기",
+      en: "Creating a 'Realistic Feel' with Materials and Textures"
+    },
+    description: {
+      ko: "나무·금속·유리·종이 같은 재질 단서를 넣어 퀄리티를 높이는 방법",
+      en: "How to improve quality by adding material clues like wood, metal, glass, paper"
+    },
     updatedAt: "2026-01-02",
-    body: [
-      "모델은 '무엇으로 만들어졌는지'를 알 때 디테일을 더 잘 그립니다. 그래서 'wood grain, brushed metal, translucent glass, rough paper texture'처럼 재질 단서를 넣으면 결과가 한 단계 정리되는 경우가 많아요.",
-      "재질은 '재질 + 표면 상태 + 빛 반응'을 같이 주면 강력합니다. 예: 'brushed metal, micro scratches, soft highlights', 'matte plastic, low specular, subtle shadow'처럼요. 모델이 어디를 반짝이게 할지 결정하기 쉬워집니다.",
-      "재질이 너무 많으면 서로 싸웁니다. 핵심 재질 2~3개만 잡고 나머지는 단순 배경으로 정리하면 더 고급스러워져요."
-    ],
+    body: {
+      ko: [
+        "모델은 '무엇으로 만들어졌는지'를 알 때 디테일을 더 잘 그립니다. 그래서 'wood grain, brushed metal, translucent glass, rough paper texture'처럼 재질 단서를 넣으면 결과가 한 단계 정리되는 경우가 많아요.",
+        "재질은 '재질 + 표면 상태 + 빛 반응'을 같이 주면 강력합니다. 예: 'brushed metal, micro scratches, soft highlights', 'matte plastic, low specular, subtle shadow'처럼요. 모델이 어디를 반짝이게 할지 결정하기 쉬워집니다.",
+        "재질이 너무 많으면 서로 싸웁니다. 핵심 재질 2~3개만 잡고 나머지는 단순 배경으로 정리하면 더 고급스러워져요."
+      ],
+      en: [
+        "Models draw details better when they know 'what it's made of'. Adding material clues like 'wood grain, brushed metal, translucent glass, rough paper texture' often elevates the result by one level.",
+        "Materials are powerful when given together: 'material + surface state + light reaction'. Examples: 'brushed metal, micro scratches, soft highlights', 'matte plastic, low specular, subtle shadow'. This makes it easier for the model to decide where to add shine.",
+        "Too many materials fight each other. Pick 2-3 key materials and simplify the rest as a plain background for a more premium feel."
+      ]
+    }
   },
   {
     slug: "camera-lens",
-    title: "카메라/렌즈 힌트로 사진 같은 결과 만들기",
-    description: "광각·표준·망원, 얕은 심도, 보케 같은 힌트로 '촬영 느낌'을 고정",
+    title: {
+      ko: "카메라/렌즈 힌트로 사진 같은 결과 만들기",
+      en: "Creating Photo-like Results with Camera/Lens Hints"
+    },
+    description: {
+      ko: "광각·표준·망원, 얕은 심도, 보케 같은 힌트로 '촬영 느낌'을 고정",
+      en: "Fixing the 'shooting feel' with hints like wide angle, standard, telephoto, shallow depth of field, bokeh"
+    },
     updatedAt: "2026-01-02",
-    body: [
-      "사진 같은 느낌을 원한다면 렌즈 단서가 효과적입니다. 광각은 공간감을 키우고, 망원은 배경을 압축해 피사체를 돋보이게 합니다. 'wide angle, cinematic', 'telephoto, shallow depth of field' 같은 간단한 힌트만으로도 결과가 달라져요.",
-      "주제를 강조하려면 'shallow depth of field, bokeh, blurred background'를 넣고, 풍경처럼 전체 선명도를 원하면 'deep depth of field, crisp details'를 선택합니다. 단, '초선명'과 '강한 그레인'을 동시에 넣으면 노이즈가 과해질 수 있으니 균형을 보세요.",
-      "카메라 힌트가 과하면 스타일을 지배할 수 있습니다. 사진 느낌이 지나치면 렌즈 키워드를 줄이고, 스타일(수채화/일러스트 등) 단서를 더 명확히 하는 쪽이 좋습니다."
-    ],
+    body: {
+      ko: [
+        "사진 같은 느낌을 원한다면 렌즈 단서가 효과적입니다. 광각은 공간감을 키우고, 망원은 배경을 압축해 피사체를 돋보이게 합니다. 'wide angle, cinematic', 'telephoto, shallow depth of field' 같은 간단한 힌트만으로도 결과가 달라져요.",
+        "주제를 강조하려면 'shallow depth of field, bokeh, blurred background'를 넣고, 풍경처럼 전체 선명도를 원하면 'deep depth of field, crisp details'를 선택합니다. 단, '초선명'과 '강한 그레인'을 동시에 넣으면 노이즈가 과해질 수 있으니 균형을 보세요.",
+        "카메라 힌트가 과하면 스타일을 지배할 수 있습니다. 사진 느낌이 지나치면 렌즈 키워드를 줄이고, 스타일(수채화/일러스트 등) 단서를 더 명확히 하는 쪽이 좋습니다."
+      ],
+      en: [
+        "Lens clues are effective if you want a photo-like feel. Wide angle increases spatial sense, while telephoto compresses the background to highlight the subject. Simple hints like 'wide angle, cinematic', 'telephoto, shallow depth of field' can change the result.",
+        "To emphasize the subject, add 'shallow depth of field, bokeh, blurred background'. For full sharpness like landscapes, choose 'deep depth of field, crisp details'. However, adding both 'ultra-sharp' and 'strong grain' can cause excessive noise, so balance carefully.",
+        "Too many camera hints can dominate the style. If the photo feel is excessive, reduce lens keywords and make style clues (watercolor/illustration, etc.) clearer."
+      ]
+    }
   },
   {
     slug: "constraints-negative",
-    title: "제약조건과 '원하지 않는 요소' 정리하기",
-    description: "불필요한 요소를 줄여 깔끔하게 만드는 제약조건 작성법",
+    title: {
+      ko: "제약조건과 '원하지 않는 요소' 정리하기",
+      en: "Organizing Constraints and 'Unwanted Elements'"
+    },
+    description: {
+      ko: "불필요한 요소를 줄여 깔끔하게 만드는 제약조건 작성법",
+      en: "How to write constraints to reduce unnecessary elements and keep things clean"
+    },
     updatedAt: "2026-01-02",
-    body: [
-      "결과를 깔끔하게 만들려면 '원하지 않는 것'을 정리하는 게 중요합니다. 예: 'no text, no logo, no watermark, simple background' 같은 제약은 거의 항상 도움이 됩니다. 특히 포스터/템플릿류에서는 임의 텍스트가 생길 수 있어 미리 막아두는 편이 좋아요.",
-      "제약조건을 너무 길게 나열하면 모델이 혼란스러워질 수 있습니다. 가장 문제 되는 3~6개만 고르고, 나머지는 결과를 본 뒤 추가하세요. '배경이 복잡하다 → background simple'처럼 문제-해결형으로 쌓아가는 게 안정적입니다.",
-      "제약은 목표와 충돌하면 안 됩니다. 예를 들어 '강한 역광'과 '그림자 없음'을 동시에 넣으면 이상해질 수 있어요. 제약은 목표를 돕는 방향으로만 선택하세요."
-    ],
+    body: {
+      ko: [
+        "결과를 깔끔하게 만들려면 '원하지 않는 것'을 정리하는 게 중요합니다. 예: 'no text, no logo, no watermark, simple background' 같은 제약은 거의 항상 도움이 됩니다. 특히 포스터/템플릿류에서는 임의 텍스트가 생길 수 있어 미리 막아두는 편이 좋아요.",
+        "제약조건을 너무 길게 나열하면 모델이 혼란스러워질 수 있습니다. 가장 문제 되는 3~6개만 고르고, 나머지는 결과를 본 뒤 추가하세요. '배경이 복잡하다 → background simple'처럼 문제-해결형으로 쌓아가는 게 안정적입니다.",
+        "제약은 목표와 충돌하면 안 됩니다. 예를 들어 '강한 역광'과 '그림자 없음'을 동시에 넣으면 이상해질 수 있어요. 제약은 목표를 돕는 방향으로만 선택하세요."
+      ],
+      en: [
+        "To keep results clean, organizing 'unwanted things' is important. Constraints like 'no text, no logo, no watermark, simple background' almost always help. Especially for posters/templates, arbitrary text can appear, so it's good to block it in advance.",
+        "Listing too many constraints can confuse the model. Pick only the 3-6 most problematic ones, and add the rest after seeing the result. Building up in a problem-solution format like 'background is cluttered → background simple' is stable.",
+        "Constraints shouldn't conflict with goals. For example, adding both 'strong backlight' and 'no shadows' can create weird results. Choose constraints only in directions that help your goal."
+      ]
+    }
   },
   {
     slug: "safe-brand-ip",
-    title: "상표·IP 리스크 줄이기: 안전한 표현 가이드",
-    description: "심사에서 민감해질 수 있는 표현을 피하고 의미는 유지하는 대체 표현법",
+    title: {
+      ko: "상표·IP 리스크 줄이기: 안전한 표현 가이드",
+      en: "Reducing Trademark/IP Risk: Safe Expression Guide"
+    },
+    description: {
+      ko: "심사에서 민감해질 수 있는 표현을 피하고 의미는 유지하는 대체 표현법",
+      en: "Alternative expressions that avoid sensitive terms in reviews while maintaining meaning"
+    },
     updatedAt: "2026-01-02",
-    body: [
-      "광고 심사에서는 상표/저작권/IP 관련 리스크에 보수적으로 반응하는 경우가 많습니다. 특정 브랜드명, 캐릭터명, 유명 작품명을 직접 넣으면 오해를 만들 수 있어요. 같은 느낌을 원한다면 '레트로 SF 포스터 느낌', '미니멀 스포츠카 형태', '게임 콘솔 같은 실루엣'처럼 일반적 묘사로 바꾸는 편이 안전합니다.",
-      "또한 '공식/제휴/인증'처럼 오해할 수 있는 표현은 피하고, 사이트 상단/약관에 '비공식 도구'임을 명확히 표시하세요. 운영 주체/문의처/정책 페이지가 있으면 신뢰도가 올라가 심사에도 도움이 됩니다.",
-      "핵심은 '특정 대상을 그대로 복제'하려는 프레이밍을 피하고, '스타일·구성 요소'를 묘사하는 방식으로 전환하는 겁니다. 의미는 유지하면서 리스크를 낮추는 가장 현실적인 방법이에요."
-    ],
+    body: {
+      ko: [
+        "광고 심사에서는 상표/저작권/IP 관련 리스크에 보수적으로 반응하는 경우가 많습니다. 특정 브랜드명, 캐릭터명, 유명 작품명을 직접 넣으면 오해를 만들 수 있어요. 같은 느낌을 원한다면 '레트로 SF 포스터 느낌', '미니멀 스포츠카 형태', '게임 콘솔 같은 실루엣'처럼 일반적 묘사로 바꾸는 편이 안전합니다.",
+        "또한 '공식/제휴/인증'처럼 오해할 수 있는 표현은 피하고, 사이트 상단/약관에 '비공식 도구'임을 명확히 표시하세요. 운영 주체/문의처/정책 페이지가 있으면 신뢰도가 올라가 심사에도 도움이 됩니다.",
+        "핵심은 '특정 대상을 그대로 복제'하려는 프레이밍을 피하고, '스타일·구성 요소'를 묘사하는 방식으로 전환하는 겁니다. 의미는 유지하면서 리스크를 낮추는 가장 현실적인 방법이에요."
+      ],
+      en: [
+        "Ad reviews often react conservatively to trademark/copyright/IP risks. Directly including specific brand names, character names, or famous work titles can create misunderstandings. If you want the same feel, it's safer to change to general descriptions like 'retro sci-fi poster feel', 'minimal sports car form', 'game console-like silhouette'.",
+        "Also avoid expressions that could be misunderstood like 'official/affiliated/certified', and clearly mark 'unofficial tool' at the top of the site/terms. Having an operating entity/contact/policy page increases trust and helps with reviews.",
+        "The key is to avoid framing that 'directly replicates a specific target' and switch to a method that describes 'style and compositional elements'. This is the most practical way to maintain meaning while reducing risk."
+      ]
+    }
   },
   {
     slug: "ui-ux-for-ads",
-    title: "광고 심사 관점 UX 체크리스트",
-    description: "실수 클릭 유도 의심을 피하고, '정상 서비스'로 보이게 만드는 UI/구성",
+    title: {
+      ko: "광고 심사 관점 UX 체크리스트",
+      en: "UX Checklist from an Ad Review Perspective"
+    },
+    description: {
+      ko: "실수 클릭 유도 의심을 피하고, '정상 서비스'로 보이게 만드는 UI/구성",
+      en: "UI/structure that avoids suspicion of accidental click baiting and appears as a 'normal service'"
+    },
     updatedAt: "2026-01-02",
-    body: [
-      "광고 심사에서 자주 보는 포인트는 '사용자 경험(UX)'입니다. 광고가 버튼/검색창/내비게이션 바로 옆에 붙어 있으면 실수 클릭 유도 의심을 받기 쉽습니다. 그래서 광고 영역에는 '광고' 라벨을 붙이고, 클릭 요소와 거리를 두는 편이 안전합니다.",
-      "툴 사이트는 콘텐츠가 얇아 보이기 쉬워서, 가이드/튜토리얼/FAQ 같은 문서 페이지가 있으면 신뢰도가 확 올라갑니다. '기능만 있는 단일 페이지'보다, 사용자를 돕는 정보 페이지가 많을수록 심사 통과에 유리합니다.",
-      "필수 고정 페이지(About/Contact/Privacy/Terms)가 있으면 운영 주체가 명확한 서비스로 보입니다. 이 네 개는 심사 통과율을 바꿔주는 가장 저렴한 보험이에요."
-    ],
+    body: {
+      ko: [
+        "광고 심사에서 자주 보는 포인트는 '사용자 경험(UX)'입니다. 광고가 버튼/검색창/내비게이션 바로 옆에 붙어 있으면 실수 클릭 유도 의심을 받기 쉽습니다. 그래서 광고 영역에는 '광고' 라벨을 붙이고, 클릭 요소와 거리를 두는 편이 안전합니다.",
+        "툴 사이트는 콘텐츠가 얇아 보이기 쉬워서, 가이드/튜토리얼/FAQ 같은 문서 페이지가 있으면 신뢰도가 확 올라갑니다. '기능만 있는 단일 페이지'보다, 사용자를 돕는 정보 페이지가 많을수록 심사 통과에 유리합니다.",
+        "필수 고정 페이지(About/Contact/Privacy/Terms)가 있으면 운영 주체가 명확한 서비스로 보입니다. 이 네 개는 심사 통과율을 바꿔주는 가장 저렴한 보험이에요."
+      ],
+      en: [
+        "A common point in ad reviews is 'user experience (UX)'. If ads are placed right next to buttons/search bars/navigation bars, it's easy to be suspected of accidental click baiting. So it's safer to add an 'Ad' label to ad areas and keep distance from clickable elements.",
+        "Tool sites can easily look thin on content, so having documentation pages like guides/tutorials/FAQ significantly increases trust. Having more informational pages that help users is more favorable for review approval than 'single page with only features'.",
+        "Having essential fixed pages (About/Contact/Privacy/Terms) makes it look like a service with a clear operating entity. These four are the cheapest insurance that changes review approval rates."
+      ]
+    }
   },
   {
     slug: "troubleshooting",
-    title: "자주 겪는 문제 해결: 결과가 흔들릴 때",
-    description: "결과가 산만/과장/뭉개짐처럼 나올 때 프롬프트를 고치는 순서",
+    title: {
+      ko: "자주 겪는 문제 해결: 결과가 흔들릴 때",
+      en: "Troubleshooting Common Issues: When Results Are Unstable"
+    },
+    description: {
+      ko: "결과가 산만/과장/뭉개짐처럼 나올 때 프롬프트를 고치는 순서",
+      en: "Order of fixing prompts when results come out scattered/exaggerated/blurry"
+    },
     updatedAt: "2026-01-02",
-    body: [
-      "결과가 흔들릴 때는 '한 번에 많이 고치기'보다 '원인 하나씩 제거'가 정답입니다. 먼저 가장 큰 문제부터 잡으세요. 배경이 산만하면 'background simple' 하나만 추가하고, 피사체가 여러 개처럼 나오면 'single subject'로 개수를 고정합니다.",
-      "색감이 과장되면 조명과 대비를 먼저 만집니다. 'soft diffused light, low contrast, natural colors'처럼요. 반대로 너무 밋밋하면 'high contrast, clear highlights, deep shadows'로 방향을 틀어봅니다.",
-      "뭉개짐 느낌이 나면 디테일 단서를 조금 추가하되, 재질·조명·카메라 단서가 서로 충돌하지 않는지 확인하세요. 충돌을 줄이면 품질은 자연스럽게 올라갑니다."
-    ],
+    body: {
+      ko: [
+        "결과가 흔들릴 때는 '한 번에 많이 고치기'보다 '원인 하나씩 제거'가 정답입니다. 먼저 가장 큰 문제부터 잡으세요. 배경이 산만하면 'background simple' 하나만 추가하고, 피사체가 여러 개처럼 나오면 'single subject'로 개수를 고정합니다.",
+        "색감이 과장되면 조명과 대비를 먼저 만집니다. 'soft diffused light, low contrast, natural colors'처럼요. 반대로 너무 밋밋하면 'high contrast, clear highlights, deep shadows'로 방향을 틀어봅니다.",
+        "뭉개짐 느낌이 나면 디테일 단서를 조금 추가하되, 재질·조명·카메라 단서가 서로 충돌하지 않는지 확인하세요. 충돌을 줄이면 품질은 자연스럽게 올라갑니다."
+      ],
+      en: [
+        "When results are unstable, 'removing causes one by one' is the answer rather than 'fixing many things at once'. First, tackle the biggest problem. If the background is cluttered, just add 'background simple', and if subjects appear multiple, fix the count with 'single subject'.",
+        "If colors are exaggerated, first adjust lighting and contrast. Like 'soft diffused light, low contrast, natural colors'. Conversely, if it's too flat, try changing direction with 'high contrast, clear highlights, deep shadows'.",
+        "If it feels blurry, add a bit of detail clues, but check that material, lighting, and camera clues don't conflict with each other. Reducing conflicts naturally improves quality."
+      ]
+    }
   },
 ];
-
