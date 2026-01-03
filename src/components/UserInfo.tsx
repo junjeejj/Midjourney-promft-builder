@@ -5,10 +5,14 @@ import { useAuth } from "../store/useAuth";
 import { useWalletStore } from "../store/useWalletStore";
 import HeaderAuth from "./HeaderAuth";
 import { ROUTES, TIMEOUTS } from "../config/constants";
+import { getLang } from "../lib/lang";
+import { SITE_TEXT } from "../config/siteText";
 
 export default function UserInfo() {
   const { user, token, checkSession } = useAuth();
   const { balance, fetchBalance } = useWalletStore();
+  const lang = getLang();
+  const t = SITE_TEXT[lang];
   
   // Zustand store 함수들의 최신 참조를 유지
   const checkSessionRef = React.useRef(checkSession);
@@ -46,7 +50,7 @@ export default function UserInfo() {
           <HeaderAuth />
           {user?.id && (
             <span className="text-sm text-gray-600">
-              {user.displayName || user.name || "사용자"}
+              {user.displayName || user.name || t.auth.user}
             </span>
           )}
         </div>
@@ -56,14 +60,14 @@ export default function UserInfo() {
       {user?.id && (
         <div className="space-y-2">
           <div className="rounded-lg bg-gray-100 px-3 py-2 text-sm">
-            <span className="text-gray-600">크레딧: </span>
+            <span className="text-gray-600">{lang === "ko" ? "크레딧: " : "Credits: "}</span>
             <span className="font-semibold text-gray-900">{balance}</span>
           </div>
           <Link
             to={ROUTES.PRICING}
             className="block w-full text-center rounded-lg border border-blue-500 bg-blue-500 px-3 py-2 text-sm font-medium text-white transition hover:bg-blue-600"
           >
-            크레딧 구매
+            {lang === "ko" ? "크레딧 구매" : "Buy Credits"}
           </Link>
         </div>
       )}
@@ -73,7 +77,7 @@ export default function UserInfo() {
           to={ROUTES.LOGIN}
           className="block w-full text-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
         >
-          로그인
+          {t.auth.login}
         </Link>
       )}
     </div>

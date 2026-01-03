@@ -29,6 +29,17 @@ export const SITE_TEXT = {
       contact: "Contact",
       privacy: "개인정보처리방침",
       terms: "이용약관",
+      login: "로그인",
+    },
+    language: {
+      label: "언어선택",
+      switchTo: "EN",
+    },
+    auth: {
+      login: "로그인",
+      logout: "로그아웃",
+      viewProfile: "내 정보 보기",
+      user: "사용자",
     },
     adLabel: "광고",
     report: {
@@ -70,6 +81,17 @@ export const SITE_TEXT = {
       contact: "Contact",
       privacy: "Privacy",
       terms: "Terms",
+      login: "Login",
+    },
+    language: {
+      label: "Language",
+      switchTo: "KO",
+    },
+    auth: {
+      login: "Login",
+      logout: "Log out",
+      viewProfile: "View Profile",
+      user: "User",
     },
     adLabel: "Ad",
     report: {
