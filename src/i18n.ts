@@ -111,11 +111,15 @@ const dict = {
     },
 
     subject: {
-
       label:"주제",
-
-      placeholder:"예) 벚꽃길을 걷는 몽환적인 소녀"
-
+      placeholder:"예) 벚꽃길을 걷는 몽환적인 소녀",
+      loginRequired: "로그인이 필요합니다.",
+      insufficientCredits: "크레딧이 부족합니다. 결제에서 충전해 주세요.",
+      generating: "생성 중…",
+      autoGenerate: "AI 프롬프트 자동 생성 (1 크레딧)",
+      creditsBalance: "보유 크레딧",
+      errorGenerating: "자동 생성 중 오류가 발생했습니다.",
+      errorDeducting: "크레딧 차감에 실패했습니다. 잔액을 확인해주세요."
     },
 
     ccl: {
@@ -154,7 +158,11 @@ const dict = {
 
     final: { helper:"최상단에서 최종 프롬프트를 복사하거나 파라미터를 조정하세요." },
 
-    common: { next:"다음" }
+    common: { next:"다음" },
+
+    builder: {
+      previewHelper: "오른쪽 요약/파라미터 패널을 참고해 최종 프롬프트를 확인하세요."
+    }
 
   },
 
@@ -254,17 +262,9 @@ const dict = {
 
     },
 
-    subject: { label:"Subject", placeholder:"e.g. dreamy cherry blossom boulevard" },
-
-    ccl: { title:"Camera / Composition / Lighting", camera:"Camera", composition:"Composition", lighting:"Lighting" },
-
-    quality: { title:"Quality / Emphasis", stylize:"Stylize (--stylize)", stylizeHint:"0–1000", chaos:"Chaos (--chaos)", chaosHint:"0–100", q:"Quality (--q)", qHint:"0.5 / 1 / 2", next:"Next", currentValue:"Current value" },
-
-    final: { helper:"Use the top section to copy the final prompt or tweak parameters." },
-
-    common: { next:"Next" },
-
-    subject: {
+    subject: { 
+      label:"Subject", 
+      placeholder:"e.g. dreamy cherry blossom boulevard",
       loginRequired: "Login required.",
       insufficientCredits: "Insufficient credits. Please recharge in Payment.",
       generating: "Generating…",
@@ -273,6 +273,14 @@ const dict = {
       errorGenerating: "An error occurred during auto generation.",
       errorDeducting: "Failed to deduct credits. Please check your balance."
     },
+
+    ccl: { title:"Camera / Composition / Lighting", camera:"Camera", composition:"Composition", lighting:"Lighting" },
+
+    quality: { title:"Quality / Emphasis", stylize:"Stylize (--stylize)", stylizeHint:"0–1000", chaos:"Chaos (--chaos)", chaosHint:"0–100", q:"Quality (--q)", qHint:"0.5 / 1 / 2", next:"Next", currentValue:"Current value" },
+
+    final: { helper:"Use the top section to copy the final prompt or tweak parameters." },
+
+    common: { next:"Next" },
 
     builder: {
       previewHelper: "Refer to the summary/parameter panel on the right to review the final prompt."
