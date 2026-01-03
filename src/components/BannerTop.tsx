@@ -1,4 +1,6 @@
 import { isAdAllowedPath } from "../lib/adsPolicy";
+import { getLang } from "../lib/lang";
+import { SITE_TEXT } from "../config/siteText";
 import { useEffect, useRef } from "react";
 
 export default function BannerTop({ pathname }: { pathname: string }) {
@@ -31,10 +33,13 @@ export default function BannerTop({ pathname }: { pathname: string }) {
 
   if (!isAdAllowedPath(pathname)) return null;
 
+  const lang = getLang();
+  const t = SITE_TEXT[lang];
+
   return (
-    <div className="w-full flex justify-end">
-      {/* 오른쪽 광고 (320x50) */}
-      <div className="flex justify-end min-h-[50px]">
+    <div className="w-full flex items-center justify-between gap-3">
+      <div className="text-[11px] text-gray-500 select-none">{t.adLabel}</div>
+      <div className="flex justify-end min-h-[50px] flex-1">
         <ins 
           ref={kakaoAdRef}
           className="kakao_ad_area" 

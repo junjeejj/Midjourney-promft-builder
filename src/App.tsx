@@ -3,6 +3,7 @@ import { Routes, Route, Outlet, useLocation } from "react-router-dom";
 
 import BannerTop from "./components/BannerTop";
 import BannerBottom from "./components/BannerBottom";
+import SiteHeader from "./components/SiteHeader";
 import ErrorBoundary from "./components/system/ErrorBoundary";
 import { AdSenseProvider, requestAdFill } from "./components/ads/AdSenseProvider";
 
@@ -19,6 +20,13 @@ import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
 import PromptBuilderV2 from "./pages/PromptBuilderV2";
 import PayPalSuccess from "./pages/PayPalSuccess";
+import Guides from "./pages/Guides";
+import GuideDetail from "./pages/GuideDetail";
+import Examples from "./pages/Examples";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
 
 declare global {
   interface Window {
@@ -64,6 +72,7 @@ function Layout() {
       </div>
       {/* 본문: 배너 높이만큼 여백을 주는 래퍼 */}
       <div className="app-shell">
+        <SiteHeader />
         <Outlet />
       </div>
       {/* Bottom Banner: 고정, 오른쪽 정렬 */}
@@ -102,6 +111,13 @@ export default function App() {
           />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/templates" element={<Templates />} />
+          <Route path="/guides" element={<Guides />} />
+          <Route path="/guides/:slug" element={<GuideDetail />} />
+          <Route path="/examples" element={<Examples />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
           <Route path="/seed" element={<SeedLab />} />
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/defaults" element={<Defaults />} />

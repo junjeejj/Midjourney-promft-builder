@@ -304,3 +304,6 @@ Vercel Dashboard → Environment Variables:
 4. 문제 발견 시 로그 확인 및 수정
 5. 모든 테스트 통과 후 PayPal Live 모드 전환
 
+
+
+
