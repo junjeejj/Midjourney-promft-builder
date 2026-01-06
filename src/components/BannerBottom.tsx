@@ -2,32 +2,15 @@ import { isAdAllowedPath } from "../lib/adsPolicy";
 import { getLang } from "../lib/lang";
 import { SITE_TEXT } from "../config/siteText";
 import { useEffect, useRef } from "react";
+import { requestAdFill } from "./ads/AdSenseProvider";
 
 export default function BannerBottom({ pathname }: { pathname: string }) {
-  const kakaoAdRef = useRef<HTMLModElement>(null);
+  const adSenseRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    // 카카오 애드핏 스크립트 로드 확인 및 광고 초기화
-    const initKakaoAd = () => {
-      if (kakaoAdRef.current && (window as any).kakao?.ad) {
-        (window as any).kakao.ad.fit(kakaoAdRef.current);
-      }
-    };
-
-    // 스크립트가 이미 로드되어 있으면 바로 초기화
-    if ((window as any).kakao?.ad) {
-      initKakaoAd();
-    } else {
-      // 스크립트 로드 대기
-      const checkInterval = setInterval(() => {
-        if ((window as any).kakao?.ad) {
-          clearInterval(checkInterval);
-          initKakaoAd();
-        }
-      }, 100);
-
-      // 5초 후 타임아웃
-      setTimeout(() => clearInterval(checkInterval), 5000);
+    // AdSense 광고 초기화
+    if (adSenseRef.current) {
+      requestAdFill();
     }
   }, [pathname]);
 
@@ -41,12 +24,13 @@ export default function BannerBottom({ pathname }: { pathname: string }) {
       <div className="text-[11px] text-gray-500 select-none">{t.adLabel}</div>
       <div className="flex justify-end min-h-[50px] flex-1">
         <ins 
-          ref={kakaoAdRef}
-          className="kakao_ad_area" 
-          style={{ display: "none" }}
-          data-ad-unit="DAN-qqwPV9r6HhzrmeuX"
-          data-ad-width="320"
-          data-ad-height="50"
+          ref={adSenseRef}
+          className="adsbygoogle block"
+          style={{ display: "block", minHeight: 50 }}
+          data-ad-client="ca-pub-2243395970141516"
+          data-ad-slot=""
+          data-ad-format="auto"
+          data-full-width-responsive="true"
         ></ins>
       </div>
     </div>
