@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 import { requestAdFill } from "./ads/AdSenseProvider";
 
 export default function BannerBottom({ pathname }: { pathname: string }) {
-  const adSenseRef = useRef<HTMLElement>(null);
+  const adSenseRef = useRef<HTMLModElement>(null);
 
   useEffect(() => {
     // AdSense 광고 초기화
