@@ -7,3 +7,8 @@ create table if not exists public.prompt_reports (
   created_at timestamptz not null default now()
 );
 
+
+
+
+
+

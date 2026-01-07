@@ -24,3 +24,25 @@ export const supabase = createClient(
 export const isSupabaseConfigured = () => {
   return !!(url && anon && url !== SUPABASE_PLACEHOLDER_URL);
 };
+
+// Supabase URL 유효성 검사
+export const validateSupabaseUrl = async (): Promise<{ valid: boolean; error?: string }> => {
+  if (!url || url === SUPABASE_PLACEHOLDER_URL) {
+    return { valid: false, error: "Supabase URL이 설정되지 않았습니다." };
+  }
+
+  try {
+    // URL 형식 검증
+    const urlObj = new URL(url);
+    if (!urlObj.hostname.includes("supabase.co")) {
+      return { valid: false, error: "Supabase URL 형식이 올바르지 않습니다." };
+    }
+
+    // 실제 연결 테스트 (선택적)
+    // 네트워크 요청은 브라우저에서 CORS 문제가 있을 수 있으므로
+    // 실제 OAuth 시도 시 에러를 확인하는 것이 더 나을 수 있습니다.
+    return { valid: true };
+  } catch (err) {
+    return { valid: false, error: `Supabase URL이 유효하지 않습니다: ${url}` };
+  }
+};
