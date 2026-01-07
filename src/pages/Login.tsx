@@ -206,13 +206,7 @@ export default function Login() {
     }
     catch (e: any) { 
       console.error("OAuth error:", e);
-      const errorMsg = e?.message || "OAuth 로그인에 실패했습니다. 다시 시도해주세요.";
-      setMsg(errorMsg);
-      
-      // Supabase 연결 오류인 경우 추가 안내
-      if (errorMsg.includes("연결할 수 없습니다") || errorMsg.includes("설정되지 않았습니다")) {
-        setMsg(`${errorMsg}\n\n해결 방법:\n1. .env 파일의 VITE_SUPABASE_URL 확인\n2. Supabase 프로젝트가 활성화되어 있는지 확인\n3. 네트워크 연결 확인`);
-      }
+      setMsg(e?.message || "OAuth 로그인에 실패했습니다. 다시 시도해주세요."); 
     }
   }
 

@@ -88,59 +88,20 @@ export const useAuth = create<AuthState>((set, get) => ({
   },
 
   async signInWithProvider(provider) {
-    // Supabase URL 유효성 확인
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    if (!supabaseUrl || supabaseUrl.includes("placeholder")) {
-      throw new Error("Supabase가 설정되지 않았습니다. 환경 변수를 확인해주세요.");
-    }
-
-    // Supabase URL이 유효한 형식인지 확인
-    try {
-      new URL(supabaseUrl);
-    } catch {
-      throw new Error(`Supabase URL이 유효하지 않습니다: ${supabaseUrl}`);
-    }
-
     // OAuth 콜백 후 리디렉션 URL 구성
     const redirectTo = `${window.location.origin}${OAUTH_REDIRECT_PATH}`;
     
-    try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: provider as any,
-        options: { 
-          redirectTo: redirectTo,
-        },
-      });
-      
-      if (error) {
-        console.error("[Auth] OAuth sign in error:", error);
-        
-        // 네트워크 오류인 경우
-        if (error.message?.includes("fetch") || error.message?.includes("network") || error.message?.includes("Failed to fetch")) {
-          throw new Error(`Supabase 서버에 연결할 수 없습니다. URL을 확인해주세요: ${supabaseUrl}`);
-        }
-        
-        throw new Error(error.message || "OAuth 로그인에 실패했습니다.");
-      }
-      
-      // OAuth는 리다이렉트되므로 여기서는 에러만 체크
-      // data.url이 있으면 리다이렉트가 시작됨
-      if (data?.url) {
-        console.log("[Auth] OAuth redirect initiated to:", data.url);
-      }
-    } catch (err: any) {
-      // 네트워크 오류 처리
-      if (err?.message?.includes("Failed to fetch") || err?.message?.includes("network") || err?.code === "ERR_NETWORK") {
-        throw new Error(`Supabase 서버(${supabaseUrl})에 연결할 수 없습니다. 프로젝트가 활성화되어 있는지 확인해주세요.`);
-      }
-      
-      // 기존 에러 메시지가 있으면 그대로 사용
-      if (err?.message) {
-        throw err;
-      }
-      
-      throw new Error("OAuth 로그인 중 오류가 발생했습니다. 다시 시도해주세요.");
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: provider as any,
+      options: { 
+        redirectTo: redirectTo,
+      },
+    });
+    if (error) {
+      console.error("[Auth] OAuth sign in error:", error);
+      throw new Error(error.message || "OAuth 로그인에 실패했습니다.");
     }
+    // OAuth는 리다이렉트되므로 여기서는 에러만 체크
   },
 
   async checkSession() {
