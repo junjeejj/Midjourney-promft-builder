@@ -4,7 +4,7 @@ type WalletState = {
   balance: number;
   loading: boolean;
   fetchBalance: (token: string) => Promise<void>;
-  spend: (amount: number, token: string, reason?: string) => Promise<{ ok: boolean; balance?: number }>;
+  spend: (amount: number, token: string, reason?: string) => Promise<{ ok: boolean; balance?: number; error?: string }>;
   setBalance: (value: number) => void;
 };
 
@@ -63,4 +63,3 @@ export const useWalletStore = create<WalletState>((set) => ({
     set({ balance: value });
   },
 }));
-

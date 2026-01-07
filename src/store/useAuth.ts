@@ -14,21 +14,22 @@ export type DemoUser = {
 export type AuthState = {
   user: DemoUser | null;
   token: string | null;
-  oauth: {
-    providers: string[];
-  };
+
   // 메인 API
   signInWithPassword: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   signInWithProvider: (provider: string) => Promise<void>;
   checkSession: () => Promise<void>;
+
   // 구버전 호환 별칭 (App/Profile 등에서 호출)
   login?: (email: string, password: string) => Promise<void>;
   signup?: (email: string, password: string) => Promise<void>;
   logout?: () => Promise<void>;
   loginWithOAuth?: (provider: string) => Promise<void>;
+
   // UI 보조
+  oauth: { providers: string[] };
   loginDemo?: () => Promise<void>;
 };
 
