@@ -1,7 +1,7 @@
 // src/pages/Login.tsx
 import { useState, useEffect } from "react";
-import useAuth, { OAUTH_PROVIDERS } from "../store/useAuth";
-import { ROUTES } from "../config/constants";
+import useAuth from "../store/useAuth";
+import { ROUTES, OAUTH_PROVIDERS } from "../config/constants";
 
 export default function Login() {
   const { signInWithPassword, signUp, signInWithProvider, signOut, user, checkSession } = useAuth();
@@ -63,7 +63,7 @@ export default function Login() {
       <div className="mt-4">
         <div className="text-sm mb-2">또는 OAuth:</div>
         <div className="flex gap-2">
-          {(OAUTH_PROVIDERS ?? ["google"]).map(p=>(
+          {(OAUTH_PROVIDERS ?? ["google"]).map((p: string) => (
             <button key={p} className="px-3 py-2 rounded border" onClick={()=>doProvider(p)}>
               Continue with {p}
             </button>
