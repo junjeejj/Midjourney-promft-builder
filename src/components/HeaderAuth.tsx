@@ -2,16 +2,12 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../store/useAuth";
 import { ROUTES } from "../config/constants";
-import { getLang } from "../lib/lang";
-import { SITE_TEXT } from "../config/siteText";
 
 export default function HeaderAuth() {
   const { user, signOut } = useAuth();
   const [open, setOpen] = React.useState(false);
   const dropdownRef = React.useRef<HTMLDivElement | null>(null);
   const [imgError, setImgError] = React.useState(false);
-  const lang = getLang();
-  const t = SITE_TEXT[lang];
 
   React.useEffect(() => {
     if (!open) return;
@@ -30,7 +26,7 @@ export default function HeaderAuth() {
         to={ROUTES.LOGIN}
         className="rounded-full px-3 py-1 text-gray-700 transition hover:bg-gray-100"
       >
-        {t.auth.login}
+        로그인
       </Link>
     );
   }
@@ -43,12 +39,12 @@ export default function HeaderAuth() {
       <button
         onClick={() => setOpen((prev) => !prev)}
         className="h-9 w-9 overflow-hidden rounded-full border border-gray-200 bg-white shadow-sm transition hover:shadow"
-        aria-label={lang === "ko" ? "사용자 메뉴 열기" : "Open user menu"}
+        aria-label="사용자 메뉴 열기"
       >
         {avatarUrl && !imgError ? (
           <img 
             src={avatarUrl} 
-            alt={user.displayName ?? t.auth.user} 
+            alt={user.displayName ?? "사용자"} 
             className="h-full w-full object-cover"
             onError={() => {
               setImgError(true);
@@ -67,7 +63,7 @@ export default function HeaderAuth() {
             className="block rounded-lg px-3 py-2 text-left text-gray-700 transition hover:bg-gray-100"
             onClick={() => setOpen(false)}
           >
-            {t.auth.viewProfile}
+            내 정보 보기
           </Link>
           <button
             onClick={() => {
@@ -76,11 +72,10 @@ export default function HeaderAuth() {
             }}
             className="block w-full rounded-lg px-3 py-2 text-left text-red-500 transition hover:bg-red-50"
           >
-            {t.auth.logout}
+            로그아웃
           </button>
         </div>
       )}
     </div>
   );
 }
-

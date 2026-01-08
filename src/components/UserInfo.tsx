@@ -3,7 +3,6 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../store/useAuth";
 import { useWalletStore } from "../store/useWalletStore";
-import HeaderAuth from "./HeaderAuth";
 import { ROUTES, TIMEOUTS } from "../config/constants";
 import { getLang } from "../lib/lang";
 import { SITE_TEXT } from "../config/siteText";
@@ -44,21 +43,14 @@ export default function UserInfo() {
 
   return (
     <div className="border-b pb-4 mb-4 space-y-3">
-      {/* 로그인/사용자 정보 */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <HeaderAuth />
-          {user?.id && (
+      {/* 사용자 정보 및 크레딧 */}
+      {user?.id && (
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
             <span className="text-sm text-gray-600">
               {user.displayName || user.name || t.auth.user}
             </span>
-          )}
-        </div>
-      </div>
-
-      {/* 크레딧 정보 및 구매 버튼 */}
-      {user?.id && (
-        <div className="space-y-2">
+          </div>
           <div className="rounded-lg bg-gray-100 px-3 py-2 text-sm">
             <span className="text-gray-600">{lang === "ko" ? "크레딧: " : "Credits: "}</span>
             <span className="font-semibold text-gray-900">{balance}</span>
@@ -71,18 +63,6 @@ export default function UserInfo() {
           </Link>
         </div>
       )}
-
-      {!user?.id && (
-        <Link
-          to={ROUTES.LOGIN}
-          className="block w-full text-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
-        >
-          {t.auth.login}
-        </Link>
-      )}
     </div>
   );
 }
-
-
-
