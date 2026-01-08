@@ -66,15 +66,15 @@ export default function SiteHeader() {
             );
           })}
           {user?.id && (
-            <div className="rounded-full bg-gray-100 px-3 py-1 text-gray-600 text-sm">
-              크레딧: <span className="font-medium text-gray-900">{balance}</span>
+            <div className="rounded-full bg-gray-100 px-3 py-1 text-gray-600">
+              {t.credits.colon}<span className="font-medium text-gray-900">{balance}</span>
             </div>
           )}
           <Link
             to={ROUTES.PRICING}
-            className="rounded-full border border-black px-3 py-1 font-medium text-black transition hover:bg-black hover:text-white text-sm"
+            className="rounded-full border border-black px-3 py-1 font-medium text-black transition hover:bg-black hover:text-white"
           >
-            크레딧 구매
+            {t.credits.buy}
           </Link>
           <HeaderAuth />
           <span className="text-xs text-gray-500">{t.language.label}</span>

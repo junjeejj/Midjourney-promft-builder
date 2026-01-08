@@ -52,14 +52,14 @@ export default function UserInfo() {
             </span>
           </div>
           <div className="rounded-lg bg-gray-100 px-3 py-2 text-sm">
-            <span className="text-gray-600">{lang === "ko" ? "크레딧: " : "Credits: "}</span>
+            <span className="text-gray-600">{t.credits.colon}</span>
             <span className="font-semibold text-gray-900">{balance}</span>
           </div>
           <Link
             to={ROUTES.PRICING}
             className="block w-full text-center rounded-lg border border-blue-500 bg-blue-500 px-3 py-2 text-sm font-medium text-white transition hover:bg-blue-600"
           >
-            {lang === "ko" ? "크레딧 구매" : "Buy Credits"}
+            {t.credits.buy}
           </Link>
         </div>
       )}
