@@ -1,7 +1,6 @@
 // src/store/useAuth.ts
 import { create } from "zustand";
 import { supabase } from "../lib/supabase";
-import { OAUTH_PROVIDERS, OAUTH_REDIRECT_PATH, DEMO_USER_ENABLED, DEMO_USER } from "../config/constants";
 
 export type DemoUser = {
   id: string;
@@ -10,6 +9,8 @@ export type DemoUser = {
   name?: string; // 구버전 호환
   avatarUrl?: string | null;
 };
+
+export const OAUTH_PROVIDERS = ["google"] as const;
 
 export type AuthState = {
   user: DemoUser | null;
@@ -33,29 +34,6 @@ export type AuthState = {
   loginDemo?: () => Promise<void>;
 };
 
-const mapUser = (
-  session: Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"]
-) => {
-  if (!session?.user) return null;
-  
-  const avatarUrl =
-    session.user.user_metadata?.avatar_url ??
-    session.user.user_metadata?.picture ??
-    session.user.user_metadata?.avatar ??
-    session.user.user_metadata?.photoURL ?? // Google OAuth 추가 필드
-    null;
-  
-  return {
-    id: session.user.id,
-    email: session.user.email ?? undefined,
-    name: session.user.user_metadata?.name,
-    displayName: session.user.user_metadata?.name,
-    avatarUrl,
-  };
-};
-
-const isBrowser = typeof window !== "undefined";
-
 export const useAuth = create<AuthState>((set, get) => ({
   user: null,
   token: null,
@@ -65,19 +43,34 @@ export const useAuth = create<AuthState>((set, get) => ({
   async signInWithPassword(email, password) {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw new Error(error.message);
-    const session = data.session;
+    const s = data.session;
+    const avatarUrl = s?.user?.user_metadata?.avatar_url ?? s?.user?.user_metadata?.picture ?? s?.user?.user_metadata?.avatar ?? null;
     set({
-      user: mapUser(session),
-      token: session?.access_token ?? null,
+      user: s?.user ? { 
+        id: s.user.id, 
+        email: s.user.email ?? undefined, 
+        name: s.user.user_metadata?.name,
+        displayName: s.user.user_metadata?.name,
+        avatarUrl
+      } : null,
+      token: s?.access_token ?? null,
     });
   },
 
   async signUp(email, password) {
     const { data, error } = await supabase.auth.signUp({ email, password });
     if (error) throw new Error(error.message);
+    const u = data.user;
     const session = (await supabase.auth.getSession()).data.session;
+    const avatarUrl = u?.user_metadata?.avatar_url ?? u?.user_metadata?.picture ?? u?.user_metadata?.avatar ?? null;
     set({
-      user: mapUser(session),
+      user: u ? { 
+        id: u.id, 
+        email: u.email ?? undefined, 
+        name: u.user_metadata?.name,
+        displayName: u.user_metadata?.name,
+        avatarUrl
+      } : null,
       token: session?.access_token ?? null,
     });
   },
@@ -89,33 +82,29 @@ export const useAuth = create<AuthState>((set, get) => ({
   },
 
   async signInWithProvider(provider) {
-    // OAuth 콜백 후 리디렉션 URL 구성
-    const redirectTo = `${window.location.origin}${OAUTH_REDIRECT_PATH}`;
-    
-    const { data, error } = await supabase.auth.signInWithOAuth({
+    // provider: 'google' 등. redirectTo는 현재 사이트로.
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: provider as any,
-      options: { 
-        redirectTo: redirectTo,
-      },
+      options: { redirectTo: `${window.location.origin}/login` }
     });
-    if (error) {
-      console.error("[Auth] OAuth sign in error:", error);
-      throw new Error(error.message || "OAuth 로그인에 실패했습니다.");
-    }
-    // OAuth는 리다이렉트되므로 여기서는 에러만 체크
+    if (error) throw new Error(error.message);
+    // OAuth는 리다이렉트 플로우라 여기서 set은 생략
   },
 
   async checkSession() {
     const { data, error } = await supabase.auth.getSession();
-    if (error) {
-      console.error("[Auth] Session check error:", error);
-      return;
-    }
-    const session = data.session;
-    const mappedUser = mapUser(session);
+    if (error) return;
+    const s = data.session;
+    const avatarUrl = s?.user?.user_metadata?.avatar_url ?? s?.user?.user_metadata?.picture ?? s?.user?.user_metadata?.avatar ?? null;
     set({
-      user: mappedUser,
-      token: session?.access_token ?? null,
+      user: s?.user ? { 
+        id: s.user.id, 
+        email: s.user.email ?? undefined, 
+        name: s.user.user_metadata?.name,
+        displayName: s.user.user_metadata?.name,
+        avatarUrl
+      } : null,
+      token: s?.access_token ?? null,
     });
   },
 
@@ -126,41 +115,46 @@ export const useAuth = create<AuthState>((set, get) => ({
   loginWithOAuth: async (p) => get().signInWithProvider(p),
 
   // 데모 로그인(선택)
-  loginDemo: DEMO_USER_ENABLED ? async () => {
+  loginDemo: async () => {
     set({
-      user: {
-        id: DEMO_USER.id,
-        displayName: DEMO_USER.displayName,
-        name: DEMO_USER.name,
-        email: DEMO_USER.email,
-        avatarUrl: DEMO_USER.avatarUrl,
-      },
-      token: DEMO_USER.token,
+      user: { id: "demo", displayName: "Demo User", name: "Demo User", email: "demo@example.com" },
+      token: "demo-token",
     });
-  } : undefined,
+  },
+
 }));
 
-if (isBrowser) {
-  // 1) 앱 처음 로드될 때, 현재 세션 한 번 가져와서 전역 상태에 넣기
-  supabase.auth.getSession().then(({ data, error }) => {
-    if (error) {
-      console.error("[Auth] Initial session load error:", error);
-      return;
-    }
+const isBrowser = typeof window !== "undefined";
 
-    const session = data.session;
-    const mappedUser = mapUser(session);
+if (isBrowser) {
+  // 앱 처음 로드될 때, 현재 세션 한 번 가져와서 전역 상태에 넣기
+  supabase.auth.getSession().then(({ data, error }) => {
+    if (error) return;
+    const s = data.session;
+    const avatarUrl = s?.user?.user_metadata?.avatar_url ?? s?.user?.user_metadata?.picture ?? s?.user?.user_metadata?.avatar ?? null;
     useAuth.setState({
-      user: mappedUser,
-      token: session?.access_token ?? null,
+      user: s?.user ? { 
+        id: s.user.id, 
+        email: s.user.email ?? undefined, 
+        name: s.user.user_metadata?.name,
+        displayName: s.user.user_metadata?.name,
+        avatarUrl
+      } : null,
+      token: s?.access_token ?? null,
     });
   });
 
-  // 2) 세션이 변할 때마다 상태 즉시 반영
+  // 세션이 변할 때마다 상태 즉시 반영
   supabase.auth.onAuthStateChange((event, session) => {
-    const mappedUser = mapUser(session);
+    const avatarUrl = session?.user?.user_metadata?.avatar_url ?? session?.user?.user_metadata?.picture ?? session?.user?.user_metadata?.avatar ?? null;
     useAuth.setState({
-      user: mappedUser,
+      user: session?.user ? { 
+        id: session.user.id, 
+        email: session.user.email ?? undefined, 
+        name: session.user.user_metadata?.name,
+        displayName: session.user.user_metadata?.name,
+        avatarUrl
+      } : null,
       token: session?.access_token ?? null,
     });
   });

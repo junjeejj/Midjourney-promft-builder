@@ -1,192 +1,36 @@
 // src/pages/Login.tsx
-import React, { useState, useEffect, useRef } from "react";
-import useAuth from "../store/useAuth";
-import { supabase } from "../lib/supabase";
-import { OAUTH_PROVIDERS, TIMEOUTS, ROUTES } from "../config/constants";
+import { useState, useEffect } from "react";
+import useAuth, { OAUTH_PROVIDERS } from "../store/useAuth";
+import { ROUTES } from "../config/constants";
 
 export default function Login() {
   const { signInWithPassword, signUp, signInWithProvider, signOut, user, checkSession } = useAuth();
   const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
-  const oauthProcessingRef = useRef(false);
-  const checkSessionRef = useRef(checkSession);
-  
-  // checkSession 참조를 최신으로 유지
-  React.useEffect(() => {
-    checkSessionRef.current = checkSession;
+
+  // OAuth 콜백 처리
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has("code")) {
+      // OAuth 콜백으로 돌아온 경우 세션 확인
+      checkSession();
+      // URL 정리
+      const cleaned = new URL(window.location.href);
+      ["code", "state", "error", "error_code", "error_description"].forEach((k) =>
+        cleaned.searchParams.delete(k)
+      );
+      window.history.replaceState({}, document.title, cleaned.toString());
+    } else {
+      // 일반 페이지 진입 시 세션 확인
+      checkSession();
+    }
   }, [checkSession]);
 
-  // OAuth 콜백 처리 및 로그인 상태 확인
+  // 로그인 성공 시 리다이렉트
   useEffect(() => {
-    const handleOAuthCallback = async () => {
-      const currentUrl = new URL(window.location.href);
-      const hasCode = currentUrl.searchParams.has("code");
-      const hasError = currentUrl.searchParams.has("error");
-
-      // OAuth 에러 처리
-      if (hasError) {
-        const errorDesc = currentUrl.searchParams.get("error_description") || 
-                         currentUrl.searchParams.get("error") || 
-                         "OAuth 로그인 중 오류가 발생했습니다.";
-        setMsg(errorDesc);
-        // URL 정리
-        const cleaned = new URL(window.location.href);
-        ["code", "state", "error", "error_code", "error_description"].forEach((k) =>
-          cleaned.searchParams.delete(k)
-        );
-        window.history.replaceState({}, document.title, cleaned.toString());
-        return;
-      }
-
-      // OAuth 콜백으로 돌아온 경우
-      if (hasCode && !oauthProcessingRef.current) {
-        oauthProcessingRef.current = true;
-        setMsg("로그인 처리 중...");
-        
-        try {
-          // Supabase가 자동으로 세션을 처리했는지 먼저 확인
-          let { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-          
-          if (sessionError) {
-            console.error("[Login] Session check error:", sessionError);
-          }
-          
-          // 세션이 없으면 코드를 세션으로 교환
-          if (!sessionData?.session) {
-            const code = currentUrl.searchParams.get("code");
-            if (code) {
-              console.log("[Login] Exchanging code for session");
-              // Supabase는 전체 URL을 전달받아야 함
-              const { data, error } = await supabase.auth.exchangeCodeForSession(window.location.href);
-              if (error) {
-                console.error("[Login] Exchange error:", error);
-                setMsg(error.message || "OAuth 코드 교환에 실패했습니다.");
-                // URL 정리
-                const cleaned = new URL(window.location.href);
-                ["code", "state", "error", "error_code", "error_description"].forEach((k) =>
-                  cleaned.searchParams.delete(k)
-                );
-                window.history.replaceState({}, document.title, cleaned.toString());
-                oauthProcessingRef.current = false;
-                return;
-              }
-              sessionData = data;
-            }
-          }
-
-          if (sessionData?.session) {
-            console.log("[Login] Session found, syncing state", sessionData.session.user.email);
-            // 세션이 있으면 상태 동기화
-            await checkSessionRef.current();
-            
-            // 상태 업데이트 확인을 위해 잠시 대기
-            await new Promise(resolve => setTimeout(resolve, 300));
-            
-            // 다시 한 번 세션 확인
-            const { data: finalSession } = await supabase.auth.getSession();
-            if (!finalSession?.session) {
-              console.error("[Login] Session lost after checkSession");
-              setMsg("세션 동기화에 실패했습니다. 다시 시도해주세요.");
-              oauthProcessingRef.current = false;
-              return;
-            }
-            
-            // URL 정리 (리디렉션 전에)
-            const cleaned = new URL(window.location.href);
-            ["code", "state", "error", "error_code", "error_description"].forEach((k) =>
-              cleaned.searchParams.delete(k)
-            );
-            window.history.replaceState({}, document.title, cleaned.toString());
-            
-            setMsg("로그인 완료! 메인 화면으로 이동합니다.");
-            
-            // 리디렉션 (window.location 사용으로 확실하게)
-            window.location.href = ROUTES.HOME;
-          } else {
-            console.error("[Login] No session after exchange");
-            setMsg("세션을 생성할 수 없습니다. 다시 시도해주세요.");
-            // URL 정리
-            const cleaned = new URL(window.location.href);
-            ["code", "state", "error", "error_code", "error_description"].forEach((k) =>
-              cleaned.searchParams.delete(k)
-            );
-            window.history.replaceState({}, document.title, cleaned.toString());
-            oauthProcessingRef.current = false;
-          }
-        } catch (err: any) {
-          console.error("[Login] OAuth callback error:", err);
-          setMsg(err?.message || "OAuth 처리 중 오류가 발생했습니다.");
-          // URL 정리
-          const cleaned = new URL(window.location.href);
-          ["code", "state", "error", "error_code", "error_description"].forEach((k) =>
-            cleaned.searchParams.delete(k)
-          );
-          window.history.replaceState({}, document.title, cleaned.toString());
-          oauthProcessingRef.current = false;
-        }
-      } else if (!hasCode) {
-        // 일반 페이지 최초 진입 시 현재 세션만 확인
-        checkSessionRef.current();
-      }
-    };
-
-    handleOAuthCallback();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // onAuthStateChange 이벤트 구독 (OAuth 콜백 처리 - 폴백)
-  useEffect(() => {
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      const currentUrl = new URL(window.location.href);
-      const hasCode = currentUrl.searchParams.has("code");
-      
-      console.log("[Login] Auth state changed:", event, hasCode, !!session);
-      
-      // OAuth 콜백으로 돌아온 경우에만 처리 (이미 처리 중이 아닐 때만)
-      if (event === "SIGNED_IN" && session && hasCode && !oauthProcessingRef.current) {
-        console.log("[Login] SIGNED_IN event detected, processing OAuth callback", session.user.email);
-        oauthProcessingRef.current = true;
-        
-        // 상태 동기화
-        await checkSessionRef.current();
-        
-        // 상태 업데이트 확인을 위해 잠시 대기
-        await new Promise(resolve => setTimeout(resolve, 300));
-        
-        // URL 정리
-        const cleaned = new URL(window.location.href);
-        ["code", "state", "error", "error_code", "error_description"].forEach((k) =>
-          cleaned.searchParams.delete(k)
-        );
-        window.history.replaceState({}, document.title, cleaned.toString());
-        
-        setMsg("로그인 완료! 메인 화면으로 이동합니다.");
-        
-        // 리디렉션 (window.location 사용으로 확실하게)
-        window.location.href = ROUTES.HOME;
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // 로그인 성공 시 리다이렉트 (폴백) - OAuth 콜백이 아닐 때만
-  useEffect(() => {
-    const currentUrl = new URL(window.location.href);
-    const hasCode = currentUrl.searchParams.has("code");
-    
-    if (user && !hasCode && window.location.pathname === ROUTES.LOGIN) {
-      console.log("[Login] User logged in, redirecting to home");
-      const timer = setTimeout(() => {
-        window.location.href = ROUTES.HOME;
-      }, TIMEOUTS.USER_REDIRECT);
-      return () => clearTimeout(timer);
+    if (user && window.location.pathname === ROUTES.LOGIN) {
+      window.location.href = ROUTES.HOME;
     }
   }, [user]);
 
@@ -199,21 +43,13 @@ export default function Login() {
     catch (e: any) { setMsg(e?.message || "회원가입 실패"); }
   }
   async function doProvider(p: string) {
-    try { 
-      setMsg(null); 
-      await signInWithProvider(p); 
-      setMsg("리다이렉트 중…"); 
-    }
-    catch (e: any) { 
-      console.error("OAuth error:", e);
-      setMsg(e?.message || "OAuth 로그인에 실패했습니다. 다시 시도해주세요."); 
-    }
+    try { setMsg(null); await signInWithProvider(p); setMsg("리다이렉트 중…"); }
+    catch (e: any) { setMsg(e?.message || "OAuth 실패"); }
   }
 
   return (
     <div className="mx-auto max-w-md p-6">
       <h1 className="text-2xl font-bold mb-4">로그인</h1>
-      {/* FIXED: Login Test 제거 완료 - 2025-11-24 */}
       <div className="mb-3 text-sm opacity-70">세션: {user ? `${user.email ?? user.id}` : "(없음)"}</div>
       <div className="flex flex-col gap-2">
         <input className="border rounded px-3 py-2" placeholder="email" value={email} onChange={e=>setEmail(e.target.value)} />
@@ -227,16 +63,15 @@ export default function Login() {
       <div className="mt-4">
         <div className="text-sm mb-2">또는 OAuth:</div>
         <div className="flex gap-2">
-          {OAUTH_PROVIDERS.map(p=>(
+          {(OAUTH_PROVIDERS ?? ["google"]).map(p=>(
             <button key={p} className="px-3 py-2 rounded border" onClick={()=>doProvider(p)}>
               Continue with {p}
             </button>
           ))}
         </div>
       </div>
-      <div className="mt-4 text-sm text-blue-600 cursor-pointer underline" onClick={()=>checkSessionRef.current()}>세션 다시 확인</div>
+      <div className="mt-4 text-sm text-blue-600 cursor-pointer underline" onClick={()=>checkSession()}>세션 다시 확인</div>
       {msg && <div className="mt-4 text-sm text-rose-600">{msg}</div>}
     </div>
   );
 }
-
