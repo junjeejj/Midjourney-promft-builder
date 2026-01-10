@@ -16,6 +16,8 @@ export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 export const API_ENDPOINTS = {
   // Vercel 서버리스 함수 경로 (Supabase Edge Function이 아님)
   STRIPE_CHECKOUT: "/api/stripe/checkout",
+  PAYPAL_CREATE_ORDER: "/api/paypal/create-order",
+  PAYPAL_CAPTURE_ORDER: "/api/paypal/capture-order",
   CREDITS_BALANCE: `${API_BASE_URL}/credits/balance`,
   CREDITS_SPEND: `${API_BASE_URL}/credits/spend`,
   GENERATE_PROMPT: `${API_BASE_URL}/generate-prompt`,

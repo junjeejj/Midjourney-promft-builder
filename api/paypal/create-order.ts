@@ -2,6 +2,8 @@
 
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
+import { CREDIT_PRODUCTS } from "../config/products";
+
 
 
 /**
@@ -126,47 +128,31 @@ async function getPayPalAccessToken() {
 
 
 
-// 우리 서비스의 상품 가격 (USD)
+// 우리 서비스의 상품 가격 (products.ts에서 가져옴)
 
 const PRICE_MAP: Record<
 
   string,
 
-  { value: string; credits: number; name: string }
+  { value: string; credits: number; name: string; is_unlimited?: boolean }
 
-> = {
+> = Object.entries(CREDIT_PRODUCTS).reduce((acc, [id, p]) => {
 
-  starter: {
+  acc[id] = {
 
-    value: "5.00", // Starter Pack – $5
+    value: (p.price_cents / 100).toFixed(2),
 
-    credits: 1000, // 크레딧 값은 네가 원하는대로
+    credits: p.credits || 999999,
 
-    name: "Starter Pack",
+    name: p.name,
 
-  },
+    is_unlimited: p.is_unlimited,
 
-  pro: {
+  };
 
-    value: "14.00", // Pro Pack – $14
+  return acc;
 
-    credits: 5000,
-
-    name: "Pro Pack",
-
-  },
-
-  studio: {
-
-    value: "45.00", // Studio Pack – $45
-
-    credits: 999999, // 예시 (무제한이면 따로 플래그를 두거나)
-
-    name: "Studio Pack",
-
-  },
-
-};
+}, {} as Record<string, { value: string; credits: number; name: string; is_unlimited?: boolean }>);
 
 
 
@@ -215,6 +201,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       (req.headers.origin as string | undefined) ||
 
       process.env.SITE_URL ||
+
+      process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` :
 
       "https://www.midjourneybuilder.com";
 

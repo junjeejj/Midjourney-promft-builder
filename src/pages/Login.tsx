@@ -1,6 +1,6 @@
 // src/pages/Login.tsx
 import { useState, useEffect } from "react";
-import useAuth from "../store/useAuth";
+import { useAuth } from "../store/useAuth";
 import { ROUTES, OAUTH_PROVIDERS } from "../config/constants";
 import { getLang } from "../lib/lang";
 import { SITE_TEXT } from "../config/siteText";

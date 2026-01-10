@@ -333,3 +333,6 @@ if (isBrowser) {
 
 
 export default useAuth;
+
+// Named export도 제공하여 일관성 유지
+export { useAuth };

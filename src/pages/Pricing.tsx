@@ -33,7 +33,7 @@ export default function Pricing() {
       }
 
       // 2) 우리 백엔드 PayPal 주문 생성 API 호출
-      const res = await fetch("/api/paypal/create-order", {
+      const res = await fetch(API_ENDPOINTS.PAYPAL_CREATE_ORDER, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

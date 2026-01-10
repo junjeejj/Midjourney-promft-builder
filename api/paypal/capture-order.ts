@@ -4,6 +4,8 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 
 import { createClient } from "@supabase/supabase-js";
 
+import { CREDIT_PRODUCTS } from "../config/products";
+
 
 
 // getUserIdFromAuthHeader, PAYPAL_MODE, PAYPAL_API_BASE, getPayPalAccessToken,
@@ -124,47 +126,31 @@ async function getPayPalAccessToken() {
 
 
 
+// products.ts에서 가격 정보 가져오기
+
 const PRICE_MAP: Record<
 
   string,
 
   { value: string; credits: number; name: string; is_unlimited?: boolean }
 
-> = {
+> = Object.entries(CREDIT_PRODUCTS).reduce((acc, [id, p]) => {
 
-  starter: {
+  acc[id] = {
 
-    value: "5.00",
+    value: (p.price_cents / 100).toFixed(2),
 
-    credits: 1000,
+    credits: p.credits || 999999,
 
-    name: "Starter Pack",
+    name: p.name,
 
-  },
+    is_unlimited: p.is_unlimited,
 
-  pro: {
+  };
 
-    value: "14.00",
+  return acc;
 
-    credits: 5000,
-
-    name: "Pro Pack",
-
-  },
-
-  studio: {
-
-    value: "45.00",
-
-    credits: 999999,
-
-    name: "Studio Pack",
-
-    is_unlimited: true,
-
-  },
-
-};
+}, {} as Record<string, { value: string; credits: number; name: string; is_unlimited?: boolean }>);
 
 
 

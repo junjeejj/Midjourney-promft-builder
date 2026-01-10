@@ -1,5 +1,5 @@
 // src/components/OAuthButtons.tsx
-import useAuth from "../store/useAuth";
+import { useAuth } from "../store/useAuth";
 import { OAUTH_PROVIDERS, DEMO_USER_ENABLED } from "../config/constants";
 
 export default function OAuthButtons() {
