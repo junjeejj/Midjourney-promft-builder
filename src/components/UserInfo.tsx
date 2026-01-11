@@ -9,7 +9,7 @@ import { SITE_TEXT } from "../config/siteText";
 
 export default function UserInfo() {
   const { user, token, checkSession } = useAuth();
-  const { balance, fetchBalance } = useWalletStore();
+  const { balance, fetchBalance, loading } = useWalletStore();
   const lang = getLang();
   const t = SITE_TEXT[lang];
   
@@ -53,7 +53,7 @@ export default function UserInfo() {
           </div>
           <div className="rounded-lg bg-gray-100 px-3 py-2 text-sm">
             <span className="text-gray-600">{t.credits.colon}</span>
-            <span className="font-semibold text-gray-900">{balance}</span>
+            <span className="font-semibold text-gray-900">{loading ? "..." : balance}</span>
           </div>
           <Link
             to={ROUTES.PRICING}

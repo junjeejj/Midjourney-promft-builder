@@ -12,7 +12,7 @@ export default function SiteHeader() {
   const lang = getLang();
   const t = SITE_TEXT[lang];
   const { user, token, checkSession } = useAuth();
-  const { balance, fetchBalance } = useWalletStore();
+  const { balance, fetchBalance, loading } = useWalletStore();
   
   // Zustand store 함수들의 최신 참조를 유지
   const checkSessionRef = React.useRef(checkSession);
@@ -42,6 +42,34 @@ export default function SiteHeader() {
     }
   }, [user?.id, token]);
 
+  // 로그인 이벤트 감지하여 wallet balance 가져오기
+  React.useEffect(() => {
+    let hasHandled = false;
+    
+    const handleSignedIn = (event: CustomEvent<{ user: any; token: string }>) => {
+      // 중복 호출 방지: 같은 이벤트를 여러 번 처리하지 않도록
+      if (hasHandled) return;
+      if (event.detail.token) {
+        hasHandled = true;
+        fetchBalanceRef.current(event.detail.token);
+        // 짧은 시간 후 플래그 리셋
+        setTimeout(() => { hasHandled = false; }, 1000);
+      }
+    };
+
+    const handleSignedOut = () => {
+      // 로그아웃 시 balance는 useWalletStore의 reset()에서 처리됨
+      hasHandled = false;
+    };
+
+    window.addEventListener("auth:signed-in", handleSignedIn as EventListener);
+    window.addEventListener("auth:signed-out", handleSignedOut);
+    return () => {
+      window.removeEventListener("auth:signed-in", handleSignedIn as EventListener);
+      window.removeEventListener("auth:signed-out", handleSignedOut);
+    };
+  }, []);
+
   return (
     <div className="mx-auto max-w-6xl px-4 pt-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -67,7 +95,9 @@ export default function SiteHeader() {
           })}
           {user?.id && (
             <div className="rounded-full bg-gray-100 px-3 py-1 text-gray-600">
-              {t.credits.colon}<span className="font-medium text-gray-900">{balance}</span>
+              {t.credits.colon}<span className="font-medium text-gray-900">
+                {loading ? "..." : balance}
+              </span>
             </div>
           )}
           <Link
@@ -81,14 +111,14 @@ export default function SiteHeader() {
           <button
             className="px-3 py-2 rounded-xl text-sm border bg-white hover:bg-gray-50 transition"
             onClick={() => setLang(lang === "ko" ? "en" : "ko")}
-            title={lang === "ko" ? "Switch to English" : "한국어로 전환"}
+            title={lang === "ko" ? t.language.switchToEnglish : t.language.switchToKorean}
           >
             {t.language.switchTo}
           </button>
         </div>
       </div>
       <div className="mt-4 rounded-2xl border bg-gray-50 px-4 py-3 text-sm text-gray-700">
-        <div className="font-medium text-gray-900">{lang === "ko" ? "안내" : "Notice"}</div>
+        <div className="font-medium text-gray-900">{t.notice.label}</div>
         <p className="mt-1 leading-relaxed">{t.disclaimerLong}</p>
       </div>
     </div>

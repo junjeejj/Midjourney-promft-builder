@@ -23,12 +23,18 @@ export default function Pricing() {
     try {
       setLoading(productId);
 
-      // 1) 현재 로그인 세션에서 액세스 토큰 꺼내기
-      const { data, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError) throw sessionError;
-      const accessToken = data.session?.access_token;
+      // 1) useAuth에서 가져온 token 사용, 없으면 세션에서 가져오기
+      let accessToken = token;
+      
       if (!accessToken) {
-        alert("로그인이 필요합니다.");
+        const { data, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) throw sessionError;
+        accessToken = data.session?.access_token;
+      }
+
+      if (!accessToken) {
+        alert(t("pricing.loginRequired"));
+        window.location.href = ROUTES.LOGIN;
         return;
       }
 
@@ -45,20 +51,20 @@ export default function Pricing() {
       const json = await res.json();
       if (!res.ok) {
         console.error("paypal create-order error", json);
-        alert(json.error || "PayPal 주문 생성 중 오류가 발생했습니다.");
+        alert(json.error || t("pricing.paypalOrderError"));
         return;
       }
 
       if (!json.approveUrl) {
-        alert("PayPal 승인 URL이 없습니다.");
+        alert(t("pricing.paypalUrlError"));
         return;
       }
 
       // 3) PayPal 결제 페이지로 이동
       window.location.href = json.approveUrl;
     } catch (err: any) {
-      console.error(err);
-      alert(err?.message || "결제 준비 중 오류가 발생했습니다.");
+      console.error("[Pricing] buy error:", err);
+      alert(err?.message || t("pricing.paymentError"));
     } finally {
       setLoading(null);
     }
@@ -82,7 +88,7 @@ export default function Pricing() {
 
             <div className="text-sm opacity-70">
 
-              {p.is_unlimited ? "Unlimited" : `${p.credits} ${t("credits.label")}`}
+              {p.is_unlimited ? t("credits.unlimited") : `${p.credits} ${t("credits.label")}`}
 
             </div>
 
@@ -98,7 +104,7 @@ export default function Pricing() {
 
             >
 
-              {loading === id ? "Redirecting..." : t("credits.purchase")}
+              {loading === id ? t("pricing.redirecting") : t("credits.purchase")}
 
             </button>
 

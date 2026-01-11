@@ -10,6 +10,12 @@ export const SITE_TEXT = {
     disclaimerShort: "비공식 도구(제휴/공식 아님).",
     disclaimerLong:
       "이 사이트는 특정 브랜드/서비스와 제휴·공식 관계가 없는 비공식 프롬프트 작성 도구입니다. 입력/결과물의 사용 책임은 사용자에게 있으며, 성인/폭력/불법/도박 등 정책상 민감한 요청은 제한될 수 있습니다.",
+    notice: {
+      label: "안내",
+    },
+    app: {
+      title: "MJ 프롬프트 빌더",
+    },
     seo: {
       defaultTitle: "이미지 생성 프롬프트 빌더 | 템플릿 · 가이드 · 예시",
       defaultDescription:
@@ -30,10 +36,15 @@ export const SITE_TEXT = {
       privacy: "개인정보처리방침",
       terms: "이용약관",
       login: "로그인",
+      seed: "시드",
+      defaults: "기본값 설정",
+      billing: "결제",
     },
     language: {
       label: "언어선택",
       switchTo: "EN",
+      switchToEnglish: "Switch to English",
+      switchToKorean: "한국어로 전환",
     },
     auth: {
       login: "로그인",
@@ -46,6 +57,19 @@ export const SITE_TEXT = {
       label: "크레딧",
       buy: "크레딧 구매",
       colon: "크레딧: ",
+      purchase: "구매",
+      unlimited: "Unlimited",
+    },
+    wallet: {
+      fetchError: "크레딧 정보를 가져오는데 실패했습니다.",
+      networkError: "네트워크 오류가 발생했습니다.",
+    },
+    pricing: {
+      loginRequired: "로그인이 필요합니다. 로그인 페이지로 이동합니다.",
+      paypalOrderError: "PayPal 주문 생성 중 오류가 발생했습니다.",
+      paypalUrlError: "PayPal 승인 URL이 없습니다.",
+      paymentError: "결제 준비 중 오류가 발생했습니다.",
+      redirecting: "Redirecting...",
     },
     login: {
       title: "로그인",
@@ -62,6 +86,9 @@ export const SITE_TEXT = {
       checkSession: "세션 다시 확인",
       sessionNone: "(없음)",
       sessionLabel: "세션: ",
+      loggedIn: "✓ 로그인됨",
+      processing: "처리 중...",
+      continueWith: "Continue with {provider}",
     },
     adLabel: "광고",
     report: {
@@ -84,6 +111,12 @@ export const SITE_TEXT = {
     disclaimerShort: "Unofficial tool (not affiliated).",
     disclaimerLong:
       "This website is an unofficial prompt-writing tool and is not affiliated with any brand or service. You are responsible for how you use inputs/outputs. Requests involving adult content, excessive violence, illegal activity, or gambling may be restricted.",
+    notice: {
+      label: "Notice",
+    },
+    app: {
+      title: "MJ Prompt Builder",
+    },
     seo: {
       defaultTitle: "Image Prompt Builder | Templates · Guides · Examples",
       defaultDescription:
@@ -104,10 +137,15 @@ export const SITE_TEXT = {
       privacy: "Privacy",
       terms: "Terms",
       login: "Login",
+      seed: "Seed",
+      defaults: "My Defaults",
+      billing: "Billing",
     },
     language: {
       label: "Language",
       switchTo: "KO",
+      switchToEnglish: "Switch to English",
+      switchToKorean: "Switch to Korean",
     },
     auth: {
       login: "Login",
@@ -120,6 +158,19 @@ export const SITE_TEXT = {
       label: "Credits",
       buy: "Buy Credits",
       colon: "Credits: ",
+      purchase: "Purchase",
+      unlimited: "Unlimited",
+    },
+    wallet: {
+      fetchError: "Failed to fetch credit information.",
+      networkError: "Network error occurred.",
+    },
+    pricing: {
+      loginRequired: "Login required. Redirecting to login page.",
+      paypalOrderError: "An error occurred while creating PayPal order.",
+      paypalUrlError: "PayPal approval URL is missing.",
+      paymentError: "An error occurred while preparing payment.",
+      redirecting: "Redirecting...",
     },
     login: {
       title: "Login",
@@ -136,6 +187,9 @@ export const SITE_TEXT = {
       checkSession: "Check session again",
       sessionNone: "(None)",
       sessionLabel: "Session: ",
+      loggedIn: "✓ Logged in",
+      processing: "Processing...",
+      continueWith: "Continue with {provider}",
     },
     adLabel: "Ad",
     report: {

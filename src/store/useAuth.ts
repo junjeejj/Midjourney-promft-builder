@@ -132,11 +132,15 @@ export const useAuth = create<AuthState>((set, get) => ({
 
     const session = data.session;
 
+    // 세션을 다시 가져와서 최신 상태 보장
+    const { data: sessionData } = await supabase.auth.getSession();
+    const latestSession = sessionData.session || session;
+
     set({
 
-      user: mapUser(session),
+      user: mapUser(latestSession),
 
-      token: session?.access_token ?? null,
+      token: latestSession?.access_token ?? null,
 
     });
 
@@ -150,7 +154,9 @@ export const useAuth = create<AuthState>((set, get) => ({
 
     if (error) throw new Error(error.message);
 
-    const session = (await supabase.auth.getSession()).data.session;
+    // 회원가입 후 세션을 명시적으로 가져오기
+    const { data: sessionData } = await supabase.auth.getSession();
+    const session = sessionData.session;
 
     set({
 
@@ -172,6 +178,15 @@ export const useAuth = create<AuthState>((set, get) => ({
 
     set({ user: null, token: null });
 
+    // 로그아웃 시 wallet balance 초기화
+    const { useWalletStore } = await import("./useWalletStore");
+    useWalletStore.getState().reset();
+
+    // 로그아웃 이벤트 발생
+    if (isBrowser) {
+      window.dispatchEvent(new CustomEvent("auth:signed-out"));
+    }
+
   },
 
 
@@ -184,9 +199,12 @@ export const useAuth = create<AuthState>((set, get) => ({
 
     
 
+    // OAuth provider 타입 정의
+    type OAuthProvider = "google" | "github" | "discord" | "facebook" | "twitter" | "azure" | "bitbucket" | "gitlab" | "keycloak" | "linkedin" | "notion" | "twitch" | "slack" | "spotify" | "workos" | "zoom";
+    
     const { data, error } = await supabase.auth.signInWithOAuth({
 
-      provider: provider as any,
+      provider: provider as OAuthProvider,
 
       options: { 
 
@@ -200,7 +218,11 @@ export const useAuth = create<AuthState>((set, get) => ({
 
       console.error("[Auth] OAuth sign in error:", error);
 
-      throw new Error(error.message || "OAuth 로그인에 실패했습니다.");
+      // 동적 import로 i18n 사용
+      const { getLang } = await import("../lib/lang");
+      const { SITE_TEXT } = await import("../config/siteText");
+      const lang = getLang();
+      throw new Error(error.message || SITE_TEXT[lang].login.oauthFailedMessage);
 
     }
 
@@ -313,26 +335,54 @@ if (isBrowser) {
 
 
   // 2) 세션이 변할 때마다 상태 즉시 반영
-
   supabase.auth.onAuthStateChange((event, session) => {
-
+    console.log("[Auth] Auth state changed:", event, session?.user?.id);
+    
     const mappedUser = mapUser(session);
+    const newToken = session?.access_token ?? null;
 
     useAuth.setState({
 
       user: mappedUser,
 
-      token: session?.access_token ?? null,
+      token: newToken,
 
     });
 
+    // 로그인 성공 시 이벤트 발생 (컴포넌트에서 wallet balance를 가져올 수 있도록)
+    // 중복 호출 방지를 위해 한 번만 이벤트 발생
+    if (event === "SIGNED_IN" && newToken && mappedUser) {
+      // 상태 업데이트가 완료된 후 이벤트 발생 (debounce)
+      const eventKey = `auth:signed-in:${mappedUser.id}`;
+      // 타입 안전한 이벤트 플래그 관리
+      const eventFlags = (window as typeof window & { __authEventFlags?: Record<string, boolean> }).__authEventFlags || {};
+      if (!eventFlags[eventKey]) {
+        eventFlags[eventKey] = true;
+        (window as typeof window & { __authEventFlags?: Record<string, boolean> }).__authEventFlags = eventFlags;
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent("auth:signed-in", { 
+            detail: { user: mappedUser, token: newToken } 
+          }));
+          // 1초 후 플래그 제거하여 다음 로그인 시 다시 이벤트 발생 가능하도록
+          setTimeout(() => {
+            const flags = (window as typeof window & { __authEventFlags?: Record<string, boolean> }).__authEventFlags;
+            if (flags) {
+              delete flags[eventKey];
+            }
+          }, 1000);
+        }, 100);
+      }
+    }
+
+    // 로그아웃 시 이벤트 발생
+    if (event === "SIGNED_OUT") {
+      window.dispatchEvent(new CustomEvent("auth:signed-out"));
+    }
   });
 
 }
 
 
 
+// Default export로 제공 (하위 호환성)
 export default useAuth;
-
-// Named export도 제공하여 일관성 유지
-export { useAuth };
