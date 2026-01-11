@@ -29,7 +29,7 @@ export default function Pricing() {
       if (!accessToken) {
         const { data, error: sessionError } = await supabase.auth.getSession();
         if (sessionError) throw sessionError;
-        accessToken = data.session?.access_token;
+        accessToken = data.session?.access_token ?? null;
       }
 
       if (!accessToken) {
